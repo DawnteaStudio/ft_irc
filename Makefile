@@ -11,7 +11,7 @@ DEPS		= $(addsuffix .d, $(SRCSNAME))
 all : $(NAME)
 
 $(NAME) : $(OBJS)
-	$(CXX) -I $(HEADER_DIR) $(CPP_FLAGS) -o $(NAME) $(OBJS)
+	$(CXX) $(CPP_FLAGS) $(OBJS) -o $(NAME)
 
 -include $(DEPS)
 
@@ -25,4 +25,8 @@ clean:
 fclean : clean
 	$(RM) $(NAME)
 
-re : fclean all
+re :
+	make fclean
+	make all
+
+.PHONY : all clean fclean re

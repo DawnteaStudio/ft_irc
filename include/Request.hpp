@@ -5,7 +5,7 @@
 # include <vector>
 
 class Request {
-	private:
+	public:
 		std::vector<std::string> args;
 		std::string command;
 		bool invalidMessage;

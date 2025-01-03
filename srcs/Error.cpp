@@ -1,4 +1,4 @@
-#include "include/Error.hpp"
+#include "../include/Error.hpp"
 
 Error::Error() {}
 

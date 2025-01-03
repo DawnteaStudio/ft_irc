@@ -36,6 +36,11 @@ class Server {
 		// std::string	kick(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
+		bool isValidUserNickname(const std::string&);
+		bool isUsedUserNickname(const std::string&, std::vector<std::string>&);
+		void deleteUserNickname(const std::string&, std::vector<std::string>&);
+		void addNewUserNickname(const std::string&, std::vector<std::string>&);
+		std::string convertChar(const std::string&);
 	public:
 		Server();
 		Server(const std::string&, const std::string&);

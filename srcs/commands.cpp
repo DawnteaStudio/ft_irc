@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cctype>
 #include "../include/Server.hpp"
 
 std::string Server::setPassword(Request &request, int i)
@@ -26,27 +27,56 @@ std::string Server::setUserNickname(Request &request, int i)
 		if (this->clients[i]->getNickname() != "")
 			deleteUserNickname(this->clients[i]->getNickname(), this->clientNicknames);
 		this->clients[i]->setNickname(request.args[0]);
-		this->clientNicknames.push_back(request.args[0]);
+		addNewUserNickname(request.args[0], this->clientNicknames);
 	}
 	return "";
 }
 
-bool isValidUserNickname(const std::string &nickname)
+std::string Server::convertChar(const std::string &str)
 {
-	// parsing nickname
+	std::string tmp = str;
+	int idx = 0, size = static_cast<int>(str.size());
+
+	while (idx < size) {
+		if (tmp[idx] == '{') tmp[idx] = '[';
+		else if (tmp[idx] == '}') tmp[idx] = ']';
+		else if (tmp[idx] == '\\') tmp[idx] = '|';
+		idx++;
+	}
+	return tmp;
+}
+
+bool Server::isValidUserNickname(const std::string &nickname)
+{
+	int idx = 0, size = static_cast<int>(nickname.size());
+	if (size > 9 || nickname == "") return false;
+
+	std::string allowedChars = "-[]{}|'^\\";
+	while (idx < size) {
+		if (!std::isalnum(nickname[idx]) && allowedChars.find(nickname[idx]) == std::string::npos)
+			return false;
+		idx++;
+	}
 	return true;
 }
 
-bool isUsedUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
+bool Server::isUsedUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
 {
-	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), nickname);
+	std::string tmp = convertChar(nickname);
+	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), tmp);
 	if (iter != nicknames.end())
 		return true;
 	return false;
 }
 
-void deleteUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
+void Server::deleteUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
 {
-	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), nickname);
+	std::string tmp = convertChar(nickname);
+	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), tmp);
 	nicknames.erase(iter);
+}
+void Server::addNewUserNickname(const std::string &newNickname, std::vector<std::string> &nicknames)
+{
+	std::string tmp = convertChar(newNickname);
+	this->clientNicknames.push_back(tmp);
 }

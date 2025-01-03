@@ -8,20 +8,22 @@
 # include <string>
 # include "Client.hpp"
 # include "Request.hpp"
+# include "Error.hpp"
 
 # define MAX_EVENT_COUNT 10
 
 class Server {
 	private:
-		int socket_fd;
+		int socketFd;
 		std::string port;
 		std::string password;
 		std::string name;
 		std::map<int, Client *> clients;
-		std::vector<std::string> client_nicknames;
+		std::vector<std::string> clientNicknames;
 		Server(const Server&);
 		Server &operator=(const Server&);
-		// std::string	setPassword(Request&, int);
+		std::string createMessage(const int, const std::string&, const std::string&);
+		std::string setPassword(Request&, int);
 		// std::string	setUserNickname(Request&, int);
 		// std::string	setUser(Request&, int);
 		// std::string	setOper(Request&, int);

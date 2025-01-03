@@ -1,8 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client() : client_fd(0), host(), user_name(), nickname(), auth(false), is_registered(false) {}
+Client::Client() : clientFd(0), host(), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
 
-Client::Client(const int &client_fd, const std::string &host) : client_fd(client_fd), host(host), user_name(), nickname(), auth(false), is_registered(false) {}
+Client::Client(const int &clientFd, const std::string &host) : clientFd(clientFd), host(host), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
 
 Client::~Client() {}
 
@@ -14,15 +14,22 @@ Client::Client(const Client &other)
 Client &Client::operator=(const Client &other)
 {
 	if (this != &other) {
-		this->client_fd = other.client_fd;
+		this->clientFd = other.clientFd;
 		this->host = other.host;
-		this->user_name = other.user_name;
+		this->userName = other.userName;
 		this->nickname = other.nickname;
-		this->auth = other.auth;
-		this->is_registered = other.is_registered;
+		this->isValidPwd = other.isValidPwd;
+		this->isRegistered = other.isRegistered;
 	}
 	return *this;
 }
 
-void Client::setAuth(bool auth) { this->auth = auth; }
-void Client::setIsRegistered(bool is_registered) { this->is_registered = is_registered; }
+void Client::setIsValidPwd(bool IsValidPwd) { this->isValidPwd = IsValidPwd; }
+
+void Client::setIsRegistered(bool is_registered) { this->isRegistered = is_registered; }
+
+const std::string &Client::getNickname() const { return this->nickname; }
+
+const bool &Client::getIsValidPwd() const { return this->isValidPwd; }
+
+const bool &Client::getIsRegistered() const {return this->isRegistered; }

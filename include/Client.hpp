@@ -10,7 +10,7 @@ class Client {
 		std::string userName;
 		std::string nickname;
 		std::string realName;
-		bool isValidPwd;
+		bool isValidPasswd;
 		bool isRegistered;
 	public:
 		Client();
@@ -18,10 +18,10 @@ class Client {
 		Client(const Client&);
 		Client &operator=(const Client&);
 		~Client();
-		void setIsValidPwd(bool);
+		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
 		const std::string &getNickname() const;
-		const bool &getIsValidPwd() const;
+		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
 };
 

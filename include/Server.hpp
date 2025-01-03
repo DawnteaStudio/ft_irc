@@ -24,8 +24,8 @@ class Server {
 		Server &operator=(const Server&);
 		std::string createMessage(const int, const std::string&, const std::string&);
 		std::string setPassword(Request&, int);
-		// std::string	setUserNickname(Request&, int);
-		// std::string	setUser(Request&, int);
+		std::string setUserNickname(Request&, int);
+		// std::string setUser(Request&, int);
 		// std::string	setOper(Request&, int);
 		// std::string	quit(Request&, int);
 		// std::string	joinChannel(Request&, int);

@@ -20,6 +20,7 @@ class Client {
 		~Client();
 		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
+		void setNickname(const std::string&);
 		const std::string &getNickname() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;

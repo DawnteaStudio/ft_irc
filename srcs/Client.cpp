@@ -28,6 +28,8 @@ void Client::setIsValidPasswd(bool IsValidPwd) { this->isValidPasswd = IsValidPw
 
 void Client::setIsRegistered(bool is_registered) { this->isRegistered = is_registered; }
 
+void Client::setNickname(const std::string &newNickname) { this->nickname = newNickname; }
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }

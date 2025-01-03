@@ -20,9 +20,9 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
-std::string Server::createMessage(const int num, const std::string &client_nickname, const std::string &message)
+std::string Server::createMessage(const int num, const std::string &clientNickname, const std::string &message)
 {
-	
+	// prefix + num + client nickname + message
 }
 
 void Server::run()

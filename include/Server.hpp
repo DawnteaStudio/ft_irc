@@ -37,9 +37,9 @@ class Server {
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
 		bool isValidUserNickname(const std::string&);
-		bool isUsedUserNickname(const std::string&, std::vector<std::string>&);
-		void deleteUserNickname(const std::string&, std::vector<std::string>&);
-		void addNewUserNickname(const std::string&, std::vector<std::string>&);
+		bool isUsedUserNickname(const std::string&);
+		void deleteUserNickname(const std::string&);
+		void addNewUserNickname(const std::string&);
 		std::string convertChar(const std::string&);
 	public:
 		Server();

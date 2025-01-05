@@ -21,13 +21,13 @@ std::string Server::setUserNickname(Request &request, int i)
 		return (createMessage(ERR_NONICKNAMEGIVEN, this->clients[i]->getNickname(), Response::failure(ERR_NONICKNAMEGIVEN, "")));
 	if (!isValidUserNickname(request.args[0]))
 		return (createMessage(ERR_ERRONEUSNICKNAME, this->clients[i]->getNickname(), Response::failure(ERR_ERRONEUSNICKNAME, request.args[0])));
-	if (isUsedUserNickname(request.args[0], this->clientNicknames))
+	if (isUsedUserNickname(request.args[0]))
 		return (createMessage(ERR_NICKNAMEINUSE, this->clients[i]->getNickname(), Response::failure(ERR_NICKNAMEINUSE, request.args[0])));
 	if (this->clients[i]->getIsValidPasswd()) {
 		if (this->clients[i]->getNickname() != "")
-			deleteUserNickname(this->clients[i]->getNickname(), this->clientNicknames);
+			deleteUserNickname(this->clients[i]->getNickname());
 		this->clients[i]->setNickname(request.args[0]);
-		addNewUserNickname(request.args[0], this->clientNicknames);
+		addNewUserNickname(request.args[0]);
 	}
 	return "";
 }
@@ -84,23 +84,23 @@ bool Server::isValidUserNickname(const std::string &nickname)
 	return true;
 }
 
-bool Server::isUsedUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
+bool Server::isUsedUserNickname(const std::string &nickname)
 {
 	std::string tmp = convertChar(nickname);
-	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), tmp);
-	if (iter != nicknames.end())
+	std::vector<std::string>::iterator iter = std::find(this->clientNicknames.begin(), this->clientNicknames.end(), tmp);
+	if (iter != this->clientNicknames.end())
 		return true;
 	return false;
 }
 
-void Server::deleteUserNickname(const std::string &nickname, std::vector<std::string> &nicknames)
+void Server::deleteUserNickname(const std::string &nickname)
 {
 	std::string tmp = convertChar(nickname);
-	std::vector<std::string>::iterator iter = std::find(nicknames.begin(), nicknames.end(), tmp);
-	nicknames.erase(iter);
+	std::vector<std::string>::iterator iter = std::find(this->clientNicknames.begin(), this->clientNicknames.end(), tmp);
+	this->clientNicknames.erase(iter);
 }
 
-void Server::addNewUserNickname(const std::string &newNickname, std::vector<std::string> &nicknames)
+void Server::addNewUserNickname(const std::string &newNickname)
 {
 	std::string tmp = convertChar(newNickname);
 	this->clientNicknames.push_back(tmp);

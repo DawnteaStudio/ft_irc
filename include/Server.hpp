@@ -3,9 +3,15 @@
 
 # include <iostream>
 # include <string>
+# include <cstring>
 # include <vector>
 # include <map>
 # include <string>
+# include <stdexcept>
+# include <poll.h>
+# include <sys/socket.h>
+# include <arpa/inet.h>
+# include <fcntl.h>
 # include "Client.hpp"
 # include "Request.hpp"
 // # include "Error.hpp"
@@ -15,13 +21,17 @@
 class Server {
 	private:
 		int socketFd;
+		int clientCnt;
 		std::string port;
 		std::string password;
 		std::string name;
 		std::map<int, Client *> clients;
 		std::vector<std::string> clientNicknames;
+		std::vector<pollfd> *pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
+		void setSocket();
+		void newClient();
 		std::string createMessage(const int, const std::string&, const std::string&);
 		// std::string setPassword(Request&, int);
 		// std::string	setUserNickname(Request&, int);

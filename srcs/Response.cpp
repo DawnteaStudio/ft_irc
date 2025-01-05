@@ -38,5 +38,7 @@ std::string &Response::failure(const int &num, const std::string &param)
 		res = param + " :Erroneus nickname";
 	else if (num == ERR_NICKNAMEINUSE)
 		res = param + " :Nickname is already in use";
+	else if (num == ERR_PASSWDMISMATCH)
+		res = ":Password incorrect";
 	return res;
 }

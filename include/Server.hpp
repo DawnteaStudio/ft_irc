@@ -8,7 +8,7 @@
 # include <string>
 # include "Client.hpp"
 # include "Request.hpp"
-# include "Error.hpp"
+# include "Response.hpp"
 
 # define MAX_EVENT_COUNT 10
 
@@ -25,8 +25,8 @@ class Server {
 		std::string createMessage(const int, const std::string&, const std::string&);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
-		// std::string setUser(Request&, int);
-		// std::string	setOper(Request&, int);
+		std::string setUser(Request&, int);
+		std::string setOper(Request&, int);
 		// std::string	quit(Request&, int);
 		// std::string	joinChannel(Request&, int);
 		// std::string	part(Request&, int);

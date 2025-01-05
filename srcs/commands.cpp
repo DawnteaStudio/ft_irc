@@ -32,6 +32,30 @@ std::string Server::setUserNickname(Request &request, int i)
 	return "";
 }
 
+std::string Server::setUser(Request &request, int i)
+{
+	if (request.args.size() != 4)
+		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "USER")));
+	if (this->clients[i]->getIsRegistered())
+		return (createMessage(ERR_ALREADYREGISTRED, this->clients[i]->getNickname(), Response::failure(ERR_ALREADYREGISTRED, "")));
+	if (this->clients[i]->getNickname() != "") {
+		this->clients[i]->setUserName(request.args[0]);
+		this->clients[i]->setRealName(request.args[3]);
+		this->clients[i]->setIsRegistered(true);
+	}
+	return "";
+}
+
+std::string Server::setOper(Request &request, int i)
+{
+	if (request.args.size() != 2)
+		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "OPER")));
+	if (request.args[1] != this->password)
+		return (createMessage(ERR_PASSWDMISMATCH, this->clients[i]->getNickname(), Response::failure(ERR_PASSWDMISMATCH, "")));
+	this->clients[i]->setIsOperator(true);
+	return (createMessage(RPL_YOUREOPER, this->clients[i]->getNickname(), Response::success(RPL_YOUREOPER, "")));
+}
+
 std::string Server::convertChar(const std::string &str)
 {
 	std::string tmp = str;

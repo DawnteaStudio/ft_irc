@@ -6,12 +6,12 @@
 class Client {
 	private:
 		int clientFd;
-		std::string host;
 		std::string userName;
 		std::string nickname;
 		std::string realName;
 		bool isValidPasswd;
 		bool isRegistered;
+		bool isOperator;
 	public:
 		Client();
 		Client(const int&, const std::string&);
@@ -21,9 +21,15 @@ class Client {
 		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
 		void setNickname(const std::string&);
+		void setUserName(const std::string&);
+		void setRealName(const std::string&);
+		void setIsOperator(bool);
 		const std::string &getNickname() const;
+		const std::string &getUserName() const;
+		const std::string &getRealName() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
+		const bool &getIsOperator() const;
 };
 
 #endif

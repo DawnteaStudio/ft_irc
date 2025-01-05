@@ -1,21 +1,30 @@
-#include "../include/Error.hpp"
+#include "../include/Response.hpp"
 
-Error::Error() {}
+Response::Response() {}
 
-Error::~Error() {}
+Response::~Response() {}
 
-Error::Error(const Error &other)
+Response::Response(const Response &other)
 {
 	(void)other;
 }
 
-Error &Error::operator=(const Error &other)
+Response &Response::operator=(const Response &other)
 {
 	(void)other;
 	return *this;
 }
 
-std::string &Error::createErrorMessage(const int &num, const std::string &param)
+std::string &Response::success(const int &num, const std::string &param)
+{
+	std::string res;
+
+	if (num == RPL_YOUREOPER)
+		res = ":You are now an IRC operator";
+	return res;
+}
+
+std::string &Response::failure(const int &num, const std::string &param)
 {
 	std::string res;
 

@@ -16,7 +16,7 @@
 # include "Request.hpp"
 // # include "Error.hpp"
 
-# define BUFFER_SIZE 1024;
+# define BUFFER_SIZE 1024
 
 class Server {
 	private:

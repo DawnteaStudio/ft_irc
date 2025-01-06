@@ -16,23 +16,24 @@
 # include "Request.hpp"
 // # include "Error.hpp"
 
-# define MAX_EVENT_COUNT 10
+# define BUFFER_SIZE 1024;
 
 class Server {
 	private:
 		int socketFd;
-		int clientCnt;
 		std::string port;
 		std::string password;
 		std::string name;
 		std::map<int, Client *> clients;
 		std::vector<std::string> clientNicknames;
-		std::vector<pollfd> *pfd;
+		struct pollfd serverStruct;
+		std::vector<pollfd> pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
 		void setSocket();
-		void newClient();
-		std::string createMessage(const int, const std::string&, const std::string&);
+		void addClient();
+		void connectClient(int);
+		// std::string createMessage(const int, const std::string&, const std::string&);
 		// std::string setPassword(Request&, int);
 		// std::string	setUserNickname(Request&, int);
 		// std::string	setUser(Request&, int);

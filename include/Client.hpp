@@ -14,7 +14,7 @@ class Client {
 		bool isRegistered;
 	public:
 		Client();
-		Client(const int&, const std::string&);
+		Client(const int&);
 		Client(const Client&);
 		Client &operator=(const Client&);
 		~Client();

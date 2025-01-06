@@ -1,12 +1,9 @@
 #include "../include/Server.hpp"
 
-Server::Server() : socketFd(0), port(), password(), name("irc_server"), clients(), clientNicknames(), clientCnt(MAX_EVENT_COUNT) {}
+Server::Server() : socketFd(0), port(), password(), name("irc_server") {}
 
-Server::Server(const std::string &port, const std::string &password) : port(port), password(password), name("irc_server"), clients(), clientNicknames(), clientCnt(MAX_EVENT_COUNT) {
+Server::Server(const std::string &port, const std::string &password) : port(port), password(password), name("irc_server") {
 	setSocket();
-	this->pfd->at(0).fd = this->socketFd;
-	this->pfd->at(0).events = POLLIN;
-	this->clientCnt++;
 }
 
 Server::~Server() {}
@@ -22,28 +19,30 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
-std::string Server::createMessage(const int num, const std::string &client_nickname, const std::string &message)
-{
+// std::string Server::createMessage(const int num, const std::string &client_nickname, const std::string &message)
+// {
 	
-}
+// }
 
 void Server::run() {
 	while (true) {
-		int event_cnt = poll(this->pfd->data(), this->clientCnt, 0);
+		int event_cnt = poll(&this->pfd[0], this->pfd.size(), 0);
 
 		if (event_cnt == -1)
-			throw std::runtime_error("Poll() error!");
+			throw std::runtime_error("poll() error!");
 		if (event_cnt == 0)
 			continue;
-		for (int i = 0; i < this->clientCnt; i++)
+		for (size_t i = 0; i < this->pfd.size(); i++)
 		{
-			if (this->pfd->at(i).revents & POLLIN)
+			if (this->pfd[i].revents & POLLIN)
 			{
-				// if (this->pfd->at(i).fd == this->socketFd)
-					// _newClient();			// If listener is ready to read, handle new connection
-				// else
-					// _ClientRequest(i);		// If not the listener, we're just a regular client
+				if (this->pfd[i].fd == this->socketFd)
+					addClient();
+				else
+					connectClient(this->pfd[i].fd);
 			}
+			// else if (this->pfd[i].revents & POLLHUP)
+			// 	// function()...
 		}
 	}
 }

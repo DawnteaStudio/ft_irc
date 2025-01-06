@@ -40,6 +40,8 @@ std::string Server::setUser(Request &request, int i)
 		return (createMessage(ERR_ALREADYREGISTRED, this->clients[i]->getNickname(), Response::failure(ERR_ALREADYREGISTRED, "")));
 	if (this->clients[i]->getNickname() != "") {
 		this->clients[i]->setUserName(request.args[0]);
+		this->clients[i]->setHostName(request.args[1]);
+		this->clients[i]->setServerName(request.args[2]);
 		this->clients[i]->setRealName(request.args[3]);
 		this->clients[i]->setIsRegistered(true);
 	}

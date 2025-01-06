@@ -15,7 +15,7 @@ Response &Response::operator=(const Response &other)
 	return *this;
 }
 
-std::string &Response::success(const int &num, const std::string &param)
+std::string Response::success(const int &num, const std::string &param)
 {
 	std::string res;
 
@@ -24,7 +24,7 @@ std::string &Response::success(const int &num, const std::string &param)
 	return res;
 }
 
-std::string &Response::failure(const int &num, const std::string &param)
+std::string Response::failure(const int &num, const std::string &param)
 {
 	std::string res;
 

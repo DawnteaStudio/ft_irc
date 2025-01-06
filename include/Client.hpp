@@ -6,6 +6,8 @@
 class Client {
 	private:
 		int clientFd;
+		std::string hostName;
+		std::string serverName;
 		std::string userName;
 		std::string nickname;
 		std::string realName;
@@ -14,10 +16,12 @@ class Client {
 		bool isOperator;
 	public:
 		Client();
-		Client(const int&, const std::string&);
+		Client(const int&);
 		Client(const Client&);
 		Client &operator=(const Client&);
 		~Client();
+		void setHostName(const std::string&);
+		void setServerName(const std::string&);
 		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
 		void setNickname(const std::string&);

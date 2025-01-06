@@ -1,8 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client() : clientFd(0), userName(), nickname(), isValidPasswd(false), isRegistered(false), isOperator(false) {}
+Client::Client() : clientFd(0), hostName(), serverName(), userName(), nickname(), isValidPasswd(false), isRegistered(false), isOperator(false) {}
 
-Client::Client(const int &clientFd, const std::string &host) : clientFd(clientFd), userName(), nickname(), isValidPasswd(false), isRegistered(false), isOperator(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), hostName(), serverName(), userName(), nickname(), isValidPasswd(false), isRegistered(false), isOperator(false) {}
 
 Client::~Client() {}
 
@@ -24,6 +24,10 @@ Client &Client::operator=(const Client &other)
 	return *this;
 }
 
+void Client::setHostName(const std::string &newHostName) { this->hostName = newHostName; }
+
+void Client::setServerName(const std::string &newServerName) { this->serverName = newServerName; }
+
 void Client::setIsValidPasswd(bool isValidPwd) { this->isValidPasswd = isValidPwd; }
 
 void Client::setIsRegistered(bool isRegistered) { this->isRegistered = isRegistered; }
@@ -34,7 +38,7 @@ void Client::setUserName(const std::string &newUserName) { this->userName = newU
 
 void Client::setRealName(const std::string &newRealName) { this->realName = newRealName; }
 
-void Client::setIsOperator(bool IsOperator) { this->isOperator = isOperator; }
+void Client::setIsOperator(bool isOperator) { this->isOperator = isOperator; }
 
 const std::string &Client::getNickname() const { return this->nickname; }
 

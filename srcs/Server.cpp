@@ -22,7 +22,10 @@ Server &Server::operator=(const Server &other)
 
 std::string Server::createMessage(const int num, const std::string &clientNickname, const std::string &message)
 {
-	// prefix + num + client nickname + message
+	std::string tmp = clientNickname;
+	if (tmp == "")
+		tmp = "*";
+	return ":" + this->name + " " + std::to_string(num) + " " + tmp + " " + message;
 }
 
 void Server::run()

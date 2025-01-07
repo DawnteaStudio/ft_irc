@@ -59,3 +59,16 @@ std::string Server::setOper(Request &request, int i)
 	this->clients[i]->setIsOperator(true);
 	return (createMessage(RPL_YOUREOPER, this->clients[i]->getNickname(), Response::success(RPL_YOUREOPER, "")));
 }
+
+void Server::quit(int fd)
+{
+	// std::cout << RED << "Client <" << fd << "> Disconnected" << WHITE << std::endl;
+	// Client *client = this->clients[fd];
+	// if (client->getChannels().size() > 0)
+	// {
+	// 	for (std::vector<Channel *>::iterator it = client->getChannels().begin(); it != client->getChannels().end(); it++)
+	// 		(*it)->quit(client);
+	// }
+	this->removeClient(fd);
+	close(fd);
+}

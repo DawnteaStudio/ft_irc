@@ -14,6 +14,5 @@ class Channel {
 	public:
 		Channel(const std::string &name, Client *client, Server &server);
 		~Channel();
-		void quit(Client *client);
 };
 #endif

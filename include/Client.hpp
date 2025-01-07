@@ -14,8 +14,8 @@ class Client {
 		bool isValidPasswd;
 		bool isRegistered;
 		bool isOperator;
-	public:
 		Client();
+	public:
 		Client(const int&);
 		Client(const Client&);
 		Client &operator=(const Client&);

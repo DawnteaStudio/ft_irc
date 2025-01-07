@@ -3,6 +3,8 @@
 
 # include "Server.hpp"
 
+class Server;
+
 class Channel {
 	private:
 		Channel();

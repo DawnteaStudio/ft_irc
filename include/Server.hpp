@@ -16,11 +16,14 @@
 # include "Client.hpp"
 # include "Request.hpp"
 # include "Channel.hpp"
-// # include "Error.hpp"
+# include "Response.hpp"
 
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"
 # define WHITE "\033[0;37m"
+
+class Client;
+class Channel;
 
 class Server {
 	private:
@@ -39,11 +42,11 @@ class Server {
 		void connectClient(int);
 		void quit(int);
 		void removeClient(int);
-		// std::string createMessage(const int, const std::string&, const std::string&);
-		// std::string setPassword(Request&, int);
-		// std::string	setUserNickname(Request&, int);
-		// std::string	setUser(Request&, int);
-		// std::string	setOper(Request&, int);
+		std::string createMessage(const int, const std::string&, const std::string&);
+		std::string setPassword(Request&, int);
+		std::string setUserNickname(Request&, int);
+		std::string setUser(Request&, int);
+		std::string setOper(Request&, int);
 		// std::string	quit(Request&, int);
 		// std::string	joinChannel(Request&, int);
 		// std::string	part(Request&, int);
@@ -53,6 +56,11 @@ class Server {
 		// std::string	kick(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
+		bool isValidUserNickname(const std::string&);
+		bool isUsedUserNickname(const std::string&);
+		void deleteUserNickname(const std::string&);
+		void addNewUserNickname(const std::string&);
+		std::string convertChar(const std::string&);
 	public:
 		Server();
 		Server(const std::string&, const std::string&);

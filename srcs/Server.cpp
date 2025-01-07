@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-Server::Server() : socketFd(0), port(), password(), name("irc_server") {}
+Server::Server() : socketFd(0), name("irc_server") {}
 
 Server::Server(const std::string &port, const std::string &password) : port(port), password(password), name("irc_server") {
 	setSocket();
@@ -19,10 +19,13 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
-// std::string Server::createMessage(const int num, const std::string &client_nickname, const std::string &message)
-// {
-	
-// }
+std::string Server::createMessage(const int num, const std::string &clientNickname, const std::string &message)
+{
+	std::string tmp = clientNickname;
+	if (tmp == "")
+		tmp = "*";
+	return ":" + this->name + " " + std::to_string(num) + " " + tmp + " " + message;
+}
 
 void Server::run() {
 	while (true) {

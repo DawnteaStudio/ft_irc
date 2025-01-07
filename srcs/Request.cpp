@@ -1,6 +1,6 @@
 #include "../include/Request.hpp"
 
-Request::Request() : invalidMessage(false), args(), command() {}
+Request::Request() : invalidMessage(false) {}
 
 Request::~Request() {}
 

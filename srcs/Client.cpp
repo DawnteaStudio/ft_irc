@@ -1,8 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client() : clientFd(0), host(), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
+Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false), isOperator(false) {}
 
-Client::Client(const int &clientFd) : clientFd(clientFd), host(), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false), isOperator(false) {}
 
 Client::~Client() {}
 
@@ -15,23 +15,43 @@ Client &Client::operator=(const Client &other)
 {
 	if (this != &other) {
 		this->clientFd = other.clientFd;
-		this->host = other.host;
 		this->userName = other.userName;
 		this->nickname = other.nickname;
-		this->isValidPwd = other.isValidPwd;
+		this->isValidPasswd = other.isValidPasswd;
 		this->isRegistered = other.isRegistered;
+		this->isOperator = other.isOperator;
 	}
 	return *this;
 }
 
-void Client::setIsValidPwd(bool IsValidPwd) { this->isValidPwd = IsValidPwd; }
+void Client::setHostName(const std::string &newHostName) { this->hostName = newHostName; }
 
-void Client::setIsRegistered(bool is_registered) { this->isRegistered = is_registered; }
+void Client::setServerName(const std::string &newServerName) { this->serverName = newServerName; }
+
+void Client::setIsValidPasswd(bool isValidPwd) { this->isValidPasswd = isValidPwd; }
+
+void Client::setIsRegistered(bool isRegistered) { this->isRegistered = isRegistered; }
+
+void Client::setNickname(const std::string &newNickname) { this->nickname = newNickname; }
+
+void Client::setUserName(const std::string &newUserName) { this->userName = newUserName; }
+
+void Client::setRealName(const std::string &newRealName) { this->realName = newRealName; }
+
+void Client::setIsOperator(bool isOperator) { this->isOperator = isOperator; }
 
 const std::string &Client::getNickname() const { return this->nickname; }
 
-const bool &Client::getIsValidPwd() const { return this->isValidPwd; }
+const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }
 
-const bool &Client::getIsRegistered() const {return this->isRegistered; }
+const bool &Client::getIsRegistered() const { return this->isRegistered; }
+
+const std::string &Client::getUserName() const { return this->userName; }
+
+const std::string &Client::getRealName() const { return this->realName; }
+
+const bool &Client::getIsRegistered() const { return this->isRegistered; }
 
 std::vector<Channel *> Client::getChannels() const { return (this->channels); }
+
+const bool &Client::getIsOperator() const { return this->isOperator; }

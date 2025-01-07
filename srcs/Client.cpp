@@ -2,7 +2,7 @@
 
 Client::Client() : clientFd(0), host(), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
 
-Client::Client(const int &clientFd, const std::string &host) : clientFd(clientFd), host(host), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), host(), userName(), nickname(), isValidPwd(false), isRegistered(false) {}
 
 Client::~Client() {}
 
@@ -33,3 +33,5 @@ const std::string &Client::getNickname() const { return this->nickname; }
 const bool &Client::getIsValidPwd() const { return this->isValidPwd; }
 
 const bool &Client::getIsRegistered() const {return this->isRegistered; }
+
+std::vector<Channel *> Client::getChannels() const { return (this->channels); }

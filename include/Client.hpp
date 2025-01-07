@@ -2,6 +2,7 @@
 # define CLIENT_HPP
 
 # include <string>
+# include "Server.hpp"
 
 class Client {
 	private:
@@ -12,6 +13,7 @@ class Client {
 		std::string realName;
 		bool isValidPwd;
 		bool isRegistered;
+		std::vector<Channel *> channels;
 	public:
 		Client();
 		Client(const int&);
@@ -23,6 +25,7 @@ class Client {
 		const std::string &getNickname() const;
 		const bool &getIsValidPwd() const;
 		const bool &getIsRegistered() const;
+		std::vector<Channel *> getChannels() const;
 };
 
 #endif

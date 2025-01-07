@@ -12,11 +12,15 @@
 # include <sys/socket.h>
 # include <arpa/inet.h>
 # include <fcntl.h>
+# include <unistd.h>
 # include "Client.hpp"
 # include "Request.hpp"
+# include "Channel.hpp"
 // # include "Error.hpp"
 
 # define BUFFER_SIZE 1024
+# define RED "\033[1;31m"
+# define WHITE "\033[0;37m"
 
 class Server {
 	private:
@@ -33,6 +37,8 @@ class Server {
 		void setSocket();
 		void addClient();
 		void connectClient(int);
+		void quit(int);
+		void removeClient(int);
 		// std::string createMessage(const int, const std::string&, const std::string&);
 		// std::string setPassword(Request&, int);
 		// std::string	setUserNickname(Request&, int);

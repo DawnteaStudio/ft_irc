@@ -41,8 +41,6 @@ void Server::run() {
 				else
 					connectClient(this->pfd[i].fd);
 			}
-			// else if (this->pfd[i].revents & POLLHUP)
-			// 	// function()...
 		}
 	}
 }

@@ -53,5 +53,10 @@ void Server::addClient() {
 
 void Server::connectClient(int fd) {
 	char buffer[BUFFER_SIZE];
-	ssize_t bytesReceived;
+	memset(buffer, 0, sizeof(buffer));
+	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
+
+	if (bytesReceived <= 0) {
+		
+	}
 }

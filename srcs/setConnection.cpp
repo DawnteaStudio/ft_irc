@@ -55,8 +55,13 @@ void Server::connectClient(int fd) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	Request msg;
 
 	if (bytesReceived <= 0) {
-		
+		quit(fd);
+	}
+	else
+	{
+
 	}
 }

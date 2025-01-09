@@ -1,6 +1,7 @@
 #include "../include/Server.hpp"
 
-void Server::setSocket() {
+void Server::setSocket()
+{
 
 	int tmp_port = atoi((this->port).c_str());
 	if (tmp_port <= 0 || tmp_port > 65535)
@@ -29,7 +30,8 @@ void Server::setSocket() {
 	this->pfd.push_back(this->serverStruct);
 }
 
-void Server::addClient() {
+void Server::addClient()
+{
 	struct sockaddr_in clientAddr;
 	struct pollfd new_poll;
 	socklen_t addrLen = sizeof(clientAddr);
@@ -54,14 +56,41 @@ void Server::addClient() {
 void Server::connectClient(int fd) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, sizeof(buffer));
-	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
 	Request msg;
 
 	if (bytesReceived <= 0) {
 		quit(fd);
 	}
-	else
-	{
-
+	else {
+		this->clients[fd]->appendBuffer(buffer);
+		std::string::size_type pos = this->clients[fd]->getBuffer().find("\r\n");
+		if (pos == std::string::npos)
+			return;
+		std::string message = this->clients[fd]->getBuffer().substr(0, pos);
+		if (message.length() > 510)
+			message = message.substr(0, 510);
+		this->clients[fd]->clearBuffer();
+		msg.parse(message);
+		this->execCmd(msg, fd);
 	}
+}
+
+void Server::execCmd(Request &msg, int fd) {
+	std::string response;
+	switch (msg.getCommand()) {
+		case PASS:
+			response = setPassword(msg, fd);
+			break;
+		case NICK:
+			response = setUserNickname(msg, fd);
+			break;
+		case USER:
+			response = setUser(msg, fd);
+			break;
+		default:
+			response = createMessage(ERR_UNKNOWNCOMMAND, "", msg.args[0]);
+			break;
+	}
+	send(fd, response.c_str(), response.length(), 0);
 }

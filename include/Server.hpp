@@ -8,6 +8,7 @@
 # include <map>
 # include <string>
 # include <stdexcept>
+# include <sstream>
 # include <poll.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>
@@ -17,6 +18,7 @@
 # include "Request.hpp"
 # include "Channel.hpp"
 # include "Response.hpp"
+# include "Commands.hpp"
 
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"
@@ -42,6 +44,7 @@ class Server {
 		void connectClient(int);
 		void quit(int);
 		void removeClient(int);
+		void execCmd(Request&, int);
 		std::string createMessage(const int, const std::string&, const std::string&);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);

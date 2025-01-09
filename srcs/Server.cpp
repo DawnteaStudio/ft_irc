@@ -27,7 +27,8 @@ std::string Server::createMessage(const int num, const std::string &clientNickna
 	return ":" + this->name + " " + std::to_string(num) + " " + tmp + " " + message;
 }
 
-void Server::run() {
+void Server::run()
+{
 	while (true) {
 		int event_cnt = poll(&this->pfd[0], this->pfd.size(), 0);
 

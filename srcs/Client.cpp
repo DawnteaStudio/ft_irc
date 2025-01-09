@@ -40,6 +40,10 @@ void Client::setRealName(const std::string &newRealName) { this->realName = newR
 
 void Client::setIsOperator(bool isOperator) { this->isOperator = isOperator; }
 
+void Client::appendBuffer(const std::string &newBuffer) { this->buffer += newBuffer; }
+
+void Client::clearBuffer() { this->buffer.clear(); }
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }
@@ -49,6 +53,8 @@ const bool &Client::getIsRegistered() const { return this->isRegistered; }
 const std::string &Client::getUserName() const { return this->userName; }
 
 const std::string &Client::getRealName() const { return this->realName; }
+
+const std::string &Client::getBuffer() const { return this->buffer; }
 
 const bool &Client::getIsRegistered() const { return this->isRegistered; }
 

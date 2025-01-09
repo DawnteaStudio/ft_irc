@@ -15,16 +15,16 @@ Response &Response::operator=(const Response &other)
 	return *this;
 }
 
-std::string Response::success(const int &num, const std::string &param)
+std::string Response::success(const int &num, const std::string &param, const std::string &prefix, const std::string &clientNickname)
 {
 	std::string res;
 
 	if (num == RPL_YOUREOPER)
 		res = ":You are now an IRC operator";
-	return res;
+	return createMessage(num, res, prefix, clientNickname);
 }
 
-std::string Response::failure(const int &num, const std::string &param)
+std::string Response::failure(const int &num, const std::string &param, const std::string &prefix, const std::string &clientNickname)
 {
 	std::string res;
 
@@ -40,5 +40,13 @@ std::string Response::failure(const int &num, const std::string &param)
 		res = param + " :Nickname is already in use";
 	else if (num == ERR_PASSWDMISMATCH)
 		res = ":Password incorrect";
-	return res;
+	return createMessage(num, res, prefix, clientNickname);
+}
+
+std::string Response::createMessage(const int &num, const std::string &res, const std::string &prefix, const std::string &clientNickname)
+{
+	std::string tmp = clientNickname;
+	if (tmp == "")
+		tmp = '*';
+	return ":" + prefix + " " + std::to_string(num) + " " + tmp + " " + res;
 }

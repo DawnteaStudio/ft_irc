@@ -49,3 +49,8 @@ void Server::addNewUserNickname(const std::string &newNickname)
 	std::string tmp = convertChar(newNickname);
 	this->clientNicknames.push_back(tmp);
 }
+
+bool Server::isSameNickname(const std::string &newNickname, const std::string &nickname)
+{
+	return (nickname == newNickname);
+}

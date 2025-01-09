@@ -17,16 +17,16 @@ Client &Client::operator=(const Client &other)
 		this->clientFd = other.clientFd;
 		this->userName = other.userName;
 		this->nickname = other.nickname;
+		this->realName = other.realName;
+		this->prefix = other.prefix;
+		this->ipAddr = other.ipAddr;
 		this->isValidPasswd = other.isValidPasswd;
 		this->isRegistered = other.isRegistered;
 		this->isOperator = other.isOperator;
+		this->channels = other.channels;
 	}
 	return *this;
 }
-
-void Client::setHostName(const std::string &newHostName) { this->hostName = newHostName; }
-
-void Client::setServerName(const std::string &newServerName) { this->serverName = newServerName; }
 
 void Client::setIsValidPasswd(bool isValidPwd) { this->isValidPasswd = isValidPwd; }
 
@@ -39,6 +39,10 @@ void Client::setUserName(const std::string &newUserName) { this->userName = newU
 void Client::setRealName(const std::string &newRealName) { this->realName = newRealName; }
 
 void Client::setIsOperator(bool isOperator) { this->isOperator = isOperator; }
+
+void Client::setPrefix() { this->prefix = this->nickname + "!" + this->userName + "@" + this->ipAddr; }
+
+void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
 
 const std::string &Client::getNickname() const { return this->nickname; }
 

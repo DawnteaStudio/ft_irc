@@ -7,11 +7,11 @@
 class Client {
 	private:
 		int clientFd;
-		std::string hostName;
-		std::string serverName;
 		std::string userName;
 		std::string nickname;
 		std::string realName;
+		std::string prefix;
+		std::string ipAddr;
 		bool isValidPasswd;
 		bool isRegistered;
 		std::vector<Channel *> channels;
@@ -22,20 +22,21 @@ class Client {
 		Client(const Client&);
 		Client &operator=(const Client&);
 		~Client();
-		void setHostName(const std::string&);
-		void setServerName(const std::string&);
 		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
 		void setIsOperator(bool);
+		void setPrefix();
+		void setIpAddr(const std::string&);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
 		const bool &getIsOperator() const;
+		const std::string &getPrefix() const;
 		std::vector<Channel *> getChannels() const;
 };
 

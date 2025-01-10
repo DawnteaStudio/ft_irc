@@ -40,6 +40,8 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = param + " :Nickname is already in use";
 	else if (num == ERR_PASSWDMISMATCH)
 		res = ":Password incorrect";
+	else if (num == ERR_NOTREGISTERED)
+		res = ":You have not registered";
 	return createMessage(num, res, prefix, clientNickname);
 }
 

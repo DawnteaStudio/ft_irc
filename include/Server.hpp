@@ -46,7 +46,7 @@ class Server {
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
 		// std::string	quit(Request&, int);
-		// std::string	joinChannel(Request&, int);
+		std::string joinChannel(Request&, int);
 		// std::string	part(Request&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);

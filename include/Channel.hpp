@@ -3,16 +3,23 @@
 
 # include "Server.hpp"
 
-class Server;
+class Client;
 
 class Channel {
 	private:
-		Channel();
 		std::string name;
 		std::string topic;
-		Server &server;
+		std::map<int, Client *> members;
+		std::map<int, Client *> operators;
+		Channel();
 	public:
-		Channel(const std::string &name, Client *client, Server &server);
+		Channel(const std::string&);
+		Channel(const Channel&);
+		Channel &operator=(const Channel&);
 		~Channel();
+		void addMember(Client *);
+		void removeMember(int);
+		void addOperator(Client *);
+		void removeOperator(int);
 };
 #endif

@@ -28,6 +28,7 @@ class Client {
 		void setRealName(const std::string&);
 		void setPrefix();
 		void setIpAddr(const std::string&);
+		const int &getClientFd() const;
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;

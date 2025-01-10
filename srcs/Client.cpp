@@ -41,6 +41,8 @@ void Client::setPrefix() { this->prefix = this->nickname + "!" + this->userName 
 
 void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
 
+const int &Client::getClientFd() const { return this->clientFd; }
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }

@@ -63,3 +63,18 @@ void Server::quit(int fd)
 	this->removeClient(fd);
 	close(fd);
 }
+
+std::string Server::joinChannel(Request &request, int fd)
+{
+	if (request.args.size() < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "JOIN", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	// if (request.args[0][0] != '#')
+	// 	return Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->name, this->clients[fd]->getNickname());
+	// if (request.args.size() == 1)
+	// 	return this->joinChannel(request.args[0], "", fd);
+	// else
+	// 	return this->joinChannel(request.args[0], request.args[1], fd);
+	return "";
+}

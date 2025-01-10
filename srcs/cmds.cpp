@@ -60,6 +60,18 @@ std::string Server::setOper(Request &request, int i)
 	return (createMessage(RPL_YOUREOPER, this->clients[i]->getNickname(), Response::success(RPL_YOUREOPER, "")));
 }
 
+std::string Server::getFile(Request &request, int i)
+{
+	if (request.args.size() != 2)
+		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "GETFILE")));
+	if (!this->clients[i]->getIsRegistered())
+		return (createMessage(ERR_NOTREGISTERED, this->clients[i]->getNickname(), Response::failure(ERR_NOTREGISTERED, "")));
+	if (!isUsedUserNickname(request.args[0]))
+		return (createMessage(ERR_NOSUCHNICK, this->clients[i]->getNickname(), Response::failure(ERR_NOSUCHNICK, request.args[0])));
+	
+	
+}
+
 void Server::quit(int fd)
 {
 	// std::cout << RED << "Client <" << fd << "> Disconnected" << WHITE << std::endl;

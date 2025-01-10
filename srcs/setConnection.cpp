@@ -89,6 +89,10 @@ void Server::execCmd(Request &msg, int fd) {
 		response = setOper(msg, fd);
 	else if (msg.getCommand() == "QUIT")
 		quit(fd);
+	else if (msg.getCommand() == "GETFILE")
+		response = getFile(msg, fd);
+	else if (msg.getCommand() == "SENDFILE")
+		response = sendFile(msg, fd);
 	else
 		response = createMessage(ERR_UNKNOWNCOMMAND, "*", "Unknown command");
 	send(fd, response.c_str(), response.length(), 0);

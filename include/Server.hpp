@@ -49,6 +49,8 @@ class Server {
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
 		std::string setOper(Request&, int);
+		std::string getFile(Request&, int); //GETFILE <filename>
+		std::string sendFile(Request&, int); //SENDFILE <nickname> <filename>
 		// std::string	quit(Request&, int);
 		// std::string	joinChannel(Request&, int);
 		// std::string	part(Request&, int);

@@ -15,7 +15,6 @@ class Client {
 		bool isValidPasswd;
 		bool isRegistered;
 		std::vector<Channel *> channels;
-		bool isOperator;
 		Client();
 	public:
 		Client(const int&);
@@ -27,7 +26,6 @@ class Client {
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
-		void setIsOperator(bool);
 		void setPrefix();
 		void setIpAddr(const std::string&);
 		const std::string &getNickname() const;
@@ -35,7 +33,6 @@ class Client {
 		const std::string &getRealName() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
-		const bool &getIsOperator() const;
 		const std::string &getPrefix() const;
 		std::vector<Channel *> getChannels() const;
 };

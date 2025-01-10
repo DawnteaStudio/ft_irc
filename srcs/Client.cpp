@@ -1,8 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false), isOperator(false) {}
+Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false) {}
 
-Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false), isOperator(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false) {}
 
 Client::~Client() {}
 
@@ -22,7 +22,6 @@ Client &Client::operator=(const Client &other)
 		this->ipAddr = other.ipAddr;
 		this->isValidPasswd = other.isValidPasswd;
 		this->isRegistered = other.isRegistered;
-		this->isOperator = other.isOperator;
 		this->channels = other.channels;
 	}
 	return *this;
@@ -37,8 +36,6 @@ void Client::setNickname(const std::string &newNickname) { this->nickname = newN
 void Client::setUserName(const std::string &newUserName) { this->userName = newUserName; }
 
 void Client::setRealName(const std::string &newRealName) { this->realName = newRealName; }
-
-void Client::setIsOperator(bool isOperator) { this->isOperator = isOperator; }
 
 void Client::setPrefix() { this->prefix = this->nickname + "!" + this->userName + "@" + this->ipAddr; }
 
@@ -56,6 +53,6 @@ const std::string &Client::getRealName() const { return this->realName; }
 
 const bool &Client::getIsRegistered() const { return this->isRegistered; }
 
-std::vector<Channel *> Client::getChannels() const { return (this->channels); }
+const std::string &Client::getPrefix() const { return this->prefix; }
 
-const bool &Client::getIsOperator() const { return this->isOperator; }
+std::vector<Channel *> Client::getChannels() const { return (this->channels); }

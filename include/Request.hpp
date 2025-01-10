@@ -8,7 +8,7 @@
 class Request {
 	public:
 		std::vector<std::string> args;
-		IRCCommand command;
+		std::string command;
 		std::string prefix;
 		bool invalidMessage;
 	public:
@@ -16,8 +16,11 @@ class Request {
 		Request(const Request&);
 		Request &operator=(const Request&);
 		~Request();
-		void parse(std::string);
-		const IRCCommand getCommand() const;
+		void parse(std::string&);
+		bool parsePrefix(std::string&);
+		void parseCommand(std::string&);
+		void parseArgs(std::string&);
+		const std::string &getCommand() const;
 };
 
 #endif

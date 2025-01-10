@@ -51,6 +51,7 @@ void Server::addClient()
 	new_poll.revents = 0;
 	this->pfd.push_back(new_poll);
 	this->clients.insert(std::pair<int, Client *>(clientFd, new Client(clientFd)));
+	this->clients[clientFd]->setIpAddr(clientIP);
 }
 
 void Server::connectClient(int fd) {
@@ -78,19 +79,17 @@ void Server::connectClient(int fd) {
 
 void Server::execCmd(Request &msg, int fd) {
 	std::string response;
-	switch (msg.getCommand()) {
-		case PASS:
-			response = setPassword(msg, fd);
-			break;
-		case NICK:
-			response = setUserNickname(msg, fd);
-			break;
-		case USER:
-			response = setUser(msg, fd);
-			break;
-		default:
-			response = createMessage(ERR_UNKNOWNCOMMAND, "", msg.args[0]);
-			break;
-	}
+	if (msg.getCommand() == "PASS")
+		response = setPassword(msg, fd);
+	else if (msg.getCommand() == "NICK")
+		response = setUserNickname(msg, fd);
+	else if (msg.getCommand() == "USER")
+		response = setUser(msg, fd);
+	else if (msg.getCommand() == "OPER")
+		response = setOper(msg, fd);
+	else if (msg.getCommand() == "QUIT")
+		quit(fd);
+	else
+		response = createMessage(ERR_UNKNOWNCOMMAND, "*", "Unknown command");
 	send(fd, response.c_str(), response.length(), 0);
 }

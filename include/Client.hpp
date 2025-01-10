@@ -12,6 +12,7 @@ class Client {
 		std::string userName;
 		std::string nickname;
 		std::string realName;
+		std::string ipAddr;
 		std::string buffer;
 		bool isValidPasswd;
 		bool isRegistered;
@@ -33,6 +34,7 @@ class Client {
 		void setIsOperator(bool);
 		void appendBuffer(const std::string&);
 		void clearBuffer();
+		void setIpAddr(const std::string&);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;

@@ -8,6 +8,7 @@
 # include <map>
 # include <string>
 # include <stdexcept>
+# include <sstream>
 # include <poll.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>
@@ -42,9 +43,14 @@ class Server {
 		void connectClient(int);
 		void quit(int);
 		void removeClient(int);
+		void execCmd(Request&, int);
+		std::string createMessage(const int, const std::string&, const std::string&);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
+		std::string setOper(Request&, int);
+		std::string getFile(Request&, int); //GETFILE <filename>
+		std::string sendFile(Request&, int); //SENDFILE <nickname> <filename>
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
 		// std::string	part(Request&, int);

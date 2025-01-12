@@ -43,6 +43,12 @@ void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr;
 
 const int &Client::getClientFd() const { return this->clientFd; }
 
+void Client::appendBuffer(const std::string &newBuffer) { this->buffer += newBuffer; }
+
+void Client::clearBuffer() { this->buffer.clear(); }
+
+void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }
@@ -52,6 +58,8 @@ const bool &Client::getIsRegistered() const { return this->isRegistered; }
 const std::string &Client::getUserName() const { return this->userName; }
 
 const std::string &Client::getRealName() const { return this->realName; }
+
+const std::string &Client::getBuffer() const { return this->buffer; }
 
 const bool &Client::getIsRegistered() const { return this->isRegistered; }
 

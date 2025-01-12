@@ -51,6 +51,28 @@ std::string Server::setUser(Request &request, int fd)
 	return "";
 }
 
+std::string Server::setOper(Request &request, int i)
+{
+	if (request.args.size() != 2)
+		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "OPER", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	if (request.args[1] != this->password)
+		return (createMessage(ERR_PASSWDMISMATCH, this->clients[i]->getNickname(), Response::failure(ERR_PASSWDMISMATCH, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	this->clients[i]->setIsOperator(true);
+	return (createMessage(RPL_YOUREOPER, this->clients[i]->getNickname(), Response::success(RPL_YOUREOPER, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+}
+
+std::string Server::getFile(Request &request, int i)
+{
+	if (request.args.size() != 2)
+		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	if (!this->clients[i]->getIsRegistered())
+		return (createMessage(ERR_NOTREGISTERED, this->clients[i]->getNickname(), Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	if (!isUsedUserNickname(request.args[0]))
+		return (createMessage(ERR_NOSUCHNICK, this->clients[i]->getNickname(), Response::failure(ERR_NOSUCHNICK, request.args[0], this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	
+	
+}
+
 void Server::quit(int fd)
 {
 	// std::cout << RED << "Client <" << fd << "> Disconnected" << WHITE << std::endl;

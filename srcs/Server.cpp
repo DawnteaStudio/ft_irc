@@ -19,7 +19,16 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
-void Server::run() {
+std::string Server::createMessage(const int num, const std::string &clientNickname, const std::string &message)
+{
+	std::string tmp = clientNickname;
+	if (tmp == "")
+		tmp = "*";
+	return ":" + this->name + " " + std::to_string(num) + " " + tmp + " " + message;
+}
+
+void Server::run()
+{
 	while (true) {
 		int event_cnt = poll(&this->pfd[0], this->pfd.size(), 0);
 

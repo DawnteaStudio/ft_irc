@@ -12,6 +12,7 @@ class Client {
 		std::string realName;
 		std::string prefix;
 		std::string ipAddr;
+		std::string buffer;
 		bool isValidPasswd;
 		bool isRegistered;
 		std::vector<Channel *> channels;
@@ -26,15 +27,19 @@ class Client {
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
+		void setIsOperator(bool);
 		void setPrefix();
+		void appendBuffer(const std::string&);
+		void clearBuffer();
 		void setIpAddr(const std::string&);
-		const int &getClientFd() const;
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
+		const std::string &getBuffer() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
 		const std::string &getPrefix() const;
+		const int &getClientFd() const;
 		std::vector<Channel *> getChannels() const;
 };
 

@@ -51,8 +51,8 @@ class Server {
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
 		std::string setOper(Request&, int);
-		std::string getFile(Request&, int); //GETFILE <filename>
-		std::string sendFile(Request&, int); //SENDFILE <nickname> <filename>
+		std::string getFile(Request&, int); //GETFILE <channel> <filename>
+		std::string sendFile(Request&, int); //SENDFILE <channel> <filename>
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
 		ErrorCode join(const std::string&, const std::string&, int, bool);

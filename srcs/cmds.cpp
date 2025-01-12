@@ -63,13 +63,11 @@ std::string Server::setOper(Request &request, int i)
 
 std::string Server::getFile(Request &request, int i)
 {
-	if (request.args.size() != 2)
+	if (request.args.size() < 1)
 		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
 	if (!this->clients[i]->getIsRegistered())
 		return (createMessage(ERR_NOTREGISTERED, this->clients[i]->getNickname(), Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-	if (!isUsedUserNickname(request.args[0]))
-		return (createMessage(ERR_NOSUCHNICK, this->clients[i]->getNickname(), Response::failure(ERR_NOSUCHNICK, request.args[0], this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-	
+	std::string filename = request.args[0];
 	
 }
 
@@ -102,12 +100,5 @@ std::string Server::joinChannel(Request &request, int fd)
 		if (err != ERR_NONE)
 			return Response::failure(err, channels[i], this->name, this->clients[fd]->getNickname());
 	}
-	
-	if (request.args[0][0] != '#' && request.args[0][0] != '&')
-		return Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->name, this->clients[fd]->getNickname());
-	// if (request.args.size() == 1)
-	// 	return this->joinChannel(request.args[0], "", fd);
-	// else
-	// 	return this->joinChannel(request.args[0], request.args[1], fd);
 	return "";
 }

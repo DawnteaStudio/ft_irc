@@ -1,6 +1,7 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+# include "File.hpp"
 # include "Server.hpp"
 
 class Client;
@@ -17,6 +18,7 @@ class Channel {
 		bool isLimit;
 		std::map<int, Client *> members;
 		std::map<int, Client *> operators;
+		std::map<std::string, File> files;
 		Channel();
 	public:
 		Channel(const std::string&);

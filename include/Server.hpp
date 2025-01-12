@@ -33,11 +33,13 @@ class Server {
 		std::string password;
 		std::string name;
 		std::map<int, Client *> clients;
+		std::map<std::string, Channel *> channels;
 		std::vector<std::string> clientNicknames;
 		struct pollfd serverStruct;
 		std::vector<pollfd> pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
+		void makeJoinVector(Request&, std::vector<std::string>&, std::vector<std::string>&);
 		void setSocket();
 		void addClient();
 		void connectClient(int);
@@ -53,6 +55,7 @@ class Server {
 		std::string sendFile(Request&, int); //SENDFILE <nickname> <filename>
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
+		ErrorCode join(const std::string&, const std::string&, int, bool);
 		// std::string	part(Request&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);
@@ -65,6 +68,7 @@ class Server {
 		void deleteUserNickname(const std::string&);
 		void addNewUserNickname(const std::string&);
 		bool isSameNickname(const std::string&, const std::string&);
+		bool isCharString(const char&) const;
 		std::string convertChar(const std::string&);
 	public:
 		Server();

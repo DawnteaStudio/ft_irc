@@ -89,6 +89,8 @@ void Server::execCmd(Request &msg, int fd) {
 		response = setOper(msg, fd);
 	else if (msg.getCommand() == "QUIT")
 		quit(fd);
+	else if (msg.getCommand() == "JOIN")
+		response = joinChannel(msg, fd);
 	else if (msg.getCommand() == "GETFILE")
 		response = getFile(msg, fd);
 	else if (msg.getCommand() == "SENDFILE")

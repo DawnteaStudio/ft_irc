@@ -92,8 +92,19 @@ std::string Server::joinChannel(Request &request, int fd)
 		return Response::failure(ERR_NEEDMOREPARAMS, "JOIN", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
-	// if (request.args[0][0] != '#')
-	// 	return Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->name, this->clients[fd]->getNickname());
+
+	std::vector<std::string> channels;
+	std::vector<std::string> keys;
+	makeJoinVector(request, channels, keys);
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		ErrorCode err = join(channels[i], keys.size() > i ? keys[i] : "", fd, false);
+		if (err != ERR_NONE)
+			return Response::failure(err, channels[i], this->name, this->clients[fd]->getNickname());
+	}
+	
+	if (request.args[0][0] != '#' && request.args[0][0] != '&')
+		return Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->name, this->clients[fd]->getNickname());
 	// if (request.args.size() == 1)
 	// 	return this->joinChannel(request.args[0], "", fd);
 	// else

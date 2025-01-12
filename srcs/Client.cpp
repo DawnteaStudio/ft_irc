@@ -49,6 +49,8 @@ void Client::clearBuffer() { this->buffer.clear(); }
 
 void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
 
+void Client::addChannel(Channel *channel) { this->channels.push_back(channel); }
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }

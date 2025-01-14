@@ -66,14 +66,16 @@ void Server::makeJoinVector(Request &request, std::vector<std::string> &channels
 		channels.push_back(channel.substr(0, channel.find(',')));
 		channel = channel.substr(channel.find(',') + 1);
 	}
-	channels.push_back(channel);
+	if (!channel.empty())
+		channels.push_back(channel);
 	if (keys.size() == 0)
 		return;
 	while (key.find(',') != std::string::npos) {
 		keys.push_back(key.substr(0, key.find(',')));
 		key = key.substr(key.find(',') + 1);
 	}
-	keys.push_back(key);
+	if (!key.empty())
+		keys.push_back(key);
 }
 
 bool Server::isCharString(const char &c) const
@@ -83,22 +85,20 @@ bool Server::isCharString(const char &c) const
 	return true;
 }
 
-ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd, bool isInvite)
+ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
 	if (this->channels.find(channelName) == this->channels.end()) {
-		if (isInvite)
-			return ERR_NOSUCHCHANNEL;
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
 		if (this->clients[fd]->getChannels().size() >= 10)
 			return ERR_TOOMANYCHANNELS;
 		if (channelName[0] != '#' && channelName[0] != '&')
-			return ERR_BADCHANNELNAME;
+			return ERR_NOSUCHCHANNEL;
 		if (channelName.size() > 200)
-			return ERR_BADCHANNELNAME;
+			return ERR_NOSUCHCHANNEL;
 		for (size_t i = 1; i < channelName.size(); i++) {
 			if (isCharString(channelName[i]) == false)
-				return ERR_BADCHANNELNAME;
+				return ERR_NOSUCHCHANNEL;
 		}
 		Channel *newChannel = new Channel(channelName);
 		this->channels[channelName] = newChannel;
@@ -107,13 +107,11 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		this->clients[fd]->addChannel(newChannel);
 		return ERR_NONE;
 	}
-	if (this->channels[channelName]->isMember(fd))
-		return ERR_ALREADYREGISTRED;
-	if (this->channels[channelName]->getIsInviteOnly() && !isInvite) {
+	if (this->channels[channelName]->getIsInviteOnly()) {
 		if (!this->channels[channelName]->isOperator(fd))
 			return ERR_INVITEONLYCHAN;
 	}
-	if (this->channels[channelName]->getIsKeyRequired() && !isInvite) {
+	if (this->channels[channelName]->getIsKeyRequired()) {
 		if (key != this->channels[channelName]->getKey())
 			return ERR_BADCHANNELKEY;
 	}

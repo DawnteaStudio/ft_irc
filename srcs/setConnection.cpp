@@ -60,9 +60,8 @@ void Server::connectClient(int fd) {
 	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
 	Request msg;
 
-	if (bytesReceived <= 0) {
+	if (bytesReceived <= 0)
 		quit(fd);
-	}
 	else {
 		this->clients[fd]->appendBuffer(buffer);
 		std::string::size_type pos = this->clients[fd]->getBuffer().find("\r\n");
@@ -85,15 +84,15 @@ void Server::execCmd(Request &msg, int fd) {
 		response = setUserNickname(msg, fd);
 	else if (msg.getCommand() == "USER")
 		response = setUser(msg, fd);
-	else if (msg.getCommand() == "OPER")
-		response = setOper(msg, fd);
 	else if (msg.getCommand() == "QUIT")
 		quit(fd);
+	else if (msg.getCommand() == "JOIN")
+		response = joinChannel(msg, fd);
 	else if (msg.getCommand() == "GETFILE")
 		response = getFile(msg, fd);
 	else if (msg.getCommand() == "SENDFILE")
 		response = sendFile(msg, fd);
 	else
-		response = createMessage(ERR_UNKNOWNCOMMAND, "*", "Unknown command");
+		response = Response::failure(ERR_UNKNOWNCOMMAND, msg.getCommand(), this->name, this->clients[fd]->getNickname());
 	send(fd, response.c_str(), response.length(), 0);
 }

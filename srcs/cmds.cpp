@@ -51,26 +51,36 @@ std::string Server::setUser(Request &request, int fd)
 	return "";
 }
 
-std::string Server::setOper(Request &request, int i)
-{
-	if (request.args.size() != 2)
-		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "OPER", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-	if (request.args[1] != this->password)
-		return (createMessage(ERR_PASSWDMISMATCH, this->clients[i]->getNickname(), Response::failure(ERR_PASSWDMISMATCH, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-	this->clients[i]->setIsOperator(true);
-	return (createMessage(RPL_YOUREOPER, this->clients[i]->getNickname(), Response::success(RPL_YOUREOPER, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-}
-
 std::string Server::getFile(Request &request, int i)
 {
-	if (request.args.size() != 2)
-		return (createMessage(ERR_NEEDMOREPARAMS, this->clients[i]->getNickname(), Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+	if (request.args.size() < 2)
+		return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
 	if (!this->clients[i]->getIsRegistered())
-		return (createMessage(ERR_NOTREGISTERED, this->clients[i]->getNickname(), Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
-	if (!isUsedUserNickname(request.args[0]))
-		return (createMessage(ERR_NOSUCHNICK, this->clients[i]->getNickname(), Response::failure(ERR_NOSUCHNICK, request.args[0], this->clients[i]->getPrefix(), this->clients[i]->getNickname())));
+		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::string channelName = request.args[0];
+	std::string fileName = request.args[1];
 	
-	
+}
+
+std::string Server::sendFile(Request &request, int i)
+{
+	if (request.args.size() < 2)
+		return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	if (!this->clients[i]->getIsRegistered())
+		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::string channelName = request.args[0];
+	std::string filePath = request.args[1];
+
+	if (this->channels.find(channelName) == this->channels.end())
+		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::fstream ifs(request.args[1], std::fstream::in);
+	if (ifs.fail())
+		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);
+	File file(fileName, channelName);
+	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
+		return (Response::failure(ERR_FILEERROR, fileName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
 }
 
 void Server::quit(int fd)
@@ -92,11 +102,15 @@ std::string Server::joinChannel(Request &request, int fd)
 		return Response::failure(ERR_NEEDMOREPARAMS, "JOIN", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
-	// if (request.args[0][0] != '#')
-	// 	return Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->name, this->clients[fd]->getNickname());
-	// if (request.args.size() == 1)
-	// 	return this->joinChannel(request.args[0], "", fd);
-	// else
-	// 	return this->joinChannel(request.args[0], request.args[1], fd);
+
+	std::vector<std::string> channels;
+	std::vector<std::string> keys;
+	makeJoinVector(request, channels, keys);
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		ErrorCode err = join(channels[i], keys.size() > i ? keys[i] : "", fd);
+		if (err != ERR_NONE)
+			return Response::failure(err, channels[i], this->name, this->clients[fd]->getNickname());
+	}
 	return "";
 }

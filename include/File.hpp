@@ -6,9 +6,13 @@
 class File {
 public:
 	File();
+	File(std::string&, std::string&);
 	~File();
 	File(const File&);
 	File &operator=(const File&);
+
+	std::string fileName;
+	std::string channelName;
 };
 
 #endif

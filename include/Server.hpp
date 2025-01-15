@@ -9,6 +9,7 @@
 # include <string>
 # include <stdexcept>
 # include <sstream>
+# include <fstream>
 # include <poll.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>
@@ -33,26 +34,27 @@ class Server {
 		std::string password;
 		std::string name;
 		std::map<int, Client *> clients;
+		std::map<std::string, Channel *> channels;
 		std::vector<std::string> clientNicknames;
 		struct pollfd serverStruct;
 		std::vector<pollfd> pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
+		void makeJoinVector(Request&, std::vector<std::string>&, std::vector<std::string>&);
 		void setSocket();
 		void addClient();
 		void connectClient(int);
 		void quit(int);
 		void removeClient(int);
 		void execCmd(Request&, int);
-		std::string createMessage(const int, const std::string&, const std::string&);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
-		std::string setOper(Request&, int);
-		std::string getFile(Request&, int); //GETFILE <filename>
-		std::string sendFile(Request&, int); //SENDFILE <nickname> <filename>
+		std::string getFile(Request&, int); //GETFILE <channel> <filename>
+		std::string sendFile(Request&, int); //SENDFILE <channel> <filename>
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
+		ErrorCode join(const std::string&, const std::string&, int);
 		// std::string	part(Request&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);
@@ -65,6 +67,7 @@ class Server {
 		void deleteUserNickname(const std::string&);
 		void addNewUserNickname(const std::string&);
 		bool isSameNickname(const std::string&, const std::string&);
+		bool isCharString(const char&) const;
 		std::string convertChar(const std::string&);
 	public:
 		Server();

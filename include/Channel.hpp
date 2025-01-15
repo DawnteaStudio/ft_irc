@@ -41,6 +41,8 @@ class Channel {
 		const bool &isOperator(int) const;
 		std::map<int, Client *> getMembers() const;
 		std::map<int, Client *> getOperators() const;
+		std::map<std::string, File> getFiles() const;
+		std::map<std::string, File>::iterator findFile(const std::string&);
 		void setKey(const std::string&);
 		void setTopic(const std::string&);
 		void setLimit(const int);

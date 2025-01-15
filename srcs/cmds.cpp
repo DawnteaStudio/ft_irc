@@ -53,12 +53,34 @@ std::string Server::setUser(Request &request, int fd)
 
 std::string Server::getFile(Request &request, int i)
 {
-	if (request.args.size() < 1)
+	if (request.args.size() < 2)
 		return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
 	if (!this->clients[i]->getIsRegistered())
 		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
-	std::string filename = request.args[0];
+	std::string channelName = request.args[0];
+	std::string fileName = request.args[1];
 	
+}
+
+std::string Server::sendFile(Request &request, int i)
+{
+	if (request.args.size() < 2)
+		return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	if (!this->clients[i]->getIsRegistered())
+		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::string channelName = request.args[0];
+	std::string filePath = request.args[1];
+
+	if (this->channels.find(channelName) == this->channels.end())
+		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::fstream ifs(request.args[1], std::fstream::in);
+	if (ifs.fail())
+		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);
+	File file(fileName, channelName);
+	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
+		return (Response::failure(ERR_FILEERROR, fileName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
 }
 
 void Server::quit(int fd)

@@ -42,6 +42,8 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = ":Password incorrect";
 	else if (num == ERR_NOTREGISTERED)
 		res = ":You have not registered";
+	else if (num == ERR_UNKNOWNCOMMAND)
+		res = param + " :Unknown command";
 	return createMessage(num, res, prefix, clientNickname);
 }
 

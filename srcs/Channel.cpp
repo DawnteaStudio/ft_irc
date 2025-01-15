@@ -60,6 +60,14 @@ const bool &Channel::getIsKeyRequired() const { return this->isKeyRequired; }
 
 const bool &Channel::getIsLimit() const { return this->isLimit; }
 
+std::map<int, Client *> Channel::getMembers() const { return this->members; }
+
+std::map<int, Client *> Channel::getOperators() const { return this->operators; }
+
+std::map<std::string, File> Channel::getFiles() const { return this->files; }
+
+std::map<std::string, File>::iterator Channel::findFile(const std::string &fileName) { return this->files.find(fileName); }
+
 const bool &Channel::isMember(int fd) const { return this->members.find(fd) != this->members.end(); }
 
 const bool &Channel::isOperator(int fd) const { return this->operators.find(fd) != this->operators.end(); }

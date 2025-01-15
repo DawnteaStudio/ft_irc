@@ -9,6 +9,7 @@
 # include <string>
 # include <stdexcept>
 # include <sstream>
+# include <fstream>
 # include <poll.h>
 # include <sys/socket.h>
 # include <arpa/inet.h>

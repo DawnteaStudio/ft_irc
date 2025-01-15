@@ -51,36 +51,48 @@ std::string Server::setUser(Request &request, int fd)
 	return "";
 }
 
-std::string Server::getFile(Request &request, int i)
+std::string Server::getFile(Request &request, int fd)
 {
 	if (request.args.size() < 2)
-		return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
-	if (!this->clients[i]->getIsRegistered())
-		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
-	std::string channelName = request.args[0];
-	std::string fileName = request.args[1];
-	
+		return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	if (!this->clients[fd]->getIsRegistered())
+		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	if (this->channels.find(request.args[0]) == this->channels.end())
+		return (Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	if (this->channels[request.args[0]]->findFile(request.args[1]) == this->channels[request.args[0]]->getFiles().end())
+		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	File file = this->channels[request.args[0]]->getFiles()[request.args[1]];
+	std::fstream ofs(DOWNLOADED_FILE_PATH + request.args[1], std::fstream::out);
+	if (ofs.fail())
+		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	ofs << file.getFileContent();
+	ofs.close();
+	return "";
 }
 
-std::string Server::sendFile(Request &request, int i)
+std::string Server::sendFile(Request &request, int fd)
 {
 	if (request.args.size() < 2)
-		return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
-	if (!this->clients[i]->getIsRegistered())
-		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+		return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	if (!this->clients[fd]->getIsRegistered())
+		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::string channelName = request.args[0];
 	std::string filePath = request.args[1];
 
 	if (this->channels.find(channelName) == this->channels.end())
-		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::fstream ifs(request.args[1], std::fstream::in);
 	if (ifs.fail())
-		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);
 	File file(fileName, channelName);
 	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
-		return (Response::failure(ERR_FILEERROR, fileName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
+		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
+	file.setFileContent(content);
+	ifs.close();
 	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
+	return "";
 }
 
 void Server::quit(int fd)
@@ -103,14 +115,33 @@ std::string Server::joinChannel(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 
-	std::vector<std::string> channels;
+	std::vector<std::string> channelName;
 	std::vector<std::string> keys;
-	makeJoinVector(request, channels, keys);
-	for (size_t i = 0; i < channels.size(); i++)
+	makeJoinVector(request, channelName, keys);
+	for (size_t i = 0; i < channelName.size(); i++)
 	{
-		ErrorCode err = join(channels[i], keys.size() > i ? keys[i] : "", fd);
+		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
 		if (err != ERR_NONE)
-			return Response::failure(err, channels[i], this->name, this->clients[fd]->getNickname());
+			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+	}
+	return "";
+}
+
+std::string Server::partChannel(Request &request, int fd)
+{
+	if (request.args.size() < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "PART", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	
+	std::vector<std::string> channelName;
+	makePartVector(request, channelName);
+
+	for (size_t i = 0; i < channelName.size(); i++)
+	{
+		ErrorCode err = part(channelName[i], fd);
+		if (err != ERR_NONE)
+			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
 	}
 	return "";
 }

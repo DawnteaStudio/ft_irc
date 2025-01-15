@@ -27,12 +27,12 @@ class Client {
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
-		void setIsOperator(bool);
 		void setPrefix();
 		void appendBuffer(const std::string&);
 		void clearBuffer();
 		void setIpAddr(const std::string&);
 		void addChannel(Channel *);
+		void removeChannel(Channel *);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;

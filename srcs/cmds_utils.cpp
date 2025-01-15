@@ -121,3 +121,32 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	this->clients[fd]->addChannel(this->channels[channelName]);
 	return ERR_NONE;
 }
+
+void Server::makePartVector(Request &request, std::vector<std::string> &channels)
+{
+	std::string channel = request.args[0];
+	while (channel.find(',') != std::string::npos) {
+		channels.push_back(channel.substr(0, channel.find(',')));
+		channel = channel.substr(channel.find(',') + 1);
+	}
+	if (!channel.empty())
+		channels.push_back(channel);
+}
+
+ErrorCode Server::part(const std::string &channelName, int fd)
+{
+	if (this->channels.find(channelName) == this->channels.end())
+		return ERR_NOSUCHCHANNEL;
+	if (this->channels[channelName]->isOperator(fd))
+		this->channels[channelName]->removeOperator(fd);
+	if (!this->channels[channelName]->isMember(fd))
+		return ERR_NOTONCHANNEL;
+	// broadcast
+	this->channels[channelName]->removeMember(fd);
+	this->clients[fd]->removeChannel(this->channels[channelName]);
+	if (this->channels[channelName]->getMembers().size() == 0) {
+		delete this->channels[channelName];
+		this->channels.erase(channelName);
+	}
+	return ERR_NONE;
+}

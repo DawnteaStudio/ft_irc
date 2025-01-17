@@ -62,6 +62,16 @@ bool Server::isCharString(const char &c) const
 	return true;
 }
 
+Client * Server::getClientByNickname(const std::string &nickname)
+{
+	std::string tmp = convertChar(nickname);
+	for (std::map<int, Client *>::iterator it = this->clients.begin(); it != this->clients.end(); it++) {
+		if (it->second->getNickname() == tmp)
+			return it->second;
+	}
+	return NULL;
+}
+
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
 	if (this->channels.find(channelName) == this->channels.end()) {
@@ -125,11 +135,17 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		return ERR_NOSUCHCHANNEL;
 	if (nickname.empty())
 		return ERR_NEEDMOREPARAMS;
+	if (!this->channels[channelName]->isMember(fd))
+		return ERR_NOTONCHANNEL;
 	if (!this->channels[channelName]->isOperator(fd))
 		return ERR_CHANOPRIVSNEEDED;
-	if (!this->channels[channelName]->isMember(nickname))
-		return ERR_USERNOTINCHANNEL;
-	int kickFd = this->clients[fd]->getFd();
+	Client *kickClient = getClientByNickname(nickname);
+	if (kickClient == NULL || !this->channels[channelName]->isMember(kickClient->getClientFd()))
+		return ERR_NOTONCHANNEL;
+
+	int kickFd = kickClient->getClientFd();
+	if (this->channels[channelName]->isOperator(kickFd))
+		this->channels[channelName]->removeOperator(kickFd);
 	this->channels[channelName]->removeMember(kickFd);
 	this->clients[kickFd]->removeChannel(this->channels[channelName]);
 	// broadcast

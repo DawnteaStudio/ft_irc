@@ -67,7 +67,7 @@ std::string Server::getFile(Request &request, int fd)
 		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	ofs << file.getFileContent();
 	ofs.close();
-	return "";
+	// return Response::success(RPL_FILESENT, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
 }
 
 std::string Server::sendFile(Request &request, int fd)
@@ -92,7 +92,7 @@ std::string Server::sendFile(Request &request, int fd)
 	file.setFileContent(content);
 	ifs.close();
 	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
-	return "";
+	// return Response::success(RPL_FILESENT, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
 }
 
 void Server::quit(int fd)
@@ -117,6 +117,7 @@ std::string Server::joinChannel(Request &request, int fd)
 
 	std::vector<std::string> channelName;
 	std::vector<std::string> keys;
+	std::string res;
 	makeVector(request.args[0], channelName);
 	if (request.args.size() > 1)
 		makeVector(request.args[1], keys);
@@ -124,7 +125,10 @@ std::string Server::joinChannel(Request &request, int fd)
 	{
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
 		if (err != ERR_NONE)
-			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+		// else
+		// 	res = Response::success(RPL_JOIN, channelName[i], this->name, this->clients[fd]->getNickname());
+		send(fd, res.c_str(), res.length(), 0);
 	}
 	return "";
 }
@@ -137,13 +141,17 @@ std::string Server::partChannel(Request &request, int fd)
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 	
 	std::vector<std::string> channelName;
+	std::string res;
 	makeVector(request.args[0], channelName);
 
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = part(channelName[i], fd);
 		if (err != ERR_NONE)
-			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+		// else
+		// 	res = Response::success(RPL_PART, "", this->name, this->clients[fd]->getNickname());
+		send(fd, res.c_str(), res.length(), 0);
 	}
 	return "";
 }
@@ -157,13 +165,17 @@ std::string Server::kickUser(Request &request, int fd)
 	
 	std::vector<std::string> channelName;
 	std::vector<std::string> nicknames;
+	std::string res;
 	makeVector(request.args[0], channelName);
 	makeVector(request.args[1], nicknames);
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", fd);
 		if (err != ERR_NONE)
-			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+		// else
+		// 	res = Response::success(RPL_KICK, "", this->name, this->clients[fd]->getNickname());
+		send(fd, res.c_str(), res.length(), 0);
 	}
 	return "";
 }

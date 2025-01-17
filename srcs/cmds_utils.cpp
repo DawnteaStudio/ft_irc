@@ -140,6 +140,7 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		return ERR_NOTONCHANNEL;
 	if (!this->channels[channelName]->isOperator(fd))
 		return ERR_CHANOPRIVSNEEDED;
+
 	Client *kickClient = getClientByNickname(nickname);
 	if (kickClient == NULL || !this->channels[channelName]->isMember(kickClient->getClientFd()))
 		return ERR_NOTONCHANNEL;

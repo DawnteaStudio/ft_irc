@@ -74,7 +74,6 @@ void Request::parseArgs(std::string &buffer)
 	std::string::size_type pos = buffer.find(':');
 	if (pos != std::string::npos) {
 		tail = buffer.substr(pos + 1);
-		this->tail = tail;
 		buffer = buffer.substr(0, pos);
 	}
 	while (!buffer.empty()) {
@@ -92,6 +91,8 @@ void Request::parseArgs(std::string &buffer)
 			break;
 		}
 	}
+	if (!tail.empty())
+		this->args.push_back(tail);
 }
 
 const std::string &Request::getCommand() const { return this->command; }

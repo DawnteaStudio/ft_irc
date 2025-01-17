@@ -124,11 +124,12 @@ std::string Server::joinChannel(Request &request, int fd)
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
-		if (err != ERR_NONE)
-			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_JOIN, channelName[i], this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+		if (err != ERR_NONE) {
+			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname()); // send directly
+			send(fd, res.c_str(), res.length(), 0);
+		}
+		else
+			//send channelInfo
 	}
 	return "";
 }
@@ -147,11 +148,10 @@ std::string Server::partChannel(Request &request, int fd)
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = part(channelName[i], fd);
-		if (err != ERR_NONE)
+		if (err != ERR_NONE) {
 			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_PART, "", this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+			send(fd, res.c_str(), res.length(), 0);
+		}
 	}
 	return "";
 }
@@ -171,14 +171,10 @@ std::string Server::kickUser(Request &request, int fd)
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", fd);
-		if (err != ERR_NONE)
+		if (err != ERR_NONE) {
 			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_KICK, "", this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+			send(fd, res.c_str(), res.length(), 0);
+		}
 	}
-
-	// for (size_t i = 0; i < channelNames.size(); i++)
-	// 	broadcastChannel(channelNames[i], response);
 	return "";
 }

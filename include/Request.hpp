@@ -9,6 +9,7 @@ class Request {
 		std::vector<std::string> args;
 		std::string command;
 		std::string prefix;
+		std::string tail;
 		bool invalidMessage;
 	public:
 		Request();

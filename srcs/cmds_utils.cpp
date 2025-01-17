@@ -55,34 +55,21 @@ bool Server::isSameNickname(const std::string &newNickname, const std::string &n
 	return (nickname == newNickname);
 }
 
-void Server::makeJoinVector(Request &request, std::vector<std::string> &channelNames, std::vector<std::string> &keys)
-{
-	std::string channel = request.args[0];
-	std::string key = "";
-
-	if (request.args.size() > 1)
-		key = request.args[1];
-	while (channel.find(',') != std::string::npos) {
-		channelNames.push_back(channel.substr(0, channel.find(',')));
-		channel = channel.substr(channel.find(',') + 1);
-	}
-	if (!channel.empty())
-		channelNames.push_back(channel);
-	if (keys.size() == 0)
-		return;
-	while (key.find(',') != std::string::npos) {
-		keys.push_back(key.substr(0, key.find(',')));
-		key = key.substr(key.find(',') + 1);
-	}
-	if (!key.empty())
-		keys.push_back(key);
-}
-
 bool Server::isCharString(const char &c) const
 {
 	if (c == ' ' || c == static_cast<char>(0) || c == static_cast<char>(7) || c == static_cast<char>(10) || c == static_cast<char>(13))
 		return false;
 	return true;
+}
+
+Client * Server::getClientByNickname(const std::string &nickname)
+{
+	std::string tmp = convertChar(nickname);
+	for (std::map<int, Client *>::iterator it = this->clients.begin(); it != this->clients.end(); it++) {
+		if (it->second->getNickname() == tmp)
+			return it->second;
+	}
+	return NULL;
 }
 
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
@@ -105,6 +92,7 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		this->channels[channelName]->addMember(this->clients[fd]);
 		this->channels[channelName]->addOperator(this->clients[fd]);
 		this->clients[fd]->addChannel(newChannel);
+		// broadcast
 		return ERR_NONE;
 	}
 	if (this->channels[channelName]->getIsInviteOnly()) {
@@ -120,5 +108,57 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
+	// broadcast
 	return ERR_NONE;
+}
+
+ErrorCode Server::part(const std::string &channelName, int fd)
+{
+	if (this->channels.find(channelName) == this->channels.end())
+		return ERR_NOSUCHCHANNEL;
+	if (this->channels[channelName]->isOperator(fd))
+		this->channels[channelName]->removeOperator(fd);
+	if (!this->channels[channelName]->isMember(fd))
+		return ERR_NOTONCHANNEL;
+	// broadcast
+	this->channels[channelName]->removeMember(fd);
+	this->clients[fd]->removeChannel(this->channels[channelName]);
+	if (this->channels[channelName]->getMembers().size() == 0) {
+		delete this->channels[channelName];
+		this->channels.erase(channelName);
+	}
+	return ERR_NONE;
+}
+
+ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, int fd)
+{
+	if (this->channels.find(channelName) == this->channels.end())
+		return ERR_NOSUCHCHANNEL;
+	if (nickname.empty())
+		return ERR_NEEDMOREPARAMS;
+	if (!this->channels[channelName]->isMember(fd))
+		return ERR_NOTONCHANNEL;
+	if (!this->channels[channelName]->isOperator(fd))
+		return ERR_CHANOPRIVSNEEDED;
+	Client *kickClient = getClientByNickname(nickname);
+	if (kickClient == NULL || !this->channels[channelName]->isMember(kickClient->getClientFd()))
+		return ERR_NOTONCHANNEL;
+
+	int kickFd = kickClient->getClientFd();
+	if (this->channels[channelName]->isOperator(kickFd))
+		this->channels[channelName]->removeOperator(kickFd);
+	this->channels[channelName]->removeMember(kickFd);
+	this->clients[kickFd]->removeChannel(this->channels[channelName]);
+	// broadcast
+	return ERR_NONE;
+}
+
+void Server::makeVector(std::string str, std::vector<std::string> &vec)
+{
+	while (str.find(',') != std::string::npos) {
+		vec.push_back(str.substr(0, str.find(',')));
+		str = str.substr(str.find(',') + 1);
+	}
+	if (!str.empty())
+		vec.push_back(str);
 }

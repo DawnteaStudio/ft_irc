@@ -23,6 +23,7 @@
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"
 # define WHITE "\033[0;37m"
+# define DOWNLOADED_FILE_PATH "/Users/sewopark/Desktop/downloads/" // envp 고려(user name)
 
 class Client;
 class Channel;
@@ -40,7 +41,7 @@ class Server {
 		std::vector<pollfd> pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
-		void makeJoinVector(Request&, std::vector<std::string>&, std::vector<std::string>&);
+		void makeVector(std::string, std::vector<std::string>&);
 		void setSocket();
 		void addClient();
 		void connectClient(int);
@@ -55,11 +56,13 @@ class Server {
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
 		ErrorCode join(const std::string&, const std::string&, int);
-		// std::string	part(Request&, int);
+		std::string	partChannel(Request&, int);
+		ErrorCode part(const std::string&, int);
+		std::string kickUser(Request&, int);
+		ErrorCode kick(const std::string&, const std::string&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);
 		// std::string	invite(Request&, int);
-		// std::string	kick(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
 		bool isValidUserNickname(const std::string&);
@@ -70,6 +73,7 @@ class Server {
 		bool isCharString(const char&) const;
 		std::string convertChar(const std::string&);
 		void broadcastChannel(const std::string&, const std::string&);
+		Client *getClientByNickname(const std::string&);
 	public:
 		Server();
 		Server(const std::string&, const std::string&);

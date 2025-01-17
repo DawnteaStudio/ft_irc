@@ -33,6 +33,7 @@ class Client {
 		void clearBuffer();
 		void setIpAddr(const std::string&);
 		void addChannel(Channel *);
+		void removeChannel(Channel *);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;

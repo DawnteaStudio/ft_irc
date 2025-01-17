@@ -4,9 +4,9 @@ File::File() {}
 
 File::~File() {}
 
-File::File(std::string &name, std::string &channel)
+File::File(std::string &path, std::string &channel)
 {
-	this->fileName = name;
+	this->filePath = path;
 	this->channelName = channel;
 }
 
@@ -19,9 +19,19 @@ File &File::operator=(const File &other)
 {
 	if (this != &other)
 	{
-		this->fileName = other.fileName;
+		this->filePath = other.filePath;
 		this->channelName = other.channelName;
+		this->fileContent = other.fileContent;
 	}
 	return *this;
 }
- 
+
+void File::setFileContent(std::string &content)
+{
+	this->fileContent = content;
+}
+
+std::string File::getFileContent()
+{
+	return this->fileContent;
+}

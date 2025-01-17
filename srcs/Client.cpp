@@ -64,3 +64,10 @@ const std::string &Client::getBuffer() const { return this->buffer; }
 const std::string &Client::getPrefix() const { return this->prefix; }
 
 std::vector<Channel *> Client::getChannels() const { return (this->channels); }
+
+void Client::removeChannel(Channel *channel)
+{
+	std::vector<Channel *>::iterator it = std::find(this->channels.begin(), this->channels.end(), channel);
+	if (it != this->channels.end())
+		this->channels.erase(it);
+}

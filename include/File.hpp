@@ -11,8 +11,11 @@ public:
 	File(const File&);
 	File &operator=(const File&);
 
-	std::string fileName;
+	std::string filePath;
 	std::string channelName;
+	std::string fileContent;
+	void setFileContent(std::string &);
+	std::string getFileContent();
 };
 
 #endif

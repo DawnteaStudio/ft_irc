@@ -78,21 +78,24 @@ void Server::connectClient(int fd) {
 
 void Server::execCmd(Request &msg, int fd) {
 	std::string response;
-	if (msg.getCommand() == "PASS")
+	std::string command = msg.getCommand();
+
+	if (command == "PASS")
 		response = setPassword(msg, fd);
-	else if (msg.getCommand() == "NICK")
+	else if (command == "NICK")
 		response = setUserNickname(msg, fd);
-	else if (msg.getCommand() == "USER")
+	else if (command == "USER")
 		response = setUser(msg, fd);
-	else if (msg.getCommand() == "QUIT")
+	else if (command == "QUIT")
 		quit(fd);
-	else if (msg.getCommand() == "JOIN")
+	else if (command == "JOIN")
 		response = joinChannel(msg, fd);
-	else if (msg.getCommand() == "GETFILE")
+	else if (command == "GETFILE")
 		response = getFile(msg, fd);
-	else if (msg.getCommand() == "SENDFILE")
+	else if (command == "SENDFILE")
 		response = sendFile(msg, fd);
 	else
-		response = Response::failure(ERR_UNKNOWNCOMMAND, msg.getCommand(), this->name, this->clients[fd]->getNickname());
-	send(fd, response.c_str(), response.length(), 0);
+		response = Response::failure(ERR_UNKNOWNCOMMAND, command, this->name, this->clients[fd]->getNickname());
+	if (!response.empty())
+		send(fd, response.c_str(), response.length(), 0);
 }

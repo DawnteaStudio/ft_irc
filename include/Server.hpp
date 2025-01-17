@@ -69,6 +69,7 @@ class Server {
 		bool isSameNickname(const std::string&, const std::string&);
 		bool isCharString(const char&) const;
 		std::string convertChar(const std::string&);
+		void broadcastChannel(const std::string&, const std::string&);
 	public:
 		Server();
 		Server(const std::string&, const std::string&);

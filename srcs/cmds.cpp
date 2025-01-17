@@ -59,7 +59,7 @@ std::string Server::getFile(Request &request, int i)
 		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
 	std::string channelName = request.args[0];
 	std::string fileName = request.args[1];
-	
+	return "";
 }
 
 std::string Server::sendFile(Request &request, int i)
@@ -80,7 +80,8 @@ std::string Server::sendFile(Request &request, int i)
 	File file(fileName, channelName);
 	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
 		return (Response::failure(ERR_FILEERROR, fileName, this->clients[i]->getPrefix(), this->clients[i]->getNickname()));
-	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
+	this->channels[channelName]->getFiles()[fileName] = file;
+	return "";
 }
 
 void Server::quit(int fd)
@@ -103,14 +104,22 @@ std::string Server::joinChannel(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 
-	std::vector<std::string> channels;
+	std::vector<std::string> channelNames;
 	std::vector<std::string> keys;
-	makeJoinVector(request, channels, keys);
-	for (size_t i = 0; i < channels.size(); i++)
+
+	makeJoinVector(request, channelNames, keys);
+	for (size_t i = 0; i < channelNames.size(); i++)
 	{
-		ErrorCode err = join(channels[i], keys.size() > i ? keys[i] : "", fd);
-		if (err != ERR_NONE)
-			return Response::failure(err, channels[i], this->name, this->clients[fd]->getNickname());
+		ErrorCode err = join(channelNames[i], keys.size() > i ? keys[i] : "", fd);
+		if (err == ERR_NONE) {
+			std::string param = "JOIN :" + channelNames[i];
+			broadcastChannel(channelNames[i], Response::success(RPL_NONE, param, this->clients[fd]->getPrefix(), ""));
+		}
+		else
+			return Response::failure(err, channelNames[i], this->name, this->clients[fd]->getNickname());
 	}
+
+	// for (size_t i = 0; i < channelNames.size(); i++)
+	// 	broadcastChannel(channelNames[i], response);
 	return "";
 }

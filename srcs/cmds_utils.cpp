@@ -55,7 +55,7 @@ bool Server::isSameNickname(const std::string &newNickname, const std::string &n
 	return (nickname == newNickname);
 }
 
-void Server::makeJoinVector(Request &request, std::vector<std::string> &channels, std::vector<std::string> &keys)
+void Server::makeJoinVector(Request &request, std::vector<std::string> &channelNames, std::vector<std::string> &keys)
 {
 	std::string channel = request.args[0];
 	std::string key = "";
@@ -63,11 +63,11 @@ void Server::makeJoinVector(Request &request, std::vector<std::string> &channels
 	if (request.args.size() > 1)
 		key = request.args[1];
 	while (channel.find(',') != std::string::npos) {
-		channels.push_back(channel.substr(0, channel.find(',')));
+		channelNames.push_back(channel.substr(0, channel.find(',')));
 		channel = channel.substr(channel.find(',') + 1);
 	}
 	if (!channel.empty())
-		channels.push_back(channel);
+		channelNames.push_back(channel);
 	if (keys.size() == 0)
 		return;
 	while (key.find(',') != std::string::npos) {
@@ -117,6 +117,7 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	}
 	if (this->channels[channelName]->getIsLimit() && this->channels[channelName]->getLimit() <= static_cast<int>(this->channels[channelName]->getMembers().size()))
 		return ERR_CHANNELISFULL;
+
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
 	return ERR_NONE;

@@ -21,6 +21,9 @@ std::string Response::success(const int &num, const std::string &param, const st
 
 	if (num == RPL_YOUREOPER)
 		res = ":You are now an IRC operator";
+	// else if (num == RPL_NONE)
+	// 	res = 
+	(void)param;
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -54,3 +57,24 @@ std::string Response::createMessage(const int &num, const std::string &res, cons
 		tmp = '*';
 	return ":" + prefix + " " + std::to_string(num) + " " + tmp + " " + res;
 }
+
+// std::string Response::customMessage()
+// {
+// 	return "";
+// }
+/*
+join
+kick
+privmsg(channel)
+notice(channel)
+part
+mode
+*/
+
+/*
+for
+check
+broa
+part
+
+*/

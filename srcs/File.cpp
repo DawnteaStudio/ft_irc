@@ -24,3 +24,4 @@ File &File::operator=(const File &other)
 	}
 	return *this;
 }
+ 

@@ -3,7 +3,8 @@ NAME		= ircserv
 HEADER_DIR	= ./include
 CPP_FLAGS	= -Wall -Wextra -Werror -std=c++98
 RM			= rm -rf
-SRCSNAME	= main srcs/Client srcs/cmds srcs/cmds_utils srcs/Request srcs/Response srcs/Server
+FILENAME	= broadcast Channel Client cmds cmds_utils File removeConnection Request Response Server setConnection
+SRCSNAME	= main $(addprefix srcs/, $(FILENAME))
 SRCS		= $(addsuffix .cpp, $(SRCSNAME))
 OBJS		= $(addsuffix .o, $(SRCSNAME))
 DEPS		= $(addsuffix .d, $(SRCSNAME))

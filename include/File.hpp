@@ -1,7 +1,7 @@
 #ifndef FILE_HPP
 #define FILE_HPP
 
-#include "Server.hpp"
+#include <string>
 
 class File {
 public:

@@ -37,8 +37,8 @@ class Channel {
 		const bool &getIsTopicChangeByOperatorOnly() const;
 		const bool &getIsKeyRequired() const;
 		const bool &getIsLimit() const;
-		const bool &isMember(int) const;
-		const bool &isOperator(int) const;
+		bool isMember(int) const;
+		bool isOperator(int) const;
 		std::map<int, Client *> getMembers() const;
 		std::map<int, Client *> getOperators() const;
 		std::map<std::string, File> getFiles() const;

@@ -47,8 +47,6 @@ void Client::appendBuffer(const std::string &newBuffer) { this->buffer += newBuf
 
 void Client::clearBuffer() { this->buffer.clear(); }
 
-void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
-
 void Client::addChannel(Channel *channel) { this->channels.push_back(channel); }
 
 const std::string &Client::getNickname() const { return this->nickname; }
@@ -62,8 +60,6 @@ const std::string &Client::getUserName() const { return this->userName; }
 const std::string &Client::getRealName() const { return this->realName; }
 
 const std::string &Client::getBuffer() const { return this->buffer; }
-
-const bool &Client::getIsRegistered() const { return this->isRegistered; }
 
 const std::string &Client::getPrefix() const { return this->prefix; }
 

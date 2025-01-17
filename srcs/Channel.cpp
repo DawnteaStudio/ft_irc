@@ -2,7 +2,7 @@
 
 Channel::Channel() {}
 
-Channel::Channel(const std::string &name) : name(name), isInviteOnly(false), isTopicChangeByOperatorOnly(false), isKeyRequired(false), isLimit(false), limit(10) {}
+Channel::Channel(const std::string &name) : name(name), limit(10), isInviteOnly(false), isTopicChangeByOperatorOnly(false), isKeyRequired(false), isLimit(false) {}
 
 Channel::Channel(const Channel &other)
 {
@@ -68,9 +68,9 @@ std::map<std::string, File> Channel::getFiles() const { return this->files; }
 
 std::map<std::string, File>::iterator Channel::findFile(const std::string &fileName) { return this->files.find(fileName); }
 
-const bool &Channel::isMember(int fd) const { return this->members.find(fd) != this->members.end(); }
+bool Channel::isMember(int fd) const { return this->members.find(fd) != this->members.end(); }
 
-const bool &Channel::isOperator(int fd) const { return this->operators.find(fd) != this->operators.end(); }
+bool Channel::isOperator(int fd) const { return this->operators.find(fd) != this->operators.end(); }
 
 void Channel::setKey(const std::string &key) { this->key = key; }
 

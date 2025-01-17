@@ -4,6 +4,7 @@
 # include <string>
 # include "Server.hpp"
 
+class Channel;
 class Client {
 	private:
 		int clientFd;
@@ -27,7 +28,6 @@ class Client {
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
-		void setIsOperator(bool);
 		void setPrefix();
 		void appendBuffer(const std::string&);
 		void clearBuffer();

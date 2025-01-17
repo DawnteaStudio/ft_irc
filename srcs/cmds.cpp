@@ -117,7 +117,9 @@ std::string Server::joinChannel(Request &request, int fd)
 
 	std::vector<std::string> channelName;
 	std::vector<std::string> keys;
-	makeJoinVector(request, channelName, keys);
+	makeVector(request.args[0], channelName);
+	if (request.args.size() > 1)
+		makeVector(request.args[1], keys);
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
@@ -135,11 +137,31 @@ std::string Server::partChannel(Request &request, int fd)
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 	
 	std::vector<std::string> channelName;
-	makePartVector(request, channelName);
+	makeVector(request.args[0], channelName);
 
 	for (size_t i = 0; i < channelName.size(); i++)
 	{
 		ErrorCode err = part(channelName[i], fd);
+		if (err != ERR_NONE)
+			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
+	}
+	return "";
+}
+
+std::string Server::kickUser(Request &request, int fd)
+{
+	if (request.args.size() < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "KICK", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	
+	std::vector<std::string> channelName;
+	std::vector<std::string> nicknames;
+	makeVector(request.args[0], channelName);
+	makeVector(request.args[1], nicknames);
+	for (size_t i = 0; i < channelName.size(); i++)
+	{
+		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", fd);
 		if (err != ERR_NONE)
 			return Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
 	}

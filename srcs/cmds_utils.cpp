@@ -55,29 +55,6 @@ bool Server::isSameNickname(const std::string &newNickname, const std::string &n
 	return (nickname == newNickname);
 }
 
-void Server::makeJoinVector(Request &request, std::vector<std::string> &channels, std::vector<std::string> &keys)
-{
-	std::string channel = request.args[0];
-	std::string key = "";
-
-	if (request.args.size() > 1)
-		key = request.args[1];
-	while (channel.find(',') != std::string::npos) {
-		channels.push_back(channel.substr(0, channel.find(',')));
-		channel = channel.substr(channel.find(',') + 1);
-	}
-	if (!channel.empty())
-		channels.push_back(channel);
-	if (keys.size() == 0)
-		return;
-	while (key.find(',') != std::string::npos) {
-		keys.push_back(key.substr(0, key.find(',')));
-		key = key.substr(key.find(',') + 1);
-	}
-	if (!key.empty())
-		keys.push_back(key);
-}
-
 bool Server::isCharString(const char &c) const
 {
 	if (c == ' ' || c == static_cast<char>(0) || c == static_cast<char>(7) || c == static_cast<char>(10) || c == static_cast<char>(13))
@@ -105,6 +82,7 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		this->channels[channelName]->addMember(this->clients[fd]);
 		this->channels[channelName]->addOperator(this->clients[fd]);
 		this->clients[fd]->addChannel(newChannel);
+		// broadcast
 		return ERR_NONE;
 	}
 	if (this->channels[channelName]->getIsInviteOnly()) {
@@ -119,18 +97,8 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		return ERR_CHANNELISFULL;
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
+	// broadcast
 	return ERR_NONE;
-}
-
-void Server::makePartVector(Request &request, std::vector<std::string> &channels)
-{
-	std::string channel = request.args[0];
-	while (channel.find(',') != std::string::npos) {
-		channels.push_back(channel.substr(0, channel.find(',')));
-		channel = channel.substr(channel.find(',') + 1);
-	}
-	if (!channel.empty())
-		channels.push_back(channel);
 }
 
 ErrorCode Server::part(const std::string &channelName, int fd)
@@ -149,4 +117,31 @@ ErrorCode Server::part(const std::string &channelName, int fd)
 		this->channels.erase(channelName);
 	}
 	return ERR_NONE;
+}
+
+ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, int fd)
+{
+	if (this->channels.find(channelName) == this->channels.end())
+		return ERR_NOSUCHCHANNEL;
+	if (nickname.empty())
+		return ERR_NEEDMOREPARAMS;
+	if (!this->channels[channelName]->isOperator(fd))
+		return ERR_CHANOPRIVSNEEDED;
+	if (!this->channels[channelName]->isMember(nickname))
+		return ERR_USERNOTINCHANNEL;
+	int kickFd = this->clients[fd]->getFd();
+	this->channels[channelName]->removeMember(kickFd);
+	this->clients[kickFd]->removeChannel(this->channels[channelName]);
+	// broadcast
+	return ERR_NONE;
+}
+
+void Server::makeVector(std::string str, std::vector<std::string> &vec)
+{
+	while (str.find(',') != std::string::npos) {
+		vec.push_back(str.substr(0, str.find(',')));
+		str = str.substr(str.find(',') + 1);
+	}
+	if (!str.empty())
+		vec.push_back(str);
 }

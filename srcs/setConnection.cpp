@@ -92,6 +92,10 @@ void Server::execCmd(Request &msg, int fd) {
 		response = getFile(msg, fd);
 	else if (msg.getCommand() == "SENDFILE")
 		response = sendFile(msg, fd);
+	else if (msg.getCommand() == "PART")
+		response = partChannel(msg, fd);
+	else if (msg.getCommand() == "KICK")
+		response = kickUser(msg, fd);
 	else
 		response = Response::failure(ERR_UNKNOWNCOMMAND, msg.getCommand(), this->name, this->clients[fd]->getNickname());
 	send(fd, response.c_str(), response.length(), 0);

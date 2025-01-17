@@ -41,8 +41,7 @@ class Server {
 		std::vector<pollfd> pfd;
 		Server(const Server&);
 		Server &operator=(const Server&);
-		void makeJoinVector(Request&, std::vector<std::string>&, std::vector<std::string>&);
-		void makePartVector(Request&, std::vector<std::string>&);
+		void makeVector(std::string, std::vector<std::string>&);
 		void setSocket();
 		void addClient();
 		void connectClient(int);
@@ -57,12 +56,13 @@ class Server {
 		// std::string	quit(Request&, int);
 		std::string joinChannel(Request&, int);
 		ErrorCode join(const std::string&, const std::string&, int);
-		ErrorCode part(const std::string&, int);
 		std::string	partChannel(Request&, int);
+		ErrorCode part(const std::string&, int);
+		std::string kickUser(Request&, int);
+		ErrorCode kick(const std::string&, const std::string&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);
 		// std::string	invite(Request&, int);
-		// std::string	kick(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
 		bool isValidUserNickname(const std::string&);

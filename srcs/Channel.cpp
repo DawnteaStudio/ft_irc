@@ -44,6 +44,24 @@ void Channel::addOperator(Client *client)
 
 void Channel::removeOperator(int fd) { this->operators.erase(fd); }
 
+void Channel::addFile(std::string &fileName, std::string &content)
+{
+	File file(fileName, this->name);
+	file.setFileContent(content);
+	this->files[fileName] = file;
+}
+
+void Channel::addInvitedClient(int fd) { this->invitedClients.push_back(fd); }
+
+void Channel::removeInvitedClient(int fd)
+{
+	std::vector<int>::iterator it = std::find(this->invitedClients.begin(), this->invitedClients.end(), fd);
+	if (it != this->invitedClients.end())
+		this->invitedClients.erase(it);
+}
+
+void Channel::removeFile(const std::string &fileName) { this->files.erase(fileName); }
+
 const std::string &Channel::getName() const { return this->name; }
 
 const std::string &Channel::getKey() const { return this->key; }
@@ -68,9 +86,13 @@ std::map<std::string, File> Channel::getFiles() const { return this->files; }
 
 std::map<std::string, File>::iterator Channel::findFile(const std::string &fileName) { return this->files.find(fileName); }
 
+std::vector<int> Channel::getInvitedClients() const { return this->invitedClients; }
+
 bool Channel::isMember(int fd) const { return this->members.find(fd) != this->members.end(); }
 
 bool Channel::isOperator(int fd) const { return this->operators.find(fd) != this->operators.end(); }
+
+bool Channel::isInvitedClient(int fd) const { return std::find(this->invitedClients.begin(), this->invitedClients.end(), fd) != this->invitedClients.end(); }
 
 void Channel::setKey(const std::string &key) { this->key = key; }
 

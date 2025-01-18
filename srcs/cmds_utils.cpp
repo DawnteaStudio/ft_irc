@@ -74,6 +74,7 @@ Client * Server::getClientByNickname(const std::string &nickname)
 
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
+	// std::string res = makeBroadMsg("JOIN " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end()) {
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
@@ -92,11 +93,11 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		this->channels[channelName]->addMember(this->clients[fd]);
 		this->channels[channelName]->addOperator(this->clients[fd]);
 		this->clients[fd]->addChannel(newChannel);
-		// broadcast
+		// broadcastChannel(channelName, res);
 		return ERR_NONE;
 	}
 	if (this->channels[channelName]->getIsInviteOnly()) {
-		if (!this->channels[channelName]->isOperator(fd))
+		if (!this->channels[channelName]->isInvitedClient(fd))
 			return ERR_INVITEONLYCHAN;
 	}
 	if (this->channels[channelName]->getIsKeyRequired()) {
@@ -105,33 +106,41 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	}
 	if (this->channels[channelName]->getIsLimit() && this->channels[channelName]->getLimit() <= static_cast<int>(this->channels[channelName]->getMembers().size()))
 		return ERR_CHANNELISFULL;
-
+	if (this->clients[fd]->isInvitedChannel(channelName)) {
+		this->clients[fd]->removeInvitedChannel(channelName);
+		this->channels[channelName]->removeInvitedClient(fd);
+	}
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
-	// broadcast
+	// broadcastChannel(channelName, res);
 	return ERR_NONE;
 }
 
 ErrorCode Server::part(const std::string &channelName, int fd)
 {
+	// std::string res = makeBroadMsg("PART " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
 	if (this->channels[channelName]->isOperator(fd))
 		this->channels[channelName]->removeOperator(fd);
 	if (!this->channels[channelName]->isMember(fd))
 		return ERR_NOTONCHANNEL;
-	// broadcast
+	// broadcastChannel(channelName, res);
 	this->channels[channelName]->removeMember(fd);
 	this->clients[fd]->removeChannel(this->channels[channelName]);
-	if (this->channels[channelName]->getMembers().size() == 0) {
-		delete this->channels[channelName];
-		this->channels.erase(channelName);
-	}
+	if (this->channels[channelName]->getMembers().size() == 0)
+		removeChannelData(channelName);
 	return ERR_NONE;
 }
 
-ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, int fd)
+ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, const std::string &reason, int fd)
 {
+	// start (response area)
+	// std::string res = "KICK " + channelName + " " + nickname;
+	// if (reason != ":")
+	// 	res += " " + reason;
+	// res = makeBroadMsg(res, fd);
+	// end
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
 	if (nickname.empty())
@@ -150,7 +159,7 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		this->channels[channelName]->removeOperator(kickFd);
 	this->channels[channelName]->removeMember(kickFd);
 	this->clients[kickFd]->removeChannel(this->channels[channelName]);
-	// broadcast
+	// broadcastChannel(channelName, res);
 	return ERR_NONE;
 }
 

@@ -89,21 +89,14 @@ std::string Server::sendFile(Request &request, int fd)
 	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
 		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-	file.setFileContent(content);
+	this->channels[channelName]->addFile(fileName, content);
 	ifs.close();
-	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
 	// return Response::success(RPL_FILESENT, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
 }
 
 void Server::quit(int fd)
 {
-	// std::cout << RED << "Client <" << fd << "> Disconnected" << WHITE << std::endl;
-	// Client *client = this->clients[fd];
-	// if (client->getChannels().size() > 0)
-	// {
-	// 	for (std::vector<Channel *>::iterator it = client->getChannels().begin(); it != client->getChannels().end(); it++)
-	// 		(*it)->quit(client);
-	// }
+	
 	this->removeClient(fd);
 	close(fd);
 }
@@ -128,8 +121,6 @@ std::string Server::joinChannel(Request &request, int fd)
 			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname()); // send directly
 			send(fd, res.c_str(), res.length(), 0);
 		}
-		else
-			//send channelInfo
 	}
 	return "";
 }
@@ -165,12 +156,17 @@ std::string Server::kickUser(Request &request, int fd)
 	
 	std::vector<std::string> channelName;
 	std::vector<std::string> nicknames;
+	std::string reason = ":";
 	std::string res;
 	makeVector(request.args[0], channelName);
 	makeVector(request.args[1], nicknames);
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
-		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", fd);
+	size_t size = request.args.size();
+	for (size_t i = 2; i < size; i++) {
+		reason += request.args[i];
+		if (i + 1 < size) reason += " ";
+	}
+	for (size_t i = 0; i < channelName.size(); i++) {
+		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", reason, fd);
 		if (err != ERR_NONE) {
 			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
 			send(fd, res.c_str(), res.length(), 0);
@@ -178,3 +174,4 @@ std::string Server::kickUser(Request &request, int fd)
 	}
 	return "";
 }
+

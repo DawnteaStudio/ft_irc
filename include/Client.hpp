@@ -2,6 +2,7 @@
 # define CLIENT_HPP
 
 # include <string>
+# include <algorithm>
 # include "Server.hpp"
 
 class Channel;
@@ -17,6 +18,7 @@ class Client {
 		bool isValidPasswd;
 		bool isRegistered;
 		std::vector<Channel *> channels;
+		std::vector<std::string> invitedChannels;
 		Client();
 	public:
 		Client(const int&);
@@ -34,12 +36,15 @@ class Client {
 		void setIpAddr(const std::string&);
 		void addChannel(Channel *);
 		void removeChannel(Channel *);
+		void addInvitedChannel(const std::string&);
+		void removeInvitedChannel(const std::string&);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
 		const std::string &getBuffer() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
+		const bool isInvitedChannel(const std::string&) const;
 		const std::string &getPrefix() const;
 		const int &getClientFd() const;
 		std::vector<Channel *> getChannels() const;

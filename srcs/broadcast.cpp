@@ -8,3 +8,11 @@ void Server::broadcastChannel(const std::string &channelName, const std::string 
 	for (; iter != members.end(); iter++)
 		send(iter->first, response.c_str(), response.length(), 0);
 }
+
+// std::string Server::makeBroadMsg(const std::string &response, int fd)
+// {
+// 	std::string res = ":" + this->clients[fd]->getNickname() + "!" + this->clients[fd]->getUserName() + "@" + this->clients[fd]->getIpAddr() + " " + response;
+// 	res += "\r\n";
+// 	return res;
+// }
+

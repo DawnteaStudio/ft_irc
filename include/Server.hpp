@@ -24,6 +24,7 @@
 # define RED "\033[1;31m"
 # define WHITE "\033[0;37m"
 # define DOWNLOADED_FILE_PATH "/Users/sewopark/Desktop/downloads/" // envp 고려(user name)
+# define HOSTNAME "127.0.0.1"
 
 class Client;
 class Channel;
@@ -59,7 +60,7 @@ class Server {
 		std::string	partChannel(Request&, int);
 		ErrorCode part(const std::string&, int);
 		std::string kickUser(Request&, int);
-		ErrorCode kick(const std::string&, const std::string&, int);
+		ErrorCode kick(const std::string&, const std::string&, const std::string&, int);
 		// std::string	setMode(Request&, int);
 		// std::string	topic(Request&, int);
 		// std::string	invite(Request&, int);
@@ -73,6 +74,9 @@ class Server {
 		bool isCharString(const char&) const;
 		std::string convertChar(const std::string&);
 		void broadcastChannel(const std::string&, const std::string&);
+		void removeChannelInvitedClient(Channel*);
+		void removeChannelData(const std::string&);
+		// std::string makeBroadMsg(const std::string&, int);
 		Client *getClientByNickname(const std::string&);
 	public:
 		Server();

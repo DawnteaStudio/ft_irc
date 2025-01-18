@@ -1,6 +1,7 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+# include <algorithm>
 # include "File.hpp"
 # include "Server.hpp"
 
@@ -19,6 +20,7 @@ class Channel {
 		std::map<int, Client *> members;
 		std::map<int, Client *> operators;
 		std::map<std::string, File> files;
+		std::vector<int> invitedClients;
 		Channel();
 	public:
 		Channel(const std::string&);
@@ -29,6 +31,10 @@ class Channel {
 		void removeMember(int);
 		void addOperator(Client *);
 		void removeOperator(int);
+		void addFile(std::string&, std::string&);
+		void removeFile(const std::string&);
+		void addInvitedClient(int);
+		void removeInvitedClient(int);
 		const std::string &getName() const;
 		const std::string &getKey() const;
 		const std::string &getTopic() const;
@@ -39,10 +45,12 @@ class Channel {
 		const bool &getIsLimit() const;
 		bool isMember(int) const;
 		bool isOperator(int) const;
+		bool isInvitedClient(int) const;
 		std::map<int, Client *> getMembers() const;
 		std::map<int, Client *> getOperators() const;
 		std::map<std::string, File> getFiles() const;
 		std::map<std::string, File>::iterator findFile(const std::string&);
+		std::vector<int> getInvitedClients() const;
 		void setKey(const std::string&);
 		void setTopic(const std::string&);
 		void setLimit(const int);

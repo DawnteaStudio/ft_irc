@@ -28,10 +28,8 @@ void Server::run()
 			throw std::runtime_error("poll() error!");
 		if (event_cnt == 0)
 			continue;
-		for (size_t i = 0; i < this->pfd.size(); i++)
-		{
-			if (this->pfd[i].revents & POLLIN)
-			{
+		for (size_t i = 0; i < this->pfd.size(); i++) {
+			if (this->pfd[i].revents & POLLIN) {
 				if (this->pfd[i].fd == this->socketFd)
 					addClient();
 				else

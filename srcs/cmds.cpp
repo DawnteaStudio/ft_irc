@@ -96,7 +96,7 @@ std::string Server::sendFile(Request &request, int fd)
 
 void Server::quit(int fd)
 {
-	
+
 	this->removeClient(fd);
 	close(fd);
 }
@@ -114,8 +114,7 @@ std::string Server::joinChannel(Request &request, int fd)
 	makeVector(request.args[0], channelName);
 	if (request.args.size() > 1)
 		makeVector(request.args[1], keys);
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
+	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
 		if (err != ERR_NONE) {
 			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname()); // send directly
@@ -136,8 +135,7 @@ std::string Server::partChannel(Request &request, int fd)
 	std::string res;
 	makeVector(request.args[0], channelName);
 
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
+	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = part(channelName[i], fd);
 		if (err != ERR_NONE) {
 			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());

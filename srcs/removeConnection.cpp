@@ -3,8 +3,7 @@
 void Server::removeClient(int fd)
 {
 	int size = this->clients[fd]->getChannels().size();
-	for (int i = 0; i < size; i++)
-	{
+	for (int i = 0; i < size; i++) {
 		std::string channelName = this->clients[fd]->getChannels()[i]->getName();
 		Channel *channel = this->channels[channelName];
 		if (channel->isMember(fd)) {
@@ -16,10 +15,8 @@ void Server::removeClient(int fd)
 		if (channel->getMembers().size() == 0)
 			removeChannelData(channelName);
 	}
-	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();)
-	{
-		if (it->fd == fd)
-		{
+	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
+		if (it->fd == fd) {
 			this->pfd.erase(it);
 			break;
 		}

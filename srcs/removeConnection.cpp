@@ -1,15 +1,15 @@
 #include "../include/Server.hpp"
 
-void Server::removeClient(int fd)
+void Server::removeClient(int fd, bool isLeave)
 {
 	int size = this->clients[fd]->getChannels().size();
 	for (int i = 0; i < size; i++) {
 		std::string channelName = this->clients[fd]->getChannels()[i]->getName();
 		Channel *channel = this->channels[channelName];
-		if (channel->isMember(fd)) {
-			channel->removeMember(fd);
-			// braodcastChannel(channelName, makeBroadMsg("QUIT " + channelName, fd));
-		}
+		channel->removeMember(fd);
+		// braodcastChannel(channelName, makeBroadMsg("QUIT " + channelName, fd));
+		// if (isLeave) :Quit: leaving
+		// else :Quit sigint
 		if (channel->isOperator(fd))
 			channel->removeOperator(fd);
 		if (channel->getMembers().size() == 0)
@@ -23,6 +23,7 @@ void Server::removeClient(int fd)
 		else
 			it++;
 	}
+	this->deleteUserNickname(this->clients[fd]->getNickname());
 	delete this->clients[fd];
 	this->clients.erase(fd);
 }

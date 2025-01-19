@@ -94,10 +94,19 @@ std::string Server::sendFile(Request &request, int fd)
 	// return Response::success(RPL_FILESENT, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
 }
 
+std::string Server::quit(Request &request, int fd)
+{
+	if (!this->clients[fd]->getIsRegistered())
+		return (Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname()));
+	this->removeClient(fd, true);
+	close(fd);
+	return "";
+}
+
 void Server::quit(int fd)
 {
-
-	this->removeClient(fd);
+	if (this->clients.find(fd) != this->clients.end())
+		this->removeClient(fd, false);
 	close(fd);
 }
 
@@ -173,3 +182,27 @@ std::string Server::kickUser(Request &request, int fd)
 	return "";
 }
 
+std::string Server::inviteUser(Request &request, int fd)
+{
+	if (request.args.size() < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "INVITE", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+
+	std::string channelName = request.args[0];
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isOperator(fd))
+		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+	std::string invitedNickname = request.args[1];
+	if (this->isClientInServer(invitedNickname) == false)
+		return Response::failure(ERR_NOSUCHNICK, invitedNickname, this->name, this->clients[fd]->getNickname());
+	int invitedFd = this->getClientByNickname(invitedNickname)->getClientFd();
+	if (this->channels[channelName]->isMember(invitedFd))
+		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
+	
+	this->clients[fd]->addInvitedChannel(channelName);
+	return "";
+}

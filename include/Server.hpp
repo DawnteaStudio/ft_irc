@@ -43,6 +43,7 @@ class Server {
 		Server(const Server&);
 		Server &operator=(const Server&);
 		void makeVector(std::string, std::vector<std::string>&);
+		void makeModeVector(std::string, std::vector<std::pair<char, std::string>>&);
 		void setSocket();
 		void addClient();
 		void connectClient(int);
@@ -63,7 +64,8 @@ class Server {
 		ErrorCode kick(const std::string&, const std::string&, const std::string&, int);
 		std::string	inviteUser(Request&, int);
 		std::string	setMode(Request&, int);
-		ErrorCode mode(const std::string&, const std::string&, const std::string&, int);
+		void classifyMode(Request&, std::string&, int);
+		ErrorCode mode(const std::string&, const std::pair<char, std::string>&, const std::string&, int);
 		// std::string	topic(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
@@ -73,8 +75,11 @@ class Server {
 		void addNewUserNickname(const std::string&);
 		bool isSameNickname(const std::string&, const std::string&);
 		bool isCharString(const char&) const;
+		bool isRightModeFlag(const std::string&);
+		bool isNeedParamFlag(const std::string&);
 		std::string convertChar(const std::string&);
 		void broadcastChannel(const std::string&, const std::string&);
+		void sendError(ErrorCode, const std::string&, int);
 		void removeChannelInvitedClient(Channel*);
 		void removeChannelData(const std::string&);
 		// std::string makeBroadMsg(const std::string&, int);

@@ -178,6 +178,73 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 	return ERR_NONE;
 }
 
+void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
+{
+	std::string ChannelName = request.args[0];
+	std::vector<std::pair<char, std::string>> modes;
+	std::vector<std::string> params(request.args.begin() + 2, request.args.end());
+	makeModeVector(request.args[1], modes);
+
+	size_t size = modes.size();
+	std::string res;
+	char sign = '+';
+	ErrorCode err;
+	for (size_t i = 0; i < size; i++) {
+		if (!isRightModeFlag(modes[i].second)) {
+			res = Response::failure(ERR_UNKNOWNMODE, modes[i].second, this->name, this->clients[fd]->getNickname());
+			send(fd, res.c_str(), res.length(), 0);
+			continue;
+		}
+		if (isNeedParamFlag(modes[i].second)) {
+			if (params.size() == 0) {
+				sendError(ERR_NEEDMOREPARAMS, modes[i].second, fd);
+				continue;
+			}
+			err = mode(ChannelName, modes[i], params[0], fd);
+			if (err != ERR_NONE)
+				sendError(err, modes[i].second, fd);
+			params.erase(params.begin());
+		} else {
+			err = mode(ChannelName, modes[i], "", fd);
+			if (err != ERR_NONE)
+				sendError(err, modes[i].second, fd);
+		}
+		if (err == ERR_NONE) {
+			if (sign != modes[i].first) {
+				sign = modes[i].first;
+				sendMsg += sign;
+			}
+			sendMsg += modes[i].second;
+		}
+	}
+}
+
+bool Server::isNeedParamFlag(const std::string &modeFlag)
+{
+	if (modeFlag == "k" || modeFlag == "l" || modeFlag == "o")
+		return true;
+	return false;
+}
+
+bool Server::isRightModeFlag(const std::string &modeFlag)
+{
+	if (modeFlag == "i" || modeFlag == "t" || modeFlag == "k" || modeFlag == "l" || modeFlag == "o")
+		return true;
+	return false;
+}
+
+void Server::makeModeVector(std::string modeInput, std::vector<std::pair<char, std::string>> &vec)
+{
+	char sign = '+';
+	for (size_t i = 0; i < modeInput.size(); i++) {
+		if (modeInput[i] == '+' || modeInput[i] == '-') {
+			sign = modeInput[i];
+			continue;
+		}
+		vec.push_back(std::make_pair(sign, std::string(1, modeInput[i])));
+	}
+}
+
 void Server::makeVector(std::string str, std::vector<std::string> &vec)
 {
 	while (str.find(',') != std::string::npos) {

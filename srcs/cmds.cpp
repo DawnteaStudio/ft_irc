@@ -123,10 +123,8 @@ std::string Server::joinChannel(Request &request, int fd)
 		makeVector(request.args[1], keys);
 	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
-		if (err != ERR_NONE) {
-			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname()); // send directly
-			send(fd, res.c_str(), res.length(), 0);
-		}
+		if (err != ERR_NONE)
+			sendError(err, channelName[i], fd);
 	}
 	return "";
 }
@@ -144,10 +142,8 @@ std::string Server::partChannel(Request &request, int fd)
 
 	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = part(channelName[i], fd);
-		if (err != ERR_NONE) {
-			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-			send(fd, res.c_str(), res.length(), 0);
-		}
+		if (err != ERR_NONE)
+			sendError(err, channelName[i], fd);
 	}
 	return "";
 }
@@ -172,10 +168,8 @@ std::string Server::kickUser(Request &request, int fd)
 	}
 	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", reason, fd);
-		if (err != ERR_NONE) {
-			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-			send(fd, res.c_str(), res.length(), 0);
-		}
+		if (err != ERR_NONE)
+			sendError(err, channelName[i], fd);
 	}
 	return "";
 }
@@ -207,7 +201,6 @@ std::string Server::inviteUser(Request &request, int fd)
 
 std::string Server::setMode(Request &request, int fd)
 {
-	size_t modeSize;
 	size_t size = request.args.size();
 	if (size < 2)
 		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
@@ -221,35 +214,9 @@ std::string Server::setMode(Request &request, int fd)
 	if (!this->channels[channelName]->isOperator(fd))
 		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
 	
-	std::string mode = request.args[1];
-	size_t len = mode.length();
-	if (len < 1)
-		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
-	std::vector<std::pair<char, std::string>> modes;
-	char sign = '+';
-	for (size_t i = 0; i < len; i++) {
-		if (mode[i] == '+' || mode[i] == '-') {
-			sign = mode[i];
-			continue;
-		}
-		modes.push_back(std::make_pair(sign, std::string(1, mode[i])));
-	}
-
-	std::vector<std::string> params;
-	for (size_t i = 2; i < size; i++)
-		params.push_back(request.args[i]);
-	modeSize = modes.size();
-
 	std::string sendMsg;
-	bool changeSign = false;
-	for (size_t i = 0; i < modeSize; i++) {
-		if (i == 0)
-			sign = modes[i].first;
-		else if (modes[i].first != sign) {
-			sign = modes[i].first;
-			changeSign = true;
-		}
-		if ()
-	}
+	classifyMode(request, sendMsg, fd);
+	// sendMsg => Success modes colleted
+	// we need to send this message to all members of the channel
 	return "";
 }

@@ -16,3 +16,8 @@ void Server::broadcastChannel(const std::string &channelName, const std::string 
 // 	return res;
 // }
 
+void Server::sendError(ErrorCode err, const std::string &channelName, int fd)
+{
+	std::string res = Response::failure(err, channelName, this->name, this->clients[fd]->getNickname());
+	send(fd, res.c_str(), res.length(), 0);
+}

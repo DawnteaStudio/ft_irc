@@ -216,6 +216,7 @@ std::string Server::setMode(Request &request, int fd)
 	
 	std::string sendMsg;
 	classifyMode(request, sendMsg, fd);
+	// sendMsg 말고도 사용하지 않은 arg들이 어떻게 출력되는 지 확인해야함.
 	// sendMsg => Success modes colleted
 	// we need to send this message to all members of the channel
 	return "";

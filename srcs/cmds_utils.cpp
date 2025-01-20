@@ -41,7 +41,8 @@ void Server::deleteUserNickname(const std::string &nickname)
 {
 	std::string tmp = convertChar(nickname);
 	std::vector<std::string>::iterator iter = std::find(this->clientNicknames.begin(), this->clientNicknames.end(), tmp);
-	this->clientNicknames.erase(iter);
+	if (iter != this->clientNicknames.end())
+		this->clientNicknames.erase(iter);
 }
 
 void Server::addNewUserNickname(const std::string &newNickname)
@@ -92,7 +93,9 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		this->channels[channelName]->addMember(this->clients[fd]);
 		this->channels[channelName]->addOperator(this->clients[fd]);
 		this->clients[fd]->addChannel(newChannel);
-		// broadcast
+
+		broadcastChannel(channelName, Response::customMessageForJoin(this->clients[fd]->getPrefix(), channelName));
+		channelInfo(fd, channelName);
 		return ERR_NONE;
 	}
 	if (this->channels[channelName]->getIsInviteOnly()) {
@@ -108,7 +111,9 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
-	// broadcast
+	
+	broadcastChannel(channelName, Response::customMessageForJoin(this->clients[fd]->getPrefix(), channelName));
+	channelInfo(fd, channelName);
 	return ERR_NONE;
 }
 
@@ -161,4 +166,34 @@ void Server::makeVector(std::string str, std::vector<std::string> &vec)
 	}
 	if (!str.empty())
 		vec.push_back(str);
+}
+
+void Server::channelInfo(const int &fd, const std::string &channelName)
+{
+	Channel *channel = this->channels[channelName];
+	std::string response;
+	std::string prefix = this->clients[fd]->getPrefix();
+	std::string nickname = this->clients[fd]->getNickname();
+
+	// topic 
+	std::string topic = channel->getTopic();
+	if (!topic.empty()) {
+		response = Response::success(RPL_TOPIC, channelName, prefix, nickname, topic);
+		send(fd, response.c_str(), response.length(), 0);
+	}
+
+	// name list
+	std::string nameList;
+	std::map<int, Client *> members = channel->getMembers();
+	std::map<int, Client *>::iterator iter = members.begin();
+	for (; iter != members.end(); iter++) {
+		if (channel->isOperator(iter->first))
+			nameList += "@" + iter->second->getNickname() + " ";
+	}
+	nameList.erase(nameList.size() - 1, 1);
+	response = Response::success(RPL_NAMREPLY, channelName, prefix, nickname, nameList);
+	send(fd, response.c_str(), response.length(), 0);
+
+	response = Response::success(RPL_ENDOFNAMES, channelName, prefix, nickname, "");
+	send(fd, response.c_str(), response.length(), 0);
 }

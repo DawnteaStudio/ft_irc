@@ -74,6 +74,7 @@ class Server {
 		std::string convertChar(const std::string&);
 		void broadcastChannel(const std::string&, const std::string&);
 		Client *getClientByNickname(const std::string&);
+		void channelInfo(const int&, const std::string&);
 	public:
 		Server();
 		Server(const std::string&, const std::string&);

@@ -2,8 +2,10 @@
 # define RESPONSECODE_HPP
 
 enum ResposeCode {
-	RPL_NONE = 300,
-	RPL_YOUREOPER = 381
+	RPL_NOTOPIC = 331,
+	RPL_TOPIC,
+	RPL_NAMREPLY = 353,
+	RPL_ENDOFNAMES = 366,
 };
 
 #endif

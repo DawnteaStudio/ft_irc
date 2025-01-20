@@ -15,15 +15,18 @@ Response &Response::operator=(const Response &other)
 	return *this;
 }
 
-std::string Response::success(const int &num, const std::string &param, const std::string &prefix, const std::string &clientNickname)
+std::string Response::success(const int &num, const std::string &channelName, const std::string &prefix, const std::string &clientNickname, const std::string &param)
 {
 	std::string res;
 
-	if (num == RPL_YOUREOPER)
-		res = ":You are now an IRC operator";
-	// else if (num == RPL_NONE)
-	// 	res = 
-	(void)param;
+	if (num == RPL_NOTOPIC)
+		res = channelName + " :No topic is set";
+	else if (num == RPL_TOPIC)
+		res = channelName + " :" + param;
+	else if (num == RPL_NAMREPLY)
+		res = channelName + " :" + param;
+	else if (num == RPL_ENDOFNAMES)
+		res = channelName + " :End of /NAMES list";
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -55,13 +58,13 @@ std::string Response::createMessage(const int &num, const std::string &res, cons
 	std::string tmp = clientNickname;
 	if (tmp == "")
 		tmp = '*';
-	return ":" + prefix + " " + std::to_string(num) + " " + tmp + " " + res;
+	return ":" + prefix + " " + std::to_string(num) + " " + tmp + " " + res + CRLF;
 }
 
-// std::string Response::customMessage()
-// {
-// 	return "";
-// }
+std::string Response::customMessageForJoin(const std::string &prefix, const std::string &channelName)
+{
+	return ":" + prefix + " JOIN :" + channelName + CRLF;
+}
 /*
 join
 kick

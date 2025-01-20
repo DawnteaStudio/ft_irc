@@ -196,7 +196,7 @@ std::string Server::inviteUser(Request &request, int fd)
 		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
 	
 	this->clients[fd]->addInvitedChannel(channelName);
-	return "";
+	// return "" 성공시 메세지 출력 부분;
 }
 
 std::string Server::setMode(Request &request, int fd)

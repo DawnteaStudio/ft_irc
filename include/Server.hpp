@@ -65,7 +65,10 @@ class Server {
 		std::string	inviteUser(Request&, int);
 		std::string	setMode(Request&, int);
 		void classifyMode(Request&, std::string&, int);
-		ErrorCode mode(const std::string&, const std::pair<char, std::string>&, const std::string&, int);
+		ErrorCode mode(const std::string&, const std::pair<char, std::string>&, const std::string&);
+		ErrorCode modeO(const std::string&, const std::string&, bool);
+		ErrorCode modeK(const std::string&, const std::string&, bool);
+		ErrorCode modeL(const std::string&, const std::string&, bool);
 		// std::string	topic(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);
@@ -76,7 +79,7 @@ class Server {
 		bool isSameNickname(const std::string&, const std::string&);
 		bool isCharString(const char&) const;
 		bool isRightModeFlag(const std::string&);
-		bool isNeedParamFlag(const std::string&);
+		bool isNeedParamFlag(const std::string&, bool);
 		std::string convertChar(const std::string&);
 		void broadcastChannel(const std::string&, const std::string&);
 		void sendError(ErrorCode, const std::string&, int);

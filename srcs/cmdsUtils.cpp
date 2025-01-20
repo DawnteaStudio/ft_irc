@@ -191,21 +191,20 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	ErrorCode err;
 	for (size_t i = 0; i < size; i++) {
 		if (!isRightModeFlag(modes[i].second)) {
-			res = Response::failure(ERR_UNKNOWNMODE, modes[i].second, this->name, this->clients[fd]->getNickname());
-			send(fd, res.c_str(), res.length(), 0);
+			sendError(ERR_UNKNOWNMODE, modes[i].second, fd);
 			continue;
 		}
-		if (isNeedParamFlag(modes[i].second)) {
+		if (isNeedParamFlag(modes[i].second, modes[i].first == '+')) {
 			if (params.size() == 0) {
 				sendError(ERR_NEEDMOREPARAMS, modes[i].second, fd);
 				continue;
 			}
-			err = mode(ChannelName, modes[i], params[0], fd);
+			err = mode(ChannelName, modes[i], params[0]);
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
 			params.erase(params.begin());
 		} else {
-			err = mode(ChannelName, modes[i], "", fd);
+			err = mode(ChannelName, modes[i], "");
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
 		}
@@ -219,10 +218,13 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	}
 }
 
-bool Server::isNeedParamFlag(const std::string &modeFlag)
+bool Server::isNeedParamFlag(const std::string &modeFlag, bool isAdd)
 {
-	if (modeFlag == "k" || modeFlag == "l" || modeFlag == "o")
+	if (modeFlag == "k" || modeFlag == "l" || modeFlag == "o") {
+			if (modeFlag == "l" && isAdd == false)
+				return false;
 		return true;
+	}
 	return false;
 }
 

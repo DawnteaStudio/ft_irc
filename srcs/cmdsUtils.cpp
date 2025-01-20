@@ -106,6 +106,8 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		// broadcastChannel(channelName, res);
 		return ERR_NONE;
 	}
+	if (this->channels[channelName]->isMember(fd))
+		return ERR_NONE;
 	if (this->channels[channelName]->getIsInviteOnly()) {
 		if (!this->channels[channelName]->isInvitedClient(fd))
 			return ERR_INVITEONLYCHAN;
@@ -116,6 +118,8 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	}
 	if (this->channels[channelName]->getIsLimit() && this->channels[channelName]->getLimit() <= static_cast<int>(this->channels[channelName]->getMembers().size()))
 		return ERR_CHANNELISFULL;
+	if (this->clients[fd]->getChannels().size() >= 10)
+		return ERR_TOOMANYCHANNELS;
 	if (this->clients[fd]->isInvitedChannel(channelName)) {
 		this->clients[fd]->removeInvitedChannel(channelName);
 		this->channels[channelName]->removeInvitedClient(fd);

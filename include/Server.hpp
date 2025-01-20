@@ -62,7 +62,8 @@ class Server {
 		std::string kickUser(Request&, int);
 		ErrorCode kick(const std::string&, const std::string&, const std::string&, int);
 		std::string	inviteUser(Request&, int);
-		// std::string	setMode(Request&, int);
+		std::string	setMode(Request&, int);
+		ErrorCode mode(const std::string&, const std::string&, const std::string&, int);
 		// std::string	topic(Request&, int);
 		// std::string	privmsg(Request&, int);
 		// std::string	notice(Request&, int);

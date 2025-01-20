@@ -96,8 +96,6 @@ std::string Server::sendFile(Request &request, int fd)
 
 std::string Server::quit(Request &request, int fd)
 {
-	if (!this->clients[fd]->getIsRegistered())
-		return (Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname()));
 	this->removeClient(fd, true);
 	close(fd);
 	return "";
@@ -204,5 +202,54 @@ std::string Server::inviteUser(Request &request, int fd)
 		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
 	
 	this->clients[fd]->addInvitedChannel(channelName);
+	return "";
+}
+
+std::string Server::setMode(Request &request, int fd)
+{
+	size_t modeSize;
+	size_t size = request.args.size();
+	if (size < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	std::string channelName = request.args[0];
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isOperator(fd))
+		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+	
+	std::string mode = request.args[1];
+	size_t len = mode.length();
+	if (len < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
+	std::vector<std::pair<char, std::string>> modes;
+	char sign = '+';
+	for (size_t i = 0; i < len; i++) {
+		if (mode[i] == '+' || mode[i] == '-') {
+			sign = mode[i];
+			continue;
+		}
+		modes.push_back(std::make_pair(sign, std::string(1, mode[i])));
+	}
+
+	std::vector<std::string> params;
+	for (size_t i = 2; i < size; i++)
+		params.push_back(request.args[i]);
+	modeSize = modes.size();
+
+	std::string sendMsg;
+	bool changeSign = false;
+	for (size_t i = 0; i < modeSize; i++) {
+		if (i == 0)
+			sign = modes[i].first;
+		else if (modes[i].first != sign) {
+			sign = modes[i].first;
+			changeSign = true;
+		}
+		if ()
+	}
 	return "";
 }

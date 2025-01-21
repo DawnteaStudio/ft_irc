@@ -129,13 +129,9 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	}
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
-<<<<<<< HEAD:srcs/cmds_utils.cpp
 	
 	broadcastChannel(channelName, Response::customMessageForJoin(this->clients[fd]->getPrefix(), channelName));
 	channelInfo(fd, channelName);
-=======
-	// broadcastChannel(channelName, res);
->>>>>>> channel:srcs/cmdsUtils.cpp
 	return ERR_NONE;
 }
 
@@ -173,13 +169,9 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		return ERR_NOTONCHANNEL;
 	if (!channel->isOperator(fd))
 		return ERR_CHANOPRIVSNEEDED;
-<<<<<<< HEAD:srcs/cmds_utils.cpp
-		
-=======
 	if (this->isClientInServer(nickname) == false)
 		return ERR_NOSUCHNICK;
 
->>>>>>> channel:srcs/cmdsUtils.cpp
 	Client *kickClient = getClientByNickname(nickname);
 
 	int kickFd = kickClient->getClientFd();

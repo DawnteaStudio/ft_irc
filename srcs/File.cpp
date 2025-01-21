@@ -26,12 +26,6 @@ File &File::operator=(const File &other)
 	return *this;
 }
 
-void File::setFileContent(std::string &content)
-{
-	this->fileContent = content;
-}
+void File::setFileContent(std::string &content) { this->fileContent = content; }
 
-std::string File::getFileContent()
-{
-	return this->fileContent;
-}
+std::string File::getFileContent() { return this->fileContent; }

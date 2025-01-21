@@ -14,6 +14,16 @@ std::string Server::convertChar(const std::string &str)
 	return tmp;
 }
 
+bool Server::isClientInServer(const std::string &nickname)
+{
+	int size = this->clientNicknames.size();
+	for (int i = 0; i < size; i++) {
+		if (this->clientNicknames[i] == nickname)
+			return true;
+	}
+	return false;
+}
+
 bool Server::isValidUserNickname(const std::string &nickname)
 {
 	int idx = 0, size = static_cast<int>(nickname.size());
@@ -75,6 +85,7 @@ Client * Server::getClientByNickname(const std::string &nickname)
 
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
+	// std::string res = makeBroadMsg("JOIN " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end()) {
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
@@ -98,8 +109,10 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 		channelInfo(fd, channelName);
 		return ERR_NONE;
 	}
+	if (this->channels[channelName]->isMember(fd))
+		return ERR_NONE;
 	if (this->channels[channelName]->getIsInviteOnly()) {
-		if (!this->channels[channelName]->isOperator(fd))
+		if (!this->channels[channelName]->isInvitedClient(fd))
 			return ERR_INVITEONLYCHAN;
 	}
 	if (this->channels[channelName]->getIsKeyRequired()) {
@@ -108,55 +121,143 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 	}
 	if (this->channels[channelName]->getIsLimit() && this->channels[channelName]->getLimit() <= static_cast<int>(this->channels[channelName]->getMembers().size()))
 		return ERR_CHANNELISFULL;
-
+	if (this->clients[fd]->getChannels().size() >= 10)
+		return ERR_TOOMANYCHANNELS;
+	if (this->clients[fd]->isInvitedChannel(channelName)) {
+		this->clients[fd]->removeInvitedChannel(channelName);
+		this->channels[channelName]->removeInvitedClient(fd);
+	}
 	this->channels[channelName]->addMember(this->clients[fd]);
 	this->clients[fd]->addChannel(this->channels[channelName]);
+<<<<<<< HEAD:srcs/cmds_utils.cpp
 	
 	broadcastChannel(channelName, Response::customMessageForJoin(this->clients[fd]->getPrefix(), channelName));
 	channelInfo(fd, channelName);
+=======
+	// broadcastChannel(channelName, res);
+>>>>>>> channel:srcs/cmdsUtils.cpp
 	return ERR_NONE;
 }
 
 ErrorCode Server::part(const std::string &channelName, int fd)
 {
+	// std::string res = makeBroadMsg("PART " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
 	if (this->channels[channelName]->isOperator(fd))
 		this->channels[channelName]->removeOperator(fd);
 	if (!this->channels[channelName]->isMember(fd))
 		return ERR_NOTONCHANNEL;
-	// broadcast
+	// broadcastChannel(channelName, res);
 	this->channels[channelName]->removeMember(fd);
 	this->clients[fd]->removeChannel(this->channels[channelName]);
-	if (this->channels[channelName]->getMembers().size() == 0) {
-		delete this->channels[channelName];
-		this->channels.erase(channelName);
-	}
+	if (this->channels[channelName]->getMembers().size() == 0)
+		removeChannelData(channelName);
 	return ERR_NONE;
 }
 
-ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, int fd)
+ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, const std::string &reason, int fd)
 {
+	// start (response area)
+	// std::string res = "KICK " + channelName + " " + nickname;
+	// if (reason != ":")
+	// 	res += " " + reason;
+	// res = makeBroadMsg(res, fd);
+	// end
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
+	Channel *channel = this->channels[channelName];
 	if (nickname.empty())
 		return ERR_NEEDMOREPARAMS;
-	if (!this->channels[channelName]->isMember(fd))
+	if (!channel->isMember(fd))
 		return ERR_NOTONCHANNEL;
-	if (!this->channels[channelName]->isOperator(fd))
+	if (!channel->isOperator(fd))
 		return ERR_CHANOPRIVSNEEDED;
+<<<<<<< HEAD:srcs/cmds_utils.cpp
 		
+=======
+	if (this->isClientInServer(nickname) == false)
+		return ERR_NOSUCHNICK;
+
+>>>>>>> channel:srcs/cmdsUtils.cpp
 	Client *kickClient = getClientByNickname(nickname);
-	if (kickClient == NULL || !this->channels[channelName]->isMember(kickClient->getClientFd()))
-		return ERR_NOTONCHANNEL;
 
 	int kickFd = kickClient->getClientFd();
-	if (this->channels[channelName]->isOperator(kickFd))
-		this->channels[channelName]->removeOperator(kickFd);
-	this->channels[channelName]->removeMember(kickFd);
-	this->clients[kickFd]->removeChannel(this->channels[channelName]);
-	// broadcast
+	if (channel->isOperator(kickFd))
+		channel->removeOperator(kickFd);
+	channel->removeMember(kickFd);
+	this->clients[kickFd]->removeChannel(channel);
+	// broadcastChannel(channelName, res);
 	return ERR_NONE;
+}
+
+void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
+{
+	std::string ChannelName = request.args[0];
+	std::vector<std::pair<char, std::string>> modes;
+	std::vector<std::string> params(request.args.begin() + 2, request.args.end());
+	makeModeVector(request.args[1], modes);
+
+	size_t size = modes.size();
+	std::string res;
+	char sign = '+';
+	ErrorCode err;
+	for (size_t i = 0; i < size; i++) {
+		if (!isRightModeFlag(modes[i].second)) {
+			sendError(ERR_UNKNOWNMODE, modes[i].second, fd);
+			continue;
+		}
+		if (isNeedParamFlag(modes[i].second, modes[i].first == '+')) {
+			if (params.size() == 0) {
+				sendError(ERR_NEEDMOREPARAMS, modes[i].second, fd);
+				continue;
+			}
+			err = mode(ChannelName, modes[i], params[0]);
+			if (err != ERR_NONE)
+				sendError(err, modes[i].second, fd);
+			params.erase(params.begin());
+		} else {
+			err = mode(ChannelName, modes[i], "");
+			if (err != ERR_NONE)
+				sendError(err, modes[i].second, fd);
+		}
+		if (err == ERR_NONE) {
+			if (sign != modes[i].first) {
+				sign = modes[i].first;
+				sendMsg += sign;
+			}
+			sendMsg += modes[i].second;
+		}
+	}
+}
+
+bool Server::isNeedParamFlag(const std::string &modeFlag, bool isAdd)
+{
+	if (modeFlag == "k" || modeFlag == "l" || modeFlag == "o") {
+			if (modeFlag == "l" && isAdd == false)
+				return false;
+		return true;
+	}
+	return false;
+}
+
+bool Server::isRightModeFlag(const std::string &modeFlag)
+{
+	if (modeFlag == "i" || modeFlag == "t" || modeFlag == "k" || modeFlag == "l" || modeFlag == "o")
+		return true;
+	return false;
+}
+
+void Server::makeModeVector(std::string modeInput, std::vector<std::pair<char, std::string>> &vec)
+{
+	char sign = '+';
+	for (size_t i = 0; i < modeInput.size(); i++) {
+		if (modeInput[i] == '+' || modeInput[i] == '-') {
+			sign = modeInput[i];
+			continue;
+		}
+		vec.push_back(std::make_pair(sign, std::string(1, modeInput[i])));
+	}
 }
 
 void Server::makeVector(std::string str, std::vector<std::string> &vec)

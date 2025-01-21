@@ -49,11 +49,28 @@ void Client::clearBuffer() { this->buffer.clear(); }
 
 void Client::addChannel(Channel *channel) { this->channels.push_back(channel); }
 
+void Client::addInvitedChannel(const std::string &channelName) { this->invitedChannels.push_back(channelName); }
+
+void Client::removeInvitedChannel(const std::string &channelName)
+{
+	std::vector<std::string>::iterator it = std::find(this->invitedChannels.begin(), this->invitedChannels.end(), channelName);
+	if (it != this->invitedChannels.end())
+		this->invitedChannels.erase(it);
+}
+
 const std::string &Client::getNickname() const { return this->nickname; }
 
 const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }
 
 const bool &Client::getIsRegistered() const { return this->isRegistered; }
+
+const bool Client::isInvitedChannel(const std::string &channelName) const
+{
+	std::vector<std::string>::const_iterator it = std::find(this->invitedChannels.begin(), this->invitedChannels.end(), channelName);
+	if (it != this->invitedChannels.end())
+		return true;
+	return false;
+}
 
 const std::string &Client::getUserName() const { return this->userName; }
 

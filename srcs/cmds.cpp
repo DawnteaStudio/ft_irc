@@ -89,22 +89,22 @@ std::string Server::sendFile(Request &request, int fd)
 	if (this->channels[channelName]->findFile(fileName) != this->channels[channelName]->getFiles().end())
 		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-	file.setFileContent(content);
+	this->channels[channelName]->addFile(fileName, content);
 	ifs.close();
-	this->channels[channelName]->getFiles().insert(std::pair<std::string, File>(fileName, file));
 	// return Response::success(RPL_FILESENT, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
+}
+
+std::string Server::quit(Request &request, int fd)
+{
+	this->removeClient(fd, true);
+	close(fd);
+	return "";
 }
 
 void Server::quit(int fd)
 {
-	// std::cout << RED << "Client <" << fd << "> Disconnected" << WHITE << std::endl;
-	// Client *client = this->clients[fd];
-	// if (client->getChannels().size() > 0)
-	// {
-	// 	for (std::vector<Channel *>::iterator it = client->getChannels().begin(); it != client->getChannels().end(); it++)
-	// 		(*it)->quit(client);
-	// }
-	this->removeClient(fd);
+	if (this->clients.find(fd) != this->clients.end())
+		this->removeClient(fd, false);
 	close(fd);
 }
 
@@ -121,14 +121,10 @@ std::string Server::joinChannel(Request &request, int fd)
 	makeVector(request.args[0], channelName);
 	if (request.args.size() > 1)
 		makeVector(request.args[1], keys);
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
+	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = join(channelName[i], keys.size() > i ? keys[i] : "", fd);
 		if (err != ERR_NONE)
-			res =  Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_JOIN, channelName[i], this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+			sendError(err, channelName[i], fd);
 	}
 	return "";
 }
@@ -144,14 +140,10 @@ std::string Server::partChannel(Request &request, int fd)
 	std::string res;
 	makeVector(request.args[0], channelName);
 
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
+	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = part(channelName[i], fd);
 		if (err != ERR_NONE)
-			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_PART, "", this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+			sendError(err, channelName[i], fd);
 	}
 	return "";
 }
@@ -165,20 +157,67 @@ std::string Server::kickUser(Request &request, int fd)
 	
 	std::vector<std::string> channelName;
 	std::vector<std::string> nicknames;
+	std::string reason = ":";
 	std::string res;
 	makeVector(request.args[0], channelName);
 	makeVector(request.args[1], nicknames);
-	for (size_t i = 0; i < channelName.size(); i++)
-	{
-		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", fd);
-		if (err != ERR_NONE)
-			res = Response::failure(err, channelName[i], this->name, this->clients[fd]->getNickname());
-		// else
-		// 	res = Response::success(RPL_KICK, "", this->name, this->clients[fd]->getNickname());
-		send(fd, res.c_str(), res.length(), 0);
+	size_t size = request.args.size();
+	for (size_t i = 2; i < size; i++) {
+		reason += request.args[i];
+		if (i + 1 < size) reason += " ";
 	}
+	for (size_t i = 0; i < channelName.size(); i++) {
+		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", reason, fd);
+		if (err != ERR_NONE)
+			sendError(err, channelName[i], fd);
+	}
+	return "";
+}
 
-	// for (size_t i = 0; i < channelNames.size(); i++)
-	// 	broadcastChannel(channelNames[i], response);
+std::string Server::inviteUser(Request &request, int fd)
+{
+	if (request.args.size() < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "INVITE", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+
+	std::string channelName = request.args[0];
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isOperator(fd))
+		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+	std::string invitedNickname = request.args[1];
+	if (this->isClientInServer(invitedNickname) == false)
+		return Response::failure(ERR_NOSUCHNICK, invitedNickname, this->name, this->clients[fd]->getNickname());
+	int invitedFd = this->getClientByNickname(invitedNickname)->getClientFd();
+	if (this->channels[channelName]->isMember(invitedFd))
+		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
+	
+	this->clients[fd]->addInvitedChannel(channelName);
+	// return "" 성공시 메세지 출력 부분;
+}
+
+std::string Server::setMode(Request &request, int fd)
+{
+	size_t size = request.args.size();
+	if (size < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	std::string channelName = request.args[0];
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isOperator(fd))
+		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+	
+	std::string sendMsg;
+	classifyMode(request, sendMsg, fd);
+	// sendMsg 말고도 사용하지 않은 arg들이 어떻게 출력되는 지 확인해야함.
+	// sendMsg => Success modes colleted
+	// we need to send this message to all members of the channel
 	return "";
 }

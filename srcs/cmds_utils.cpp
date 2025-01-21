@@ -145,6 +145,7 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		return ERR_NOTONCHANNEL;
 	if (!this->channels[channelName]->isOperator(fd))
 		return ERR_CHANOPRIVSNEEDED;
+		
 	Client *kickClient = getClientByNickname(nickname);
 	if (kickClient == NULL || !this->channels[channelName]->isMember(kickClient->getClientFd()))
 		return ERR_NOTONCHANNEL;
@@ -188,7 +189,8 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 	std::map<int, Client *>::iterator iter = members.begin();
 	for (; iter != members.end(); iter++) {
 		if (channel->isOperator(iter->first))
-			nameList += "@" + iter->second->getNickname() + " ";
+			nameList += "@";
+		nameList += iter->second->getNickname() + " ";
 	}
 	nameList.erase(nameList.size() - 1, 1);
 	response = Response::success(RPL_NAMREPLY, channelName, prefix, nickname, nameList);

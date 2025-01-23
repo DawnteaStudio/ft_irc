@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-void Server::removeClient(int fd, bool isLeave)
+void Server::removeClient(int fd, bool isLeave, const std::string &reason)
 {
 	int size = this->clients[fd]->getChannels().size();
 	for (int i = 0; i < size; i++) {
@@ -14,14 +14,6 @@ void Server::removeClient(int fd, bool isLeave)
 			channel->removeOperator(fd);
 		if (channel->getMembers().size() == 0)
 			removeChannelData(channelName);
-	}
-	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
-		if (it->fd == fd) {
-			this->pfd.erase(it);
-			break;
-		}
-		else
-			it++;
 	}
 	this->deleteUserNickname(this->clients[fd]->getNickname());
 	delete this->clients[fd];

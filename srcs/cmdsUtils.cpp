@@ -73,6 +73,19 @@ bool Server::isCharString(const char &c) const
 	return true;
 }
 
+bool Server::isValidChannelName(const std::string &name)
+{
+	if (name.length() < 2 || name.length() > 200)
+		return false;
+	if (name[0] != '#' && name[0] != '&')
+		return false;
+	for (size_t i = 1; i < name.length(); i++) {
+		if (!isCharString(name[i]))
+			return false;
+	}
+	return true;
+}
+
 Client * Server::getClientByNickname(const std::string &nickname)
 {
 	std::string tmp = convertChar(nickname);
@@ -85,20 +98,15 @@ Client * Server::getClientByNickname(const std::string &nickname)
 
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
-	// std::string res = makeBroadMsg("JOIN " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end()) {
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
 		if (this->clients[fd]->getChannels().size() >= 10)
 			return ERR_TOOMANYCHANNELS;
-		if (channelName[0] != '#' && channelName[0] != '&')
-			return ERR_NOSUCHCHANNEL;
+		if (!isValidChannelName(channelName))
+			return ERR_BADCHANNAME;
 		if (channelName.size() > 200)
-			return ERR_NOSUCHCHANNEL;
-		for (size_t i = 1; i < channelName.size(); i++) {
-			if (isCharString(channelName[i]) == false)
-				return ERR_NOSUCHCHANNEL;
-		}
+			return ERR_TOOMANYCHANNELS;
 		Channel *newChannel = new Channel(channelName);
 		this->channels[channelName] = newChannel;
 		this->channels[channelName]->addMember(this->clients[fd]);
@@ -291,4 +299,41 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 
 	response = Response::success(RPL_ENDOFNAMES, channelName, prefix, nickname, "");
 	send(fd, response.c_str(), response.length(), 0);
+}
+
+ErrorCode Server::privmsgToChannel(const std::string &channelName, const std::string &message, int fd)
+{
+
+	if (!isValidChannelName(channelName))
+		return ERR_BADCHANNAME;
+	if (this->channels.find(channelName) == this->channels.end())
+		return ERR_NOSUCHCHANNEL;
+	if (!this->channels[channelName]->isMember(fd))
+		return ERR_NOTONCHANNEL;
+	
+	Channel *channel = this->channels[channelName];
+	std::map<int, Client *> members = channel->getMembers();
+	std::map<int, Client *>::iterator iter = members.begin();
+	std::string prefix = this->clients[fd]->getPrefix();
+	std::string response;
+
+	for (; iter != members.end(); iter++) {
+		if (iter->first == fd)
+			continue;
+		// response = Response::customMessageForPrivmsg(prefix, channelName, message);
+		send(iter->first, response.c_str(), response.length(), 0);
+	}
+	return ERR_NONE;
+}
+
+ErrorCode Server::privmsgToUser(const std::string &nickname, const std::string &message, int fd)
+{
+	if (!isClientInServer(nickname))
+		return ERR_NOSUCHNICK;
+
+	Client *client = getClientByNickname(nickname);
+	std::string prefix = this->clients[fd]->getPrefix();
+	// std::string response = Response::customMessageForPrivmsg(prefix, nickname, message);
+	// send(client->getClientFd(), response.c_str(), response.length(), 0);
+	return ERR_NONE;
 }

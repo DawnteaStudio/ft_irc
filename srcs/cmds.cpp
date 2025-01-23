@@ -96,15 +96,44 @@ std::string Server::sendFile(Request &request, int fd)
 
 std::string Server::quit(Request &request, int fd)
 {
-	this->removeClient(fd, true);
+	std::string reason = "Client exited";
+	size_t size = request.args.size();
+
+	if (size) {
+		reason = "";
+		for (size_t i = 0; i < size; i++) {
+			reason += request.args[i];
+			if (i + 1 < size)
+				reason += " ";
+		}
+	}
+	this->removeClient(fd, true, reason);
+	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
+		if (it->fd == fd) {
+			this->pfd.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
 	close(fd);
 	return "";
 }
 
 void Server::quit(int fd)
 {
+	std::string reason = "Connection closed";
+
 	if (this->clients.find(fd) != this->clients.end())
-		this->removeClient(fd, false);
+		this->removeClient(fd, false, reason);
+	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
+		if (it->fd == fd) {
+			this->pfd.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
 	close(fd);
 }
 
@@ -219,5 +248,58 @@ std::string Server::setMode(Request &request, int fd)
 	// sendMsg 말고도 사용하지 않은 arg들이 어떻게 출력되는 지 확인해야함.
 	// sendMsg => Success modes colleted
 	// we need to send this message to all members of the channel
+	return "";
+}
+
+std::string Server::topic(Request &request, int fd)
+{
+	size_t size = request.args.size();
+
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	if (size < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "TOPIC", this->name, this->clients[fd]->getNickname());
+
+	std::string channelName = request.args[0];
+
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (size == 1)
+		// return Response::success(RPL_TOPIC, channelName, this->name, this->clients[fd]->getNickname(), this->channels[channelName]->getTopic());
+	else {
+		if (this->channels[channelName]->getIsTopicChangeByOperatorOnly() && !this->channels[channelName]->isOperator(fd))
+			return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+		std::string topic = request.args[1];
+		this->channels[channelName]->setTopic(topic);
+		// broadcastChannel
+	}
+	return "";
+}
+
+std::string Server::sendPrivmsg(Request &request, int fd)
+{
+	size_t size = request.args.size();
+	if (size < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "PRIVMSG", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+
+	std::vector<std::string> target;
+	makeVector(request.args[0], target);
+	std::string message = request.args[1];
+
+	for (size_t i = 0; i < target.size(); i++) {
+		if (target[i][0] == '#' || target[i][0] == '&') {
+			ErrorCode err = privmsgToChannel(target[i], message, fd);
+			if (err != ERR_NONE)
+				sendError(err, target[i], fd);
+		} else {
+			ErrorCode err = privmsgToUser(target[i], message, fd);
+			if (err != ERR_NONE)
+				sendError(err, target[i], fd);
+		}
+	}
 	return "";
 }

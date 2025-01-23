@@ -69,7 +69,6 @@ std::string Response::customMessageForJoin(const std::string &prefix, const std:
 join
 kick
 privmsg(channel)
-notice(channel)
 part
 mode
 */

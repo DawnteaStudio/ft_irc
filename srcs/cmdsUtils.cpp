@@ -154,14 +154,9 @@ ErrorCode Server::part(const std::string &channelName, int fd)
 
 ErrorCode Server::kick(const std::string &channelName, const std::string &nickname, const std::string &reason, int fd)
 {
-	// start (response area)
-	// std::string res = "KICK " + channelName + " " + nickname;
-	// if (reason != ":")
-	// 	res += " " + reason;
-	// res = makeBroadMsg(res, fd);
-	// end
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
+
 	Channel *channel = this->channels[channelName];
 	if (nickname.empty())
 		return ERR_NEEDMOREPARAMS;
@@ -173,13 +168,13 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 		return ERR_NOSUCHNICK;
 
 	Client *kickClient = getClientByNickname(nickname);
-
 	int kickFd = kickClient->getClientFd();
 	if (channel->isOperator(kickFd))
 		channel->removeOperator(kickFd);
 	channel->removeMember(kickFd);
 	this->clients[kickFd]->removeChannel(channel);
-	// broadcastChannel(channelName, res);
+
+	broadcastChannel(channelName, Response::customMessageForKick(this->clients[fd]->getPrefix(), channelName, nickname, reason));
 	return ERR_NONE;
 }
 

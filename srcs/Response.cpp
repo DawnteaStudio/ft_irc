@@ -65,6 +65,11 @@ std::string Response::customMessageForJoin(const std::string &prefix, const std:
 {
 	return ":" + prefix + " JOIN :" + channelName + CRLF;
 }
+
+std::string Response::customMessageForKick(const std::string &prefix, const std::string &channelName, const std::string &target, const std::string &reason)
+{
+	return ":" + prefix + " KICK " + channelName + " " + target + " :" + reason + CRLF;
+}
 /*
 join
 kick

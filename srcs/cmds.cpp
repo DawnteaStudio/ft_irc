@@ -157,8 +157,7 @@ std::string Server::kickUser(Request &request, int fd)
 	
 	std::vector<std::string> channelName;
 	std::vector<std::string> nicknames;
-	std::string reason = ":";
-	std::string res;
+	std::string reason;
 	makeVector(request.args[0], channelName);
 	makeVector(request.args[1], nicknames);
 	size_t size = request.args.size();
@@ -166,6 +165,8 @@ std::string Server::kickUser(Request &request, int fd)
 		reason += request.args[i];
 		if (i + 1 < size) reason += " ";
 	}
+	if (reason.empty())
+		reason = this->clients[fd]->getNickname();
 	for (size_t i = 0; i < channelName.size(); i++) {
 		ErrorCode err = kick(channelName[i], nicknames.size() > i ? nicknames[i] : "", reason, fd);
 		if (err != ERR_NONE)

@@ -137,14 +137,14 @@ ErrorCode Server::join(const std::string &channelName, const std::string &key, i
 
 ErrorCode Server::part(const std::string &channelName, int fd)
 {
-	// std::string res = makeBroadMsg("PART " + channelName, fd);
 	if (this->channels.find(channelName) == this->channels.end())
 		return ERR_NOSUCHCHANNEL;
 	if (this->channels[channelName]->isOperator(fd))
 		this->channels[channelName]->removeOperator(fd);
 	if (!this->channels[channelName]->isMember(fd))
 		return ERR_NOTONCHANNEL;
-	// broadcastChannel(channelName, res);
+
+	broadcastChannel(channelName, Response::customMessageForPart(this->clients[fd]->getPrefix(), channelName));
 	this->channels[channelName]->removeMember(fd);
 	this->clients[fd]->removeChannel(this->channels[channelName]);
 	if (this->channels[channelName]->getMembers().size() == 0)

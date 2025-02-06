@@ -86,6 +86,7 @@ class Server {
 		std::string botQuit(int);
 		std::string botScore(int);
 		std::string botRank(int);
+		std::string botAttack(std::string&, int);
 		void updateHighScore(int);
 		bool isValidUserNickname(const std::string&);
 		bool isUsedUserNickname(const std::string&);

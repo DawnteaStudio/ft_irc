@@ -138,6 +138,14 @@ std::string Server::botRank(int fd)
 	return art;
 }
 
+std::string Server::botAttack(std::string &choice, int fd)
+{
+	std::string art = "";
+	std::string botChoice = "";
+	int botChoiceNum = rand() % 3;
+
+}
+
 std::string Server::botIntro(int fd)
 {
 	std::string guide = BLUE;
@@ -148,7 +156,7 @@ std::string Server::botIntro(int fd)
 	YOUR OPPONENT IS A BOT.
 	YOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.
 	YOU CAN CHOOSE BETWEEN ROCK, PAPER, SCISSORS.
-	YOU CAN ALSO USE HELP TO GET THIS MESSAGE.
+	YOU CAN ALSO USE "HELP" TO GET THIS MESSAGE.
 	YOUR INPUT SHOULD BE IN THE FORM OF "BOT <CHOICE>".
 	EXAMPLE: BOT ROCK
 

@@ -19,6 +19,7 @@
 # include "Request.hpp"
 # include "Channel.hpp"
 # include "Response.hpp"
+# include "signal.hpp"
 
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"

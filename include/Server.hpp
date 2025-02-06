@@ -15,6 +15,7 @@
 # include <arpa/inet.h>
 # include <fcntl.h>
 # include <unistd.h>
+# include <algorithm>
 # include "Client.hpp"
 # include "Request.hpp"
 # include "Channel.hpp"
@@ -24,6 +25,10 @@
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"
 # define WHITE "\033[0;37m"
+# define BLUE "\033[1;34m"
+# define GREEN "\033[1;32m"
+# define GOLD "\033[1;33m"
+# define RESET "\033[0m"
 # define DOWNLOADED_FILE_PATH "/Users/sewopark/Desktop/downloads/" // envp 고려(user name)
 
 class Client;
@@ -73,6 +78,15 @@ class Server {
 		std::string sendPrivmsg(Request&, int);
 		ErrorCode privmsgToChannel(const std::string&, const std::string&, int);
 		ErrorCode privmsgToUser(const std::string&, const std::string&, int);
+		std::string bot(Request&, int);
+		std::string botIntro(int);
+		std::string winMsg(int);
+		std::string loseMsg(int);
+		std::string botStart(int);
+		std::string botQuit(int);
+		std::string botScore(int);
+		std::string botRank(int);
+		void updateHighScore(int);
 		bool isValidUserNickname(const std::string&);
 		bool isUsedUserNickname(const std::string&);
 		void deleteUserNickname(const std::string&);

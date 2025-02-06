@@ -3,7 +3,7 @@ NAME		= ircserv
 HEADER_DIR	= ./include
 CPP_FLAGS	= -Wall -Wextra -Werror -std=c++98
 RM			= rm -rf
-FILENAME	= broadcast Channel Client cmds cmdsUtils File removeConnection Request Response Server setConnection applyModeFlag
+FILENAME	= broadcast Channel Client cmds cmdsUtils File removeConnection Request Response Server setConnection applyModeFlag signal bot
 SRCSNAME	= main $(addprefix srcs/, $(FILENAME))
 SRCS		= $(addsuffix .cpp, $(SRCSNAME))
 OBJS		= $(addsuffix .o, $(SRCSNAME))

@@ -16,7 +16,8 @@ __   __           __        ___
  \ V / _ \| | | |  \ \ /\ / /| | '_ \ 
   | | (_) | |_| |   \ V  V / | | | | |
   |_|\___/ \__,_|    \_/\_/  |_|_| |_|
-    )";
+
+)";
 	art += RESET;
 	updateHighScore(fd);
 	return art;
@@ -31,7 +32,8 @@ __   __            _
  \ V / _ \| | | | | |   / _ \/ __|/ _ \
   | | (_) | |_| | | |__| (_) \__ \  __/
   |_|\___/ \__,_| |_____\___/|___/\___|
-    )";
+
+)";
 	art += RESET;
 	updateHighScore(fd);
 	return art;
@@ -39,6 +41,8 @@ __   __            _
 
 std::string Server::botQuit(int fd)
 {
+	if (!this->clients[fd]->getGameMode())
+		return Response::failure(ERR_NOTINGAME, "", this->name, this->clients[fd]->getNickname());
 	std::string art = R"(
   ____                 _   ____             
  / ___| ___   ___   __| | | __ ) _   _  ___ 
@@ -77,7 +81,7 @@ EXAMPLE: BOT ROCK
       (____)            (____)                    _______)
 ---.__(___)       ---.__(___)            ---.__________)
 
-	)";
+)";
 	this->clients[fd]->setGameMode(true);
 	this->clients[fd]->setPlayingScore(0);
 	this->clients[fd]->setHp(5);
@@ -106,7 +110,8 @@ std::string Server::botRank(int fd)
 / /| |_) |  / _ \ |  \| | ' / | ||  \| | |  _ \ \
 \ \|  _ <  / ___ \| |\  | . \ | || |\  | |_| |/ /
  \_\_| \_\/_/   \_\_| \_|_|\_\___|_| \_|\____/_/ 
-	)";
+
+)";
 
 	std::vector<std::pair<int, std::string>> rank;
 	std::map<int, Client *>::iterator it;
@@ -114,10 +119,18 @@ std::string Server::botRank(int fd)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
 	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string>>());
 
+	int sameRank = 1;
 	for (size_t i = 0; i < rank.size(); i++) {
 		if (rank[i].first == 0 || i == 5)
 			break;
-		art += std::to_string(i + 1) + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+		if (i == 0)
+			art += "1. " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+		else if (rank[i].first == rank[i - 1].first)
+			art += std::to_string(sameRank) + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+		else {
+			sameRank = i + 1;
+			art += std::to_string(i + 1) + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+		}
 	}
 	if (this->clients[fd]->getHighScore() == 0) {
 		art += RED;
@@ -127,7 +140,7 @@ std::string Server::botRank(int fd)
 		art += "Your rank: ";
 		art += RED;
 		for (size_t i = 0; i < rank.size(); i++) {
-			if (rank[i].second == this->clients[fd]->getNickname()) {
+			if (rank[i].first == this->clients[fd]->getHighScore()) {
 				art += std::to_string(i + 1);
 				break;
 			}
@@ -178,6 +191,7 @@ std::string Server::botIntro(int fd)
 	QUIT THE GAME: BOT QUIT
 	VIEW YOUR HIGH SCORE: BOT SCORE
 	VIEW RANKING: BOT RANK
+
 )";
 	guide += RESET;
 	return guide;

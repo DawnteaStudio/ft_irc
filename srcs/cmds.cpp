@@ -286,7 +286,8 @@ std::string Server::sendPrivmsg(Request &request, int fd)
 			ErrorCode err = privmsgToChannel(target[i], message, fd);
 			if (err != ERR_NONE)
 				sendError(err, target[i], fd);
-		} else {
+		}
+		else {
 			ErrorCode err = privmsgToUser(target[i], message, fd);
 			if (err != ERR_NONE)
 				sendError(err, target[i], fd);

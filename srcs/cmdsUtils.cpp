@@ -303,7 +303,6 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 
 ErrorCode Server::privmsgToChannel(const std::string &channelName, const std::string &message, int fd)
 {
-
 	if (!isValidChannelName(channelName))
 		return ERR_BADCHANNAME;
 	if (this->channels.find(channelName) == this->channels.end())
@@ -320,7 +319,7 @@ ErrorCode Server::privmsgToChannel(const std::string &channelName, const std::st
 	for (; iter != members.end(); iter++) {
 		if (iter->first == fd)
 			continue;
-		// response = Response::customMessageForPrivmsg(prefix, channelName, message);
+		response = Response::customMessageForPrivmsg(prefix, channelName, message);
 		send(iter->first, response.c_str(), response.length(), 0);
 	}
 	return ERR_NONE;
@@ -333,7 +332,7 @@ ErrorCode Server::privmsgToUser(const std::string &nickname, const std::string &
 
 	Client *client = getClientByNickname(nickname);
 	std::string prefix = this->clients[fd]->getPrefix();
-	// std::string response = Response::customMessageForPrivmsg(prefix, nickname, message);
-	// send(client->getClientFd(), response.c_str(), response.length(), 0);
+	std::string response = Response::customMessageForPrivmsg(prefix, nickname, message);
+	send(client->getClientFd(), response.c_str(), response.length(), 0);
 	return ERR_NONE;
 }

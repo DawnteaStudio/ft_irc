@@ -85,8 +85,11 @@ std::string Response::customErrorMessageForQuit(const std::string &user, const s
 {
 	return "ERROR :Closing link: (" + user + ") [" + reason + "]" + CRLF;
 }
+
+std::string Response::customMessageForPrivmsg(const std::string &prefix, const std::string &target, const std::string &message)
+{
+	return ":" + prefix + " PRIVMSG " + target + " " + target + " :" + message + CRLF;
+}
 /*
-privmsg(channel)
-notice(channel)
 mode
 */

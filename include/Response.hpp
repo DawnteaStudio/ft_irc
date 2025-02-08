@@ -22,6 +22,7 @@ class Response {
 		static std::string customMessageForPart(const std::string&, const std::string&);
 		static std::string customMessageForQuit(const std::string&, const std::string&);
 		static std::string customErrorMessageForQuit(const std::string&, const std::string&);
+		static std::string customMessageForPrivmsg(const std::string&, const std::string&, const std::string&);
 };
 
 #endif

@@ -260,6 +260,8 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	size_t sendingSize = sendingParams.size();
 	if (sendingSize != 0)
 		sendMsg += " ";
+	else
+		sendMsg = ":" + sendMsg;
 	for (size_t i = 0; i < sendingSize; i++) {
 		if (i != sendingSize - 1)
 			sendMsg += sendingParams[i] + " ";

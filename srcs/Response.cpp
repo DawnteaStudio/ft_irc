@@ -90,6 +90,8 @@ std::string Response::customMessageForPrivmsg(const std::string &prefix, const s
 {
 	return ":" + prefix + " PRIVMSG " + target + " " + target + " :" + message + CRLF;
 }
-/*
-mode
-*/
+
+std::string Response::customMessageForInvite(const std::string &prefix, const std::string &channelName, const std::string &target)
+{
+	return ":" + prefix + " INVITE " + target + " :" + channelName + CRLF;
+}

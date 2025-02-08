@@ -4,6 +4,7 @@
 enum ResposeCode {
 	RPL_NOTOPIC = 331,
 	RPL_TOPIC,
+	RPL_INVITING = 341,
 	RPL_NAMREPLY = 353,
 	RPL_ENDOFNAMES = 366,
 };

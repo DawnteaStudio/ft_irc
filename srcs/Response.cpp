@@ -27,6 +27,8 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		res = channelName + " :" + param;
 	else if (num == RPL_ENDOFNAMES)
 		res = channelName + " :End of /NAMES list";
+	else if (num == RPL_INVITING)
+		res = channelName + " " + param;
 	return createMessage(num, res, prefix, clientNickname);
 }
 

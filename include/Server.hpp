@@ -46,10 +46,10 @@ class Server {
 		void setSocket();
 		void addClient();
 		void connectClient(int);
-		void removeClient(int, bool);
+		void removeClient(int, bool, const std::string&);
 		void execCmd(Request&, int);
-		std::string quit(Request&, int);
-		void quit(int);
+		std::string quit(Request&, int);  // COMMAND
+		void quit(int);  // SIGINT
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
@@ -57,7 +57,7 @@ class Server {
 		std::string sendFile(Request&, int); //SENDFILE <channel> <filename>
 		std::string joinChannel(Request&, int);
 		ErrorCode join(const std::string&, const std::string&, int);
-		std::string	partChannel(Request&, int);
+		std::string partChannel(Request&, int);
 		ErrorCode part(const std::string&, int);
 		std::string kickUser(Request&, int);
 		ErrorCode kick(const std::string&, const std::string&, const std::string&, int);
@@ -84,7 +84,7 @@ class Server {
 		void sendError(ErrorCode, const std::string&, int);
 		void removeChannelInvitedClient(Channel*);
 		void removeChannelData(const std::string&);
-		// std::string makeBroadMsg(const std::string&, int);
+		void removeClientConnection(int);
 		Client *getClientByNickname(const std::string&);
 		void channelInfo(const int&, const std::string&);
 		bool isClientInServer(const std::string&);

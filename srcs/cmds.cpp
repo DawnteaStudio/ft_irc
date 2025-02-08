@@ -96,15 +96,34 @@ std::string Server::sendFile(Request &request, int fd)
 
 std::string Server::quit(Request &request, int fd)
 {
-	this->removeClient(fd, true);
+	std::string reason = "Client exited";
+
+	if (!request.args.empty()) {
+		int size = static_cast<int>(request.args.size());
+		reason = "Quit: ";
+		for (int i = 0; i < size; i++) {
+			reason += request.args[i];
+			if (i + 1 < size) reason += " ";
+		}
+	}
+
+	std::string user = this->clients[fd]->getPrefix().substr(this->clients[fd]->getNickname().size() + 1);
+	std::string res = Response::customErrorMessageForQuit(user, reason);
+	send(fd, res.c_str(), res.length(), 0);
+
+	this->removeClient(fd, true, reason);
+	this->removeClientConnection(fd);
 	close(fd);
 	return "";
 }
 
 void Server::quit(int fd)
 {
+	std::string reason = "Connection closed";
+
 	if (this->clients.find(fd) != this->clients.end())
-		this->removeClient(fd, false);
+		this->removeClient(fd, false, reason);
+	this->removeClientConnection(fd);
 	close(fd);
 }
 

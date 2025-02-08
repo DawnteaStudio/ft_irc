@@ -1,28 +1,20 @@
 #include "../include/Server.hpp"
 
-void Server::removeClient(int fd, bool isLeave)
+void Server::removeClient(int fd, bool isLeave, const std::string &reason)
 {
-	int size = this->clients[fd]->getChannels().size();
+	int size = static_cast<int>(this->clients[fd]->getChannels().size());
 	for (int i = 0; i < size; i++) {
 		std::string channelName = this->clients[fd]->getChannels()[i]->getName();
 		Channel *channel = this->channels[channelName];
 		channel->removeMember(fd);
-		// braodcastChannel(channelName, makeBroadMsg("QUIT " + channelName, fd));
-		// if (isLeave) :Quit: leaving
-		// else :Quit sigint
 		if (channel->isOperator(fd))
 			channel->removeOperator(fd);
 		if (channel->getMembers().size() == 0)
 			removeChannelData(channelName);
+		broadcastChannel(channelName, Response::customMessageForQuit(this->clients[fd]->getPrefix(), reason));
 	}
-	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
-		if (it->fd == fd) {
-			this->pfd.erase(it);
-			break;
-		}
-		else
-			it++;
-	}
+
+	
 	this->deleteUserNickname(this->clients[fd]->getNickname());
 	delete this->clients[fd];
 	this->clients.erase(fd);
@@ -41,4 +33,16 @@ void Server::removeChannelData(const std::string &channelName)
 	removeChannelInvitedClient(this->channels[channelName]);
 	delete this->channels[channelName];
 	this->channels.erase(channelName);
+}
+
+void Server::removeClientConnection(int fd)
+{
+	for (std::vector<pollfd>::iterator it = this->pfd.begin(); it != this->pfd.end();){
+		if (it->fd == fd) {
+			this->pfd.erase(it);
+			break;
+		}
+		else
+			it++;
+	}
 }

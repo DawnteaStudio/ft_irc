@@ -75,19 +75,18 @@ std::string Response::customMessageForPart(const std::string &prefix, const std:
 {
 	return ":" + prefix + " PART :" + channelName + CRLF;
 }
+
+std::string Response::customMessageForQuit(const std::string &prefix, const std::string &reason)
+{
+	return ":" + prefix + " QUIT :" + reason + CRLF;
+}
+
+std::string Response::customErrorMessageForQuit(const std::string &user, const std::string &reason)
+{
+	return "ERROR :Closing link: (" + user + ") [" + reason + "]" + CRLF;
+}
 /*
-join
-kick
 privmsg(channel)
 notice(channel)
-part
 mode
-*/
-
-/*
-for
-check
-broa
-part
-
 */

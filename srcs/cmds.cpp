@@ -208,15 +208,19 @@ std::string Server::inviteUser(Request &request, int fd)
 		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (!this->channels[channelName]->isOperator(fd))
 		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+	
 	std::string invitedNickname = request.args[1];
 	if (this->isClientInServer(invitedNickname) == false)
 		return Response::failure(ERR_NOSUCHNICK, invitedNickname, this->name, this->clients[fd]->getNickname());
+	
 	int invitedFd = this->getClientByNickname(invitedNickname)->getClientFd();
 	if (this->channels[channelName]->isMember(invitedFd))
 		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
-	
-	this->clients[fd]->addInvitedChannel(channelName);
-	return Response::customMessageForInvite(this->clients[fd]->getPrefix(), channelName, invitedNickname);
+	this->clients[invitedFd]->addInvitedChannel(channelName);
+
+	std::string response = Response::customMessageForInvite(this->clients[fd]->getPrefix(), channelName, invitedNickname);
+	send(invitedFd, response.c_str(), response.length(), 0);
+	return Response::success(RPL_INVITING, channelName, this->name, this->clients[fd]->getNickname(), invitedNickname);
 }
 
 std::string Server::setMode(Request &request, int fd)

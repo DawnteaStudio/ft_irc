@@ -24,6 +24,7 @@ class Response {
 		static std::string customErrorMessageForQuit(const std::string&, const std::string&);
 		static std::string customMessageForPrivmsg(const std::string&, const std::string&, const std::string&);
 		static std::string customMessageForInvite(const std::string&, const std::string&, const std::string&);
+		static std::string customMessageForMode(const std::string&, const std::string&, const std::string&);
 };
 
 #endif

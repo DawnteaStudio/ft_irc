@@ -29,6 +29,8 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		res = channelName + " :End of /NAMES list";
 	else if (num == RPL_INVITING)
 		res = channelName + " " + param;
+	else if (num == RPL_CHANNELMODEIS)
+		res = channelName + " " + param;
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -96,4 +98,9 @@ std::string Response::customMessageForPrivmsg(const std::string &prefix, const s
 std::string Response::customMessageForInvite(const std::string &prefix, const std::string &channelName, const std::string &target)
 {
 	return ":" + prefix + " INVITE " + target + " :" + channelName + CRLF;
+}
+
+std::string Response::customMessageForMode(const std::string &prefix, const std::string &channelName, const std::string &mode)
+{
+	return ":" + prefix + " MODE " + channelName + mode + CRLF;
 }

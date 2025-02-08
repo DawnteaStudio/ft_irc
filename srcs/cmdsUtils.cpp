@@ -207,7 +207,12 @@ std::string Server::modeInfo(Channel *channel, int fd)
 		else
 			params += ":" + modeParams[i].second;
 	}
-	return Response::success(RPL_CHANNELMODEIS, channel->getName(), this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), modes + " " + params);
+	std::string res;
+	if (paramSize == 0)
+		res = ":" + modes;
+	else
+		res = modes + " " + params;
+	return Response::success(RPL_CHANNELMODEIS, channel->getName(), this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), res);
 }
 
 void Server::classifyMode(Request &request, std::string &sendMsg, int fd)

@@ -20,6 +20,8 @@ class Channel {
 		std::map<int, Client *> members;
 		std::map<int, Client *> operators;
 		std::map<std::string, File> files;
+		std::vector<char> modes;
+		std::vector<std::pair<char, std::string> > modeParams;
 		std::vector<int> invitedClients;
 		Channel();
 	public:
@@ -51,6 +53,8 @@ class Channel {
 		std::map<std::string, File> getFiles() const;
 		std::map<std::string, File>::iterator findFile(const std::string&);
 		std::vector<int> getInvitedClients() const;
+		std::vector<char> getModes() const;
+		std::vector<std::pair<char, std::string> > getModeParams() const;
 		void setKey(const std::string&);
 		void setTopic(const std::string&);
 		void setLimit(const int);

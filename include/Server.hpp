@@ -72,7 +72,9 @@ class Server {
 		std::string inviteUser(Request&, int);
 		std::string setMode(Request&, int);
 		void classifyMode(Request&, std::string&, int);
+		void updateModes(bool, char, Channel*, const std::string &);
 		ErrorCode mode(const std::string&, const std::pair<char, std::string>&, const std::string&);
+		std::string modeInfo(Channel*, int);
 		ErrorCode modeO(const std::string&, const std::string&, bool);
 		ErrorCode modeK(const std::string&, const std::string&, bool);
 		ErrorCode modeL(const std::string&, const std::string&, bool);

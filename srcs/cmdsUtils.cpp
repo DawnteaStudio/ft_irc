@@ -191,6 +191,25 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 	return ERR_NONE;
 }
 
+std::string Server::modeInfo(Channel *channel, int fd)
+{
+	std::string modes = "+";
+	std::string params;
+	std::vector<char> modeVector = channel->getModes();
+	std::vector<std::pair<char, std::string>> modeParams = channel->getModeParams();
+	int modeSize = modeVector.size();
+	int paramSize = modeParams.size();
+	for (int i = 0; i < modeSize; i++)
+		modes += modeVector[i];
+	for (int i = 0; i < paramSize; i++) {
+		if (i != paramSize - 1)
+			params += modeParams[i].second + " ";
+		else
+			params += ":" + modeParams[i].second;
+	}
+	return Response::success(RPL_CHANNELMODEIS, channel->getName(), this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), modes + " " + params);
+}
+
 void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 {
 	std::string ChannelName = request.args[0];
@@ -200,6 +219,7 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 
 	size_t size = modes.size();
 	std::string res;
+	std::vector<std::string> sendingParams;
 	char sign = '+';
 	ErrorCode err;
 	for (size_t i = 0; i < size; i++) {
@@ -215,6 +235,8 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 			err = mode(ChannelName, modes[i], params[0]);
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
+			else
+				sendingParams.push_back(params[0]);
 			params.erase(params.begin());
 		} else {
 			err = mode(ChannelName, modes[i], "");
@@ -228,6 +250,16 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 			}
 			sendMsg += modes[i].second;
 		}
+	}
+
+	size_t sendingSize = sendingParams.size();
+	if (sendingSize != 0)
+		sendMsg += " ";
+	for (size_t i = 0; i < sendingSize; i++) {
+		if (i != sendingSize - 1)
+			sendMsg += sendingParams[i] + " ";
+		else
+			sendMsg += ":" + sendingParams[i];
 	}
 }
 

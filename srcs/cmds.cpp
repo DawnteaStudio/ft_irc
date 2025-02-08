@@ -222,7 +222,7 @@ std::string Server::inviteUser(Request &request, int fd)
 std::string Server::setMode(Request &request, int fd)
 {
 	size_t size = request.args.size();
-	if (size < 2)
+	if (size < 1)
 		return Response::failure(ERR_NEEDMOREPARAMS, "MODE", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
@@ -231,6 +231,8 @@ std::string Server::setMode(Request &request, int fd)
 		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (!this->channels[channelName]->isMember(fd))
 		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (size == 1)
+		return modeInfo(this->channels[channelName], fd);
 	if (!this->channels[channelName]->isOperator(fd))
 		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
 	

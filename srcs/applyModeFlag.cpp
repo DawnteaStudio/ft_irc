@@ -60,23 +60,58 @@ ErrorCode Server::modeL(const std::string &channelName, const std::string &param
 	return ERR_NONE;
 }
 
+void Server::updateModes(bool isAdd, char mode, Channel *channel, const std::string &param)
+{
+	int paramSize = channel->getModeParams().size();
+
+	if (isAdd) {
+		if (find(channel->getModes().begin(), channel->getModes().end(), mode) == channel->getModes().end())
+			channel->getModes().push_back(mode);
+		if (param != "") {
+			for (int i = 0; i < paramSize; i++) {
+				if (channel->getModeParams()[i].first == mode) {
+					channel->getModeParams()[i].second = param;
+					return;
+				}
+			}
+		}
+	}
+	else {
+		channel->getModes().erase(remove(channel->getModes().begin(), channel->getModes().end(), mode), channel->getModes().end());
+		for (int i = 0; i < paramSize; i++) {
+			if (channel->getModeParams()[i].first == mode) {
+				channel->getModeParams().erase(channel->getModeParams().begin() + i);
+				return;
+			}
+		}
+	}
+}
+
 ErrorCode Server::mode(const std::string &channelName, const std::pair<char, std::string> &mode, const std::string &param)
 {
 	ErrorCode err = ERR_NONE;
+	Channel *channel = this->channels[channelName];
 	bool isAdd = mode.first == '+';
 	switch (mode.second[0]) {
 		case 'i':
-			this->channels[channelName]->setIsInviteOnly(isAdd);
+			channel->setIsInviteOnly(isAdd);
+			break;
 		case 't':
-			this->channels[channelName]->setIsTopicChangeByOperatorOnly(isAdd);
+			channel->setIsTopicChangeByOperatorOnly(isAdd);
+			break;
 		case 'o':
 			err = modeO(channelName, param, isAdd);
+			break;
 		case 'k':
 			err = modeK(channelName, param, isAdd);
+			break;
 		case 'l':
 			err = modeL(channelName, param, isAdd);
+			break;
 		default:
 			break;
 	}
+	if (err == ERR_NONE)
+		updateModes(isAdd, mode.second[0], channel, param);
 	return err;
 }

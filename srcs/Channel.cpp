@@ -2,7 +2,10 @@
 
 Channel::Channel() {}
 
-Channel::Channel(const std::string &name) : name(name), limit(10), isInviteOnly(false), isTopicChangeByOperatorOnly(false), isKeyRequired(false), isLimit(false) {}
+Channel::Channel(const std::string &name) : name(name), limit(10), isInviteOnly(false), isTopicChangeByOperatorOnly(true), isKeyRequired(false), isLimit(false)
+{
+	this->modes.push_back('t');
+}
 
 Channel::Channel(const Channel &other)
 {
@@ -88,6 +91,10 @@ std::map<std::string, File>::iterator Channel::findFile(const std::string &fileN
 
 std::vector<int> Channel::getInvitedClients() const { return this->invitedClients; }
 
+std::vector<char> Channel::getModes() const { return this->modes; }
+
+std::vector<std::pair<char, std::string> > Channel::getModeParams() const { return this->modeParams; }
+
 bool Channel::isMember(int fd) const { return this->members.find(fd) != this->members.end(); }
 
 bool Channel::isOperator(int fd) const { return this->operators.find(fd) != this->operators.end(); }
@@ -113,4 +120,3 @@ void Channel::setIsTopicChangeByOperatorOnly(const bool isTopicChangeByOperatorO
 void Channel::setIsKeyRequired(const bool isKeyRequired) { this->isKeyRequired = isKeyRequired; }
 
 void Channel::setIsLimit(const bool isLimit) { this->isLimit = isLimit; }
-

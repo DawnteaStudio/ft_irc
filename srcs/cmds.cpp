@@ -257,15 +257,22 @@ std::string Server::topic(Request &request, int fd)
 		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (!this->channels[channelName]->isMember(fd))
 		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
-	if (size == 1)
-		// return Response::success(RPL_TOPIC, channelName, this->name, this->clients[fd]->getNickname(), this->channels[channelName]->getTopic());
-	else {
-		if (this->channels[channelName]->getIsTopicChangeByOperatorOnly() && !this->channels[channelName]->isOperator(fd))
-			return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
-		std::string topic = request.args[1];
-		this->channels[channelName]->setTopic(topic);
-		// broadcastChannel
+	
+	// notice topic to user
+	if (size == 1) {
+		std::string topic = this->channels[channelName]->getTopic();
+		if (topic.empty())
+			return Response::success(RPL_NOTOPIC, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), "");
+		return Response::success(RPL_TOPIC, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), topic);
 	}
+	
+	// set new topic and notice to users in the channel
+	if (this->channels[channelName]->getIsTopicChangeByOperatorOnly() && !this->channels[channelName]->isOperator(fd))
+		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+
+	std::string newTopic = request.args[1];
+	this->channels[channelName]->setTopic(newTopic);
+	broadcastChannel(channelName, Response::success(RPL_TOPIC, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), this->channels[channelName]->getTopic()));
 	return "";
 }
 

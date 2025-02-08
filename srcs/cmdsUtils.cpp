@@ -14,6 +14,11 @@ std::string Server::convertChar(const std::string &str)
 	return tmp;
 }
 
+void Server::makeUpper(std::string &str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), toupper);
+}
+
 bool Server::isClientInServer(const std::string &nickname)
 {
 	int size = this->clientNicknames.size();

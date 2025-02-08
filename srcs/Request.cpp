@@ -64,7 +64,7 @@ void Request::parseCommand(std::string &buffer)
 	}
 	else {
 		this->command = buffer;
-		return;
+		buffer = "";
 	}
 }
 

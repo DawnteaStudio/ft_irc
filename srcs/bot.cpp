@@ -242,6 +242,7 @@ std::string Server::bot(Request &request, int fd)
 		return botIntro(fd);
 
 	std::string cmd = request.args[0];
+	makeUpper(cmd);
 	if (cmd == "HELP")
 		return botIntro(fd);
 	else if (cmd == "START")

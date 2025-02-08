@@ -16,6 +16,7 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <algorithm>
+# include <cctype>
 # include "Client.hpp"
 # include "Request.hpp"
 # include "Channel.hpp"
@@ -54,6 +55,7 @@ class Server {
 		void connectClient(int);
 		void removeClient(int, bool, const std::string&);
 		void execCmd(Request&, int);
+		void makeUpper(std::string&);
 		std::string quit(Request&, int);
 		void quit(int);
 		std::string setPassword(Request&, int);

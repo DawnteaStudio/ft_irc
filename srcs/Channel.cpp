@@ -113,3 +113,4 @@ void Channel::setIsTopicChangeByOperatorOnly(const bool isTopicChangeByOperatorO
 void Channel::setIsKeyRequired(const bool isKeyRequired) { this->isKeyRequired = isKeyRequired; }
 
 void Channel::setIsLimit(const bool isLimit) { this->isLimit = isLimit; }
+

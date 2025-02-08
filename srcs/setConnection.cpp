@@ -79,6 +79,7 @@ void Server::connectClient(int fd) {
 void Server::execCmd(Request &msg, int fd) {
 	std::string response;
 	std::string command = msg.getCommand();
+	makeUpper(command);
 
 	if (command == "PASS")
 		response = setPassword(msg, fd);

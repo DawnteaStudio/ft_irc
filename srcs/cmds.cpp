@@ -241,3 +241,56 @@ std::string Server::setMode(Request &request, int fd)
 	// we need to send this message to all members of the channel
 	return "";
 }
+
+std::string Server::topic(Request &request, int fd)
+{
+	size_t size = request.args.size();
+
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	if (size < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "TOPIC", this->name, this->clients[fd]->getNickname());
+
+	std::string channelName = request.args[0];
+
+	if (this->channels.find(channelName) == this->channels.end())
+		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (!this->channels[channelName]->isMember(fd))
+		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
+	if (size == 1)
+		// return Response::success(RPL_TOPIC, channelName, this->name, this->clients[fd]->getNickname(), this->channels[channelName]->getTopic());
+	else {
+		if (this->channels[channelName]->getIsTopicChangeByOperatorOnly() && !this->channels[channelName]->isOperator(fd))
+			return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
+		std::string topic = request.args[1];
+		this->channels[channelName]->setTopic(topic);
+		// broadcastChannel
+	}
+	return "";
+}
+
+std::string Server::sendPrivmsg(Request &request, int fd)
+{
+	size_t size = request.args.size();
+	if (size < 2)
+		return Response::failure(ERR_NEEDMOREPARAMS, "PRIVMSG", this->name, this->clients[fd]->getNickname());
+	if (!this->clients[fd]->getIsRegistered())
+		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+
+	std::vector<std::string> target;
+	makeVector(request.args[0], target);
+	std::string message = request.args[1];
+
+	for (size_t i = 0; i < target.size(); i++) {
+		if (target[i][0] == '#' || target[i][0] == '&') {
+			ErrorCode err = privmsgToChannel(target[i], message, fd);
+			if (err != ERR_NONE)
+				sendError(err, target[i], fd);
+		} else {
+			ErrorCode err = privmsgToUser(target[i], message, fd);
+			if (err != ERR_NONE)
+				sendError(err, target[i], fd);
+		}
+	}
+	return "";
+}

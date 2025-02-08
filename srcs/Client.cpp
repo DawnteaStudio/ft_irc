@@ -1,8 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false) {}
+Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false), gameMode(false) {}
 
-Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false), gameMode(false) {}
 
 Client::~Client() {}
 
@@ -23,6 +23,7 @@ Client &Client::operator=(const Client &other)
 		this->isValidPasswd = other.isValidPasswd;
 		this->isRegistered = other.isRegistered;
 		this->channels = other.channels;
+		this->gameMode = other.gameMode;
 	}
 	return *this;
 }
@@ -41,7 +42,17 @@ void Client::setPrefix() { this->prefix = this->nickname + "!" + this->userName 
 
 void Client::setIpAddr(const std::string &newIpAddr) { this->ipAddr = newIpAddr; }
 
+void Client::setGameMode(bool gameMode) { this->gameMode = gameMode; }
+
+void Client::setHp(int hp) { this->hp = hp; }
+
 const int &Client::getClientFd() const { return this->clientFd; }
+
+const int &Client::getHp() const { return this->hp; }
+
+const int &Client::getHighScore() const { return this->highScore; }
+
+const int &Client::getPlayingScore() const { return this->playingScore; }
 
 void Client::appendBuffer(const std::string &newBuffer) { this->buffer += newBuffer; }
 
@@ -72,6 +83,8 @@ const bool Client::isInvitedChannel(const std::string &channelName) const
 	return false;
 }
 
+const bool Client::getGameMode() const { return this->gameMode; }
+
 const std::string &Client::getUserName() const { return this->userName; }
 
 const std::string &Client::getRealName() const { return this->realName; }
@@ -81,6 +94,19 @@ const std::string &Client::getBuffer() const { return this->buffer; }
 const std::string &Client::getPrefix() const { return this->prefix; }
 
 std::vector<Channel *> Client::getChannels() const { return (this->channels); }
+
+void Client::damageHp(int damage)
+{
+	this->hp -= damage;
+	if (this->hp < 0)
+		this->hp = 0;
+}
+
+void Client::setHighScore(int highScore) { this->highScore = highScore; }
+
+void Client::setPlayingScore(int playingScore) { this->playingScore = playingScore; }
+
+void Client::takeScore(int score) { this->playingScore += score; }
 
 void Client::removeChannel(Channel *channel)
 {

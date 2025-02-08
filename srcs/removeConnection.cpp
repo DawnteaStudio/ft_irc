@@ -14,7 +14,6 @@ void Server::removeClient(int fd, bool isLeave, const std::string &reason)
 		broadcastChannel(channelName, Response::customMessageForQuit(this->clients[fd]->getPrefix(), reason));
 	}
 
-	
 	this->deleteUserNickname(this->clients[fd]->getNickname());
 	delete this->clients[fd];
 	this->clients.erase(fd);

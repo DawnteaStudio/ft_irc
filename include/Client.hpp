@@ -9,6 +9,9 @@ class Channel;
 class Client {
 	private:
 		int clientFd;
+		int hp;
+		int highScore;
+		int playingScore;
 		std::string userName;
 		std::string nickname;
 		std::string realName;
@@ -17,6 +20,7 @@ class Client {
 		std::string buffer;
 		bool isValidPasswd;
 		bool isRegistered;
+		bool gameMode;
 		std::vector<Channel *> channels;
 		std::vector<std::string> invitedChannels;
 		Client();
@@ -31,6 +35,11 @@ class Client {
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
 		void setPrefix();
+		void setHp(int);
+		void setGameMode(bool);
+		void setHighScore(int);
+		void setPlayingScore(int);
+		void takeScore(int);
 		void appendBuffer(const std::string&);
 		void clearBuffer();
 		void setIpAddr(const std::string&);
@@ -38,6 +47,7 @@ class Client {
 		void removeChannel(Channel *);
 		void addInvitedChannel(const std::string&);
 		void removeInvitedChannel(const std::string&);
+		void damageHp(int);
 		const std::string &getNickname() const;
 		const std::string &getUserName() const;
 		const std::string &getRealName() const;
@@ -45,8 +55,12 @@ class Client {
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
 		const bool isInvitedChannel(const std::string&) const;
+		const bool getGameMode() const;
 		const std::string &getPrefix() const;
 		const int &getClientFd() const;
+		const int &getHp() const;
+		const int &getHighScore() const;
+		const int &getPlayingScore() const;
 		std::vector<Channel *> getChannels() const;
 };
 

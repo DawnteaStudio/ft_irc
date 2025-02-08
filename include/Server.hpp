@@ -15,14 +15,21 @@
 # include <arpa/inet.h>
 # include <fcntl.h>
 # include <unistd.h>
+# include <algorithm>
+# include <cctype>
 # include "Client.hpp"
 # include "Request.hpp"
 # include "Channel.hpp"
 # include "Response.hpp"
+# include "signal.hpp"
 
 # define BUFFER_SIZE 1024
 # define RED "\033[1;31m"
 # define WHITE "\033[0;37m"
+# define BLUE "\033[1;34m"
+# define GREEN "\033[1;32m"
+# define GOLD "\033[1;33m"
+# define RESET "\033[0m"
 # define DOWNLOADED_FILE_PATH "/Users/sewopark/Desktop/downloads/" // envp 고려(user name)
 
 class Client;
@@ -48,8 +55,9 @@ class Server {
 		void connectClient(int);
 		void removeClient(int, bool, const std::string&);
 		void execCmd(Request&, int);
-		std::string quit(Request&, int);  // COMMAND
-		void quit(int);  // SIGINT
+		void makeUpper(std::string&);
+		std::string quit(Request&, int);
+		void quit(int);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
@@ -61,22 +69,35 @@ class Server {
 		ErrorCode part(const std::string&, int);
 		std::string kickUser(Request&, int);
 		ErrorCode kick(const std::string&, const std::string&, const std::string&, int);
-		std::string	inviteUser(Request&, int);
-		std::string	setMode(Request&, int);
+		std::string inviteUser(Request&, int);
+		std::string setMode(Request&, int);
 		void classifyMode(Request&, std::string&, int);
 		ErrorCode mode(const std::string&, const std::pair<char, std::string>&, const std::string&);
 		ErrorCode modeO(const std::string&, const std::string&, bool);
 		ErrorCode modeK(const std::string&, const std::string&, bool);
 		ErrorCode modeL(const std::string&, const std::string&, bool);
-		// std::string	topic(Request&, int);
-		// std::string	privmsg(Request&, int);
-		// std::string	notice(Request&, int);
+		std::string topic(Request&, int);
+		std::string sendPrivmsg(Request&, int);
+		ErrorCode privmsgToChannel(const std::string&, const std::string&, int);
+		ErrorCode privmsgToUser(const std::string&, const std::string&, int);
+		std::string bot(Request&, int);
+		std::string botIntro(int);
+		std::string winMsg(int);
+		std::string loseMsg(int);
+		std::string drawMsg(int);
+		std::string botStart(int);
+		std::string botQuit(int);
+		std::string botScore(int);
+		std::string botRank(int);
+		std::string botAttack(std::string&, int);
+		void updateHighScore(int);
 		bool isValidUserNickname(const std::string&);
 		bool isUsedUserNickname(const std::string&);
 		void deleteUserNickname(const std::string&);
 		void addNewUserNickname(const std::string&);
 		bool isSameNickname(const std::string&, const std::string&);
 		bool isCharString(const char&) const;
+		bool isValidChannelName(const std::string&);
 		bool isRightModeFlag(const std::string&);
 		bool isNeedParamFlag(const std::string&, bool);
 		std::string convertChar(const std::string&);

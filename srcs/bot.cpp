@@ -1,3 +1,4 @@
+#include <ctime>
 #include "../include/Server.hpp"
 
 void Server::updateHighScore(int fd)
@@ -5,6 +6,21 @@ void Server::updateHighScore(int fd)
 	this->clients[fd]->setGameMode(false);
 	if (this->clients[fd]->getPlayingScore() > this->clients[fd]->getHighScore())
 		this->clients[fd]->setHighScore(this->clients[fd]->getPlayingScore());
+}
+
+std::string Server::drawMsg(int fd)
+{
+	std::string art = BLUE;
+	art += R"(
+ ____  ____      ___        ___ _ 
+|  _ \|  _ \    / \ \      / / | |
+| | | | |_) |  / _ \ \ /\ / /| | |
+| |_| |  _ <  / ___ \ V  V / |_|_|
+|____/|_| \_\/_/   \_\_/\_/  (_|_) 
+
+)";
+	art += RESET;
+	return art;
 }
 
 std::string Server::winMsg(int fd)
@@ -153,10 +169,31 @@ std::string Server::botRank(int fd)
 
 std::string Server::botAttack(std::string &choice, int fd)
 {
-	std::string art = "";
-	std::string botChoice = "";
-	int botChoiceNum = rand() % 3;
+	srand(static_cast<unsigned int>(time(0)));
 
+	int botChoiceNum = rand() % 3;
+	std::string art;
+	std::string arr[3] = {"ROCK", "SCISSORS", "PAPER"};
+	art += "YOUR CHOICE: " + choice + "\n";
+	art += "BOT'S CHOICE: " + arr[botChoiceNum] + "\n";
+
+	int playerChoiceNum;
+	for (playerChoiceNum = 0; playerChoiceNum < 3; playerChoiceNum++)
+		if (arr[playerChoiceNum] == choice)
+			break;
+	if (playerChoiceNum == botChoiceNum)
+		art += drawMsg(fd);
+	else if ((playerChoiceNum + 1) % 3 == botChoiceNum) {
+		this->clients[fd]->setHp(this->clients[fd]->getHp() - 1);
+		art += loseMsg(fd);
+		if (this->clients[fd]->getHp() == 0)
+			art += botQuit(fd);
+	}
+	else {
+		this->clients[fd]->setPlayingScore(this->clients[fd]->getPlayingScore() + 1);
+		art += winMsg(fd);
+	}
+	return art;
 }
 
 std::string Server::botIntro(int fd)
@@ -215,6 +252,8 @@ std::string Server::bot(Request &request, int fd)
 		return botScore(fd);
 	else if (cmd == "RANK")
 		return botRank(fd);
+	else if (cmd == "ROCK" || cmd == "PAPER" || cmd == "SCISSORS")
+		return botAttack(cmd, fd);
 	else
 		return Response::failure(ERR_UNKNOWNCOMMAND, cmd, this->name, this->clients[fd]->getNickname());
 	return "";

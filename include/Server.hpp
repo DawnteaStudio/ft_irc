@@ -82,6 +82,7 @@ class Server {
 		std::string botIntro(int);
 		std::string winMsg(int);
 		std::string loseMsg(int);
+		std::string drawMsg(int);
 		std::string botStart(int);
 		std::string botQuit(int);
 		std::string botScore(int);

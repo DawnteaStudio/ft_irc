@@ -140,27 +140,27 @@ std::string Server::botRank(int fd)
 
 	int sameRank = 1;
 	std::ostringstream oss;
-	for (size_t i = 0; i < rank.size(); i++)
-	{
+	std::ostringstream rankScore;
+	for (size_t i = 0; i < rank.size(); i++) {
 		if (rank[i].first == 0 || i == 5)
 			break;
 
+		rankScore << rank[i].first;
 		if (i == 0) {
 			oss << 1;
-			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
-			oss.str("");
+			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
 		}
 		else if (rank[i].first == rank[i - 1].first) {
 			oss << sameRank;
-			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
-			oss.str("");
+			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
 		}
 		else {
 			sameRank = i + 1;
 			oss << (i + 1);
-			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
-			oss.str("");
+			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
 		}
+		oss.str("");
+		rankScore.str("");
 	}
 
 	if (this->clients[fd]->getHighScore() == 0) {
@@ -172,6 +172,7 @@ std::string Server::botRank(int fd)
 		art += RED;
 		for (size_t i = 0; i < rank.size(); i++) {
 			if (rank[i].first == this->clients[fd]->getHighScore()) {
+				oss.str("");
 				oss << (i + 1);
 				art += oss.str();
 				break;

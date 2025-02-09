@@ -132,11 +132,11 @@ std::string Server::botRank(int fd)
 		"\\ \\|  _ <  / ___ \\| |\\  | . \\ | || |\\  | |_| |/ /\n"
 		" \\_\\_| \\_\\/_/   \\_\\_| \\_|_|\\_\\___|_| \\_|\\____/_/ \n";
 
-	std::vector<std::pair<int, std::string>> rank;
+	std::vector<std::pair<int, std::string> > rank;
 	std::map<int, Client *>::iterator it;
 	for (it = this->clients.begin(); it != this->clients.end(); it++)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
-	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string>>());
+	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string> >());
 
 	int sameRank = 1;
 	std::ostringstream oss;

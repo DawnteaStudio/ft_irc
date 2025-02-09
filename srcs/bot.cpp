@@ -172,7 +172,6 @@ std::string Server::botRank(int fd)
 		art += RED;
 		for (size_t i = 0; i < rank.size(); i++) {
 			if (rank[i].first == this->clients[fd]->getHighScore()) {
-				oss.str("");
 				oss << (i + 1);
 				art += oss.str();
 				break;

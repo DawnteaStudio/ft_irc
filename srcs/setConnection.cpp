@@ -30,6 +30,15 @@ void Server::setSocket()
 	this->pfd.push_back(this->serverStruct);
 }
 
+void Server::setDownloadPath()
+{
+	char *path = getenv("HOME");
+	if (path == NULL)
+		throw std::runtime_error("getenv() error!");
+	this->downloadPath = path;
+	this->downloadPath += "/Downloads/";
+}
+
 void Server::addClient()
 {
 	struct sockaddr_in clientAddr;
@@ -78,7 +87,7 @@ void Server::connectClient(int fd) {
 
 void Server::execCmd(Request &msg, int fd) {
 	std::string response;
-	std::string command = msg.getCommand();
+	std::string command = command;
 	makeUpper(command);
 
 	if (command == "PASS")
@@ -95,10 +104,20 @@ void Server::execCmd(Request &msg, int fd) {
 		response = getFile(msg, fd);
 	else if (command == "SENDFILE")
 		response = sendFile(msg, fd);
-	else if (msg.getCommand() == "PART")
+	else if (command == "PART")
 		response = partChannel(msg, fd);
-	else if (msg.getCommand() == "KICK")
+	else if (command == "KICK")
 		response = kickUser(msg, fd);
+	else if (command == "PRIVMSG")
+		response = sendPrivmsg(msg, fd);
+	else if (command == "TOPIC")
+		response = topic(msg, fd);
+	else if (command == "INVITE")
+		response = inviteUser(msg, fd);
+	else if (command == "MODE")
+		response = setMode(msg, fd);
+	else if (command == "BOT")
+		response = bot(msg, fd);
 	else
 		response = Response::failure(ERR_UNKNOWNCOMMAND, command, this->name, this->clients[fd]->getNickname());
 	if (!response.empty())

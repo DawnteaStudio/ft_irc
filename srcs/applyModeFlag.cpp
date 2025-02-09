@@ -7,10 +7,8 @@ ErrorCode Server::modeO(const std::string &channelName, const std::string &param
 	Client *client = this->getClientByNickname(param);
 	Channel *channel = this->channels[channelName];
 
-	// +o 에서 채널에 속하지 않은 사용자를 오퍼레이터로 만들려고 할 때 어떤 에러가 발생하는 지 확인해야 함
 	if (client == NULL || !channel->isMember(client->getClientFd()))
 		return ERR_NOSUCHNICK;
-
 	if (isAdd)
 		channel->addOperator(client);
 	else
@@ -24,15 +22,17 @@ ErrorCode Server::modeK(const std::string &channelName, const std::string &param
 		return ERR_NEEDMOREPARAMS;
 	Channel *channel = this->channels[channelName];
 
-	// +k 는 비밀번호를 맞추지 않아도 새롭게 세팅이 가능한 지 확인해야 함
-	channel->setIsKeyRequired(isAdd);
-	if (isAdd)
+	if (isAdd) {
+		if (channel->getIsKeyRequired())
+			return ERR_DONOTHING; // 이미 키가 설정되어 있는 경우, 아무 동작도 하지 않음
 		channel->setKey(param);
+	}
 	else {
 		if (channel->getKey() != param)
-			return ERR_BADCHANNELKEY;
+			return ERR_KEYSET;
 		channel->setKey("");
 	}
+	channel->setIsKeyRequired(isAdd);
 	return ERR_NONE;
 }
 

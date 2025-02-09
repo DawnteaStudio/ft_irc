@@ -238,8 +238,10 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 				continue;
 			}
 			err = mode(ChannelName, modes[i], params[0]);
-			if (err != ERR_NONE)
-				sendError(err, modes[i].second, fd);
+			if (err != ERR_NONE) {
+				if (err != ERR_DONOTHING)
+					sendError(err, modes[i].second, fd);
+			}
 			else
 				sendingParams.push_back(params[0]);
 			params.erase(params.begin());
@@ -247,7 +249,7 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 			err = mode(ChannelName, modes[i], "");
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
-		}
+		} 
 		if (err == ERR_NONE) {
 			if (sign != modes[i].first) {
 				sign = modes[i].first;

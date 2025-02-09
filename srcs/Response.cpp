@@ -31,6 +31,8 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		res = channelName + " " + param;
 	else if (num == RPL_CHANNELMODEIS)
 		res = channelName + " " + param;
+	else if (num == RPL_FILESENT)
+		res = channelName + " :" + param;
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -54,6 +56,8 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = ":You have not registered";
 	else if (num == ERR_UNKNOWNCOMMAND)
 		res = param + " :Unknown command";
+	else if (num == ERR_FILEERROR)
+		res = param + " :File error";
 	return createMessage(num, res, prefix, clientNickname);
 }
 

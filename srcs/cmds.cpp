@@ -57,17 +57,21 @@ std::string Server::getFile(Request &request, int fd)
 		return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	if (!this->clients[fd]->getIsRegistered())
 		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
-	if (this->channels.find(request.args[0]) == this->channels.end())
-		return (Response::failure(ERR_NOSUCHCHANNEL, request.args[0], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
-	if (this->channels[request.args[0]]->findFile(request.args[1]) == this->channels[request.args[0]]->getFiles().end())
-		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
-	File file = this->channels[request.args[0]]->getFiles()[request.args[1]];
-	std::fstream ofs(DOWNLOADED_FILE_PATH + request.args[1], std::fstream::out);
+
+	std::string channelName = request.args[0];
+	std::string fileName = request.args[1];
+	if (this->channels.find(channelName) == this->channels.end())
+		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+	if (this->channels[channelName]->findFile(fileName) == this->channels[channelName]->getFiles().end())
+		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+
+	File file = this->channels[channelName]->getFiles()[fileName];
+	std::fstream ofs(this->getDownloadPath() + fileName, std::fstream::out);
 	if (ofs.fail())
-		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	ofs << file.getFileContent();
 	ofs.close();
-	// return Response::success(RPL_FILESENT, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
+	return Response::success(RPL_FILESENT, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), fileName);
 }
 
 std::string Server::sendFile(Request &request, int fd)
@@ -76,9 +80,9 @@ std::string Server::sendFile(Request &request, int fd)
 		return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	if (!this->clients[fd]->getIsRegistered())
 		return (Response::failure(ERR_NOTREGISTERED, "", this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
+
 	std::string channelName = request.args[0];
 	std::string filePath = request.args[1];
-
 	if (this->channels.find(channelName) == this->channels.end())
 		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::fstream ifs(request.args[1], std::fstream::in);
@@ -91,7 +95,7 @@ std::string Server::sendFile(Request &request, int fd)
 	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	this->channels[channelName]->addFile(fileName, content);
 	ifs.close();
-	// return Response::success(RPL_FILESENT, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname());
+	return Response::success(RPL_FILESENT, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), fileName);
 }
 
 std::string Server::quit(Request &request, int fd)

@@ -30,7 +30,6 @@
 # define GREEN "\033[1;32m"
 # define GOLD "\033[1;33m"
 # define RESET "\033[0m"
-# define DOWNLOADED_FILE_PATH "/Users/sewopark/Desktop/downloads/" // envp 고려(user name)
 
 class Client;
 class Channel;
@@ -44,6 +43,7 @@ class Server {
 		std::map<int, Client *> clients;
 		std::map<std::string, Channel *> channels;
 		std::vector<std::string> clientNicknames;
+		std::string downloadPath;
 		struct pollfd serverStruct;
 		std::vector<pollfd> pfd;
 		Server(const Server&);
@@ -51,11 +51,13 @@ class Server {
 		void makeVector(std::string, std::vector<std::string>&);
 		void makeModeVector(std::string, std::vector<std::pair<char, std::string>>&);
 		void setSocket();
+		void setDownloadPath();
 		void addClient();
 		void connectClient(int);
 		void removeClient(int, bool, const std::string&);
 		void execCmd(Request&, int);
 		void makeUpper(std::string&);
+		std::string getDownloadPath();
 		std::string quit(Request&, int);
 		void quit(int);
 		std::string setPassword(Request&, int);

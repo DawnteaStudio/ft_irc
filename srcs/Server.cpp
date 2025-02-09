@@ -32,8 +32,11 @@ Server &Server::operator=(const Server &other)
 	return *this;
 }
 
+std::string Server::getDownloadPath() { return this->downloadPath; }
+
 void Server::run()
 {
+	this->setDownloadPath();
 	while (sig::stopServer == false) {
 		int event_cnt = poll(&this->pfd[0], this->pfd.size(), 0);
 

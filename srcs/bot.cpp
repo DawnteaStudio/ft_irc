@@ -8,17 +8,14 @@ void Server::updateHighScore(int fd)
 		this->clients[fd]->setHighScore(this->clients[fd]->getPlayingScore());
 }
 
-std::string Server::drawMsg(int fd)
+std::string Server::drawMsg()
 {
 	std::string art = BLUE;
-	art += R"(
- ____  ____      ___        ___ _ 
-|  _ \|  _ \    / \ \      / / | |
-| | | | |_) |  / _ \ \ /\ / /| | |
-| |_| |  _ <  / ___ \ V  V / |_|_|
-|____/|_| \_\/_/   \_\_/\_/  (_|_) 
-
-)";
+	art += " ____  ____      ___        ___ _ \n"
+		"|  _ \\|  _ \\    / \\ \\      / / | |\n"
+		"| | | | |_) |  / _ \\ \\ /\\ / /| | |\n"
+		"| |_| |  _ <  / ___ \\ V  V / |_|_|\n"
+		"|____/|_| \\_\\/_/   \\_\\_/\\_/  (_|_)\n";
 	art += RESET;
 	return art;
 }
@@ -26,14 +23,13 @@ std::string Server::drawMsg(int fd)
 std::string Server::winMsg(int fd)
 {
 	std::string art = GREEN;
-	art += R"(
-__   __           __        ___       
-\ \ / /__  _   _  \ \      / (_)_ __  
- \ V / _ \| | | |  \ \ /\ / /| | '_ \ 
-  | | (_) | |_| |   \ V  V / | | | | |
-  |_|\___/ \__,_|    \_/\_/  |_|_| |_|
+	art +=
+		"__   __           __        ___       \n"
+		"\\ \\ / /__  _   _  \\ \\      / (_)_ __  \n"
+		" \\ V / _ \\| | | |  \\ \\ /\\ / /| | '_ \\ \n"
+		"  | | (_) | |_| |   \\ V  V / | | | | |\n"
+		"  |_|\\___/ \\__,_|    \\_/\\_/  |_|_| |_|\n";
 
-)";
 	art += RESET;
 	updateHighScore(fd);
 	return art;
@@ -42,14 +38,13 @@ __   __           __        ___
 std::string Server::loseMsg(int fd)
 {
 	std::string art = RED;
-	art += R"(
-__   __            _                   
-\ \ / /__  _   _  | |    ___  ___  ___ 
- \ V / _ \| | | | | |   / _ \/ __|/ _ \
-  | | (_) | |_| | | |__| (_) \__ \  __/
-  |_|\___/ \__,_| |_____\___/|___/\___|
+	art +=
+		"__   __            _                   \n"
+		"\\ \\ / /__  _   _  | |    ___  ___  ___ \n"
+		" \\ V / _ \\| | | | | |   / _ \\/ __|/ _ \\\n"
+		"  | | (_) | |_| | | |__| (_) \\__ \\  __/\n"
+		"  |_|\\___/ \\__,_| |_____\\___/|___/\\___|\n";
 
-)";
 	art += RESET;
 	updateHighScore(fd);
 	return art;
@@ -59,16 +54,18 @@ std::string Server::botQuit(int fd)
 {
 	if (!this->clients[fd]->getGameMode())
 		return Response::failure(ERR_NOTINGAME, "", this->name, this->clients[fd]->getNickname());
-	std::string art = R"(
-  ____                 _   ____             
- / ___| ___   ___   __| | | __ ) _   _  ___ 
-| |  _ / _ \ / _ \ / _` | |  _ \| | | |/ _ \
-| |_| | (_) | (_) | (_| | | |_) | |_| |  __/
- \____|\___/ \___/ \__,_| |____/ \__, |\___|
-                                 |___/      
-)";
+
+	std::string art =
+		"  ____                 _   ____             \n"
+		" / ___| ___   ___   __| | | __ ) _   _  ___ \n"
+		"| |  _ / _ \\ / _ \\ / _` | |  _ \\| | | |/ _ \\\n"
+		"| |_| | (_) | (_) | (_| | | |_) | |_| |  __/\n"
+		" \\____|\\___/ \\___/ \\__,_| |____/ \\__, |\\___|\n"
+		"                                 |___/      \n";
+
 	if (!this->clients[fd]->getGameMode())
 		return art;
+
 	updateHighScore(fd);
 	this->clients[fd]->setGameMode(false);
 	return art;
@@ -79,25 +76,24 @@ std::string Server::botStart(int fd)
 	if (this->clients[fd]->getGameMode())
 		return Response::failure(ERR_ALREADYINGAME, "", this->name, this->clients[fd]->getNickname());
 
-	std::string art = R"(
-__        __   _                          
-\ \      / /__| | ___ ___  _ __ ___   ___ 
- \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \
-  \ V  V /  __/ | (_| (_) | | | | | |  __/
-   \_/\_/ \___|_|\___\___/|_| |_| |_|\___|
+	std::string art =
+		"__        __   _                          \n"
+		"\\ \\      / /__| | ___ ___  _ __ ___   ___ \n"
+		" \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\\n"
+		"  \\ V  V /  __/ | (_| (_) | | | | | |  __/\n"
+		"   \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___| \n"
+		"\n"
+		"YOUR INPUT SHOULD BE IN THE FORM OF \"BOT <CHOICE>\".\n"
+		"EXAMPLE: BOT ROCK\n"
+		"\n"
+		"    BOT ROCK          BOT SCISSORS           BOT PAPER\n"
+		"    _______           _______                _______ \n"
+		"---'   ____)      ---'   ____)____       ---'   ____)____\n"
+		"      (_____)               ______)                ______)\n"
+		"      (_____)            __________)               _______)\n"
+		"      (____)            (____)                    _______)\n"
+		"---.__(___)       ---.__(___)            ---.__________) \n";
 
-YOUR INPUT SHOULD BE IN THE FORM OF "BOT <CHOICE>".
-EXAMPLE: BOT ROCK
-
-    BOT ROCK          BOT SCISSORS           BOT PAPER
-    _______           _______                _______
----'   ____)      ---'   ____)____       ---'   ____)____
-      (_____)               ______)                ______)
-      (_____)            __________)               _______)
-      (____)            (____)                    _______)
----.__(___)       ---.__(___)            ---.__________)
-
-)";
 	this->clients[fd]->setGameMode(true);
 	this->clients[fd]->setPlayingScore(0);
 	this->clients[fd]->setHp(5);
@@ -120,14 +116,12 @@ std::string Server::botScore(int fd)
 std::string Server::botRank(int fd)
 {
 	std::string art = GOLD;
-	art += R"(
-  ______      _    _   _ _  _____ _   _  ______  
- / /  _ \    / \  | \ | | |/ /_ _| \ | |/ ___\ \ 
-/ /| |_) |  / _ \ |  \| | ' / | ||  \| | |  _ \ \
-\ \|  _ <  / ___ \| |\  | . \ | || |\  | |_| |/ /
- \_\_| \_\/_/   \_\_| \_|_|\_\___|_| \_|\____/_/ 
-
-)";
+	art +=
+		"  ______      _    _   _ _  _____ _   _  ______  \n"
+		" / /  _ \\    / \\  | \\ | | |/ /_ _| \\ | |/ ___\\ \\ \n"
+		"/ /| |_) |  / _ \\ |  \\| | ' / | ||  \\| | |  _ \\ \\\n"
+		"\\ \\|  _ <  / ___ \\| |\\  | . \\ | || |\\  | |_| |/ /\n"
+		" \\_\\_| \\_\\/_/   \\_\\_| \\_|_|\\_\\___|_| \\_|\\____/_/ \n";
 
 	std::vector<std::pair<int, std::string>> rank;
 	std::map<int, Client *>::iterator it;
@@ -182,7 +176,7 @@ std::string Server::botAttack(std::string &choice, int fd)
 		if (arr[playerChoiceNum] == choice)
 			break;
 	if (playerChoiceNum == botChoiceNum)
-		art += drawMsg(fd);
+		art += drawMsg();
 	else if ((playerChoiceNum + 1) % 3 == botChoiceNum) {
 		this->clients[fd]->setHp(this->clients[fd]->getHp() - 1);
 		art += loseMsg(fd);
@@ -201,35 +195,34 @@ std::string Server::botIntro(int fd)
 	std::string guide = BLUE;
 
 	guide += "\n\n\n\n";
-    guide += R"(
+	guide +=
+		"\tYOUR OPPONENT IS A BOT.\n"
+		"\tYOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.\n"
+		"\tYOU CAN CHOOSE BETWEEN ROCK, PAPER, SCISSORS.\n"
+		"\tYOU CAN ALSO USE \"HELP\" TO GET THIS MESSAGE.\n"
+		"\tYOUR INPUT SHOULD BE IN THE FORM OF \"BOT <CHOICE>\".\n"
+		"\tEXAMPLE: BOT ROCK\n"
+		"\n"
+		"###########################################################\n"
+		"\n"
+		"    BOT ROCK          BOT SCISSORS           BOT PAPER\n"
+		"    _______           _______                _______\n"
+		"---'   ____)      ---'   ____)____       ---'   ____)____\n"
+		"      (_____)               ______)                ______)\n"
+		"      (_____)            __________)               _______)\n"
+		"      (____)            (____)                    _______)\n"
+		"---.__(___)       ---.__(___)            ---.__________)\n"
+		"\n"
+		"###########################################################\n"
+		"\n"
+		"\tYOU CAN ALSO USE THE FOLLOWING COMMANDS:\n"
+		"\tVIEW GUIDE AGAIN: BOT HELP\n"
+		"\tSTART THE GAME: BOT START\n"
+		"\tQUIT THE GAME: BOT QUIT\n"
+		"\tVIEW YOUR HIGH SCORE: BOT SCORE\n"
+		"\tVIEW RANKING: BOT RANK\n"
+		"\n";
 
-	YOUR OPPONENT IS A BOT.
-	YOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.
-	YOU CAN CHOOSE BETWEEN ROCK, PAPER, SCISSORS.
-	YOU CAN ALSO USE "HELP" TO GET THIS MESSAGE.
-	YOUR INPUT SHOULD BE IN THE FORM OF "BOT <CHOICE>".
-	EXAMPLE: BOT ROCK
-
-###########################################################
-
-    BOT ROCK          BOT SCISSORS           BOT PAPER
-    _______           _______                _______
----'   ____)      ---'   ____)____       ---'   ____)____
-      (_____)               ______)                ______)
-      (_____)            __________)               _______)
-      (____)            (____)                    _______)
----.__(___)       ---.__(___)            ---.__________)
-
-###########################################################
-	
-	YOU CAN ALSO USE THE FOLLOWING COMMANDS:
-	VIEW GUIDE AGAIN: BOT HELP
-	START THE GAME: BOT START
-	QUIT THE GAME: BOT QUIT
-	VIEW YOUR HIGH SCORE: BOT SCORE
-	VIEW RANKING: BOT RANK
-
-)";
 	guide += RESET;
 	return guide;
 }

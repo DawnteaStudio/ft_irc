@@ -115,7 +115,7 @@ std::string Server::quit(Request &request, int fd)
 	std::string res = Response::customErrorMessageForQuit(user, reason);
 	send(fd, res.c_str(), res.length(), 0);
 
-	this->removeClient(fd, true, reason);
+	this->removeClient(fd, reason);
 	this->removeClientConnection(fd);
 	close(fd);
 	return "";
@@ -126,7 +126,7 @@ void Server::quit(int fd)
 	std::string reason = "Connection closed";
 
 	if (this->clients.find(fd) != this->clients.end())
-		this->removeClient(fd, false, reason);
+		this->removeClient(fd, reason);
 	this->removeClientConnection(fd);
 	close(fd);
 }

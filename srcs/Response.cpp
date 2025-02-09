@@ -58,6 +58,10 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = param + " :Unknown command";
 	else if (num == ERR_FILEERROR)
 		res = param + " :File error";
+	else if (num == ERR_NOTINGAME)
+		res = ":You are not in game";
+	else if (num == ERR_ALREADYINGAME)
+		res = ":You are already in game";
 	return createMessage(num, res, prefix, clientNickname);
 }
 

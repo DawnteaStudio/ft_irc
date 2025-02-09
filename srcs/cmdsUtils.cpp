@@ -196,7 +196,7 @@ std::string Server::modeInfo(Channel *channel, int fd)
 	std::string modes = "+";
 	std::string params;
 	std::vector<char> modeVector = channel->getModes();
-	std::vector<std::pair<char, std::string>> modeParams = channel->getModeParams();
+	std::vector<std::pair<char, std::string> > modeParams = channel->getModeParams();
 	int modeSize = modeVector.size();
 	int paramSize = modeParams.size();
 	for (int i = 0; i < modeSize; i++)
@@ -218,7 +218,7 @@ std::string Server::modeInfo(Channel *channel, int fd)
 void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 {
 	std::string ChannelName = request.args[0];
-	std::vector<std::pair<char, std::string>> modes;
+	std::vector<std::pair<char, std::string> > modes;
 	std::vector<std::string> params(request.args.begin() + 2, request.args.end());
 	makeModeVector(request.args[1], modes);
 
@@ -289,7 +289,7 @@ bool Server::isRightModeFlag(const std::string &modeFlag)
 	return false;
 }
 
-void Server::makeModeVector(std::string modeInput, std::vector<std::pair<char, std::string>> &vec)
+void Server::makeModeVector(std::string modeInput, std::vector<std::pair<char, std::string> > &vec)
 {
 	char sign = '+';
 	for (size_t i = 0; i < modeInput.size(); i++) {

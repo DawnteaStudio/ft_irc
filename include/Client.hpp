@@ -54,8 +54,8 @@ class Client {
 		const std::string &getBuffer() const;
 		const bool &getIsValidPasswd() const;
 		const bool &getIsRegistered() const;
-		const bool isInvitedChannel(const std::string&) const;
-		const bool getGameMode() const;
+		bool isInvitedChannel(const std::string&) const;
+		bool getGameMode() const;
 		const std::string &getPrefix() const;
 		const int &getClientFd() const;
 		const int &getHp() const;

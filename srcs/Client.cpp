@@ -75,7 +75,7 @@ const bool &Client::getIsValidPasswd() const { return this->isValidPasswd; }
 
 const bool &Client::getIsRegistered() const { return this->isRegistered; }
 
-const bool Client::isInvitedChannel(const std::string &channelName) const
+bool Client::isInvitedChannel(const std::string &channelName) const
 {
 	std::vector<std::string>::const_iterator it = std::find(this->invitedChannels.begin(), this->invitedChannels.end(), channelName);
 	if (it != this->invitedChannels.end())
@@ -83,7 +83,7 @@ const bool Client::isInvitedChannel(const std::string &channelName) const
 	return false;
 }
 
-const bool Client::getGameMode() const { return this->gameMode; }
+bool Client::getGameMode() const { return this->gameMode; }
 
 const std::string &Client::getUserName() const { return this->userName; }
 

@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-void Server::removeClient(int fd, bool isLeave, const std::string &reason)
+void Server::removeClient(int fd, const std::string &reason)
 {
 	int size = static_cast<int>(this->clients[fd]->getChannels().size());
 	for (int i = 0; i < size; i++) {

@@ -49,12 +49,12 @@ class Server {
 		Server(const Server&);
 		Server &operator=(const Server&);
 		void makeVector(std::string, std::vector<std::string>&);
-		void makeModeVector(std::string, std::vector<std::pair<char, std::string>>&);
+		void makeModeVector(std::string, std::vector<std::pair<char, std::string> >&);
 		void setSocket();
 		void setDownloadPath();
 		void addClient();
 		void connectClient(int);
-		void removeClient(int, bool, const std::string&);
+		void removeClient(int, const std::string&);
 		void execCmd(Request&, int);
 		void makeUpper(std::string&);
 		std::string getDownloadPath();
@@ -88,7 +88,7 @@ class Server {
 		std::string botIntro(int);
 		std::string winMsg(int);
 		std::string loseMsg(int);
-		std::string drawMsg(int);
+		std::string drawMsg(void);
 		std::string botStart(int);
 		std::string botQuit(int);
 		std::string botScore(int);

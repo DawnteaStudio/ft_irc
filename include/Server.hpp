@@ -85,7 +85,7 @@ class Server {
 		ErrorCode privmsgToChannel(const std::string&, const std::string&, int);
 		ErrorCode privmsgToUser(const std::string&, const std::string&, int);
 		std::string bot(Request&, int);
-		std::string botIntro(int);
+		std::string botIntro(void);
 		std::string winMsg(int);
 		std::string loseMsg(int);
 		std::string drawMsg(void);

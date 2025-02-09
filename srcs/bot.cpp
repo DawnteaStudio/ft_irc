@@ -123,11 +123,11 @@ std::string Server::botRank(int fd)
 		"\\ \\|  _ <  / ___ \\| |\\  | . \\ | || |\\  | |_| |/ /\n"
 		" \\_\\_| \\_\\/_/   \\_\\_| \\_|_|\\_\\___|_| \\_|\\____/_/ \n";
 
-	std::vector<std::pair<int, std::string>> rank;
+	std::vector<std::pair<int, std::string> > rank;
 	std::map<int, Client *>::iterator it;
 	for (it = this->clients.begin(); it != this->clients.end(); it++)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
-	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string>>());
+	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string> >());
 
 	int sameRank = 1;
 	for (size_t i = 0; i < rank.size(); i++) {
@@ -190,7 +190,7 @@ std::string Server::botAttack(std::string &choice, int fd)
 	return art;
 }
 
-std::string Server::botIntro(int fd)
+std::string Server::botIntro()
 {
 	std::string guide = BLUE;
 
@@ -232,12 +232,12 @@ std::string Server::bot(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 	if (request.args.size() < 1)
-		return botIntro(fd);
+		return botIntro();
 
 	std::string cmd = request.args[0];
 	makeUpper(cmd);
 	if (cmd == "HELP")
-		return botIntro(fd);
+		return botIntro();
 	else if (cmd == "START")
 		return botStart(fd);
 	else if (cmd == "QUIT")

@@ -66,7 +66,7 @@ std::string Server::getFile(Request &request, int fd)
 		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 
 	File file = this->channels[channelName]->getFiles()[fileName];
-	std::fstream ofs(this->getDownloadPath() + fileName, std::fstream::out);
+	std::fstream ofs((this->getDownloadPath() + fileName).c_str(), std::fstream::out);
 	if (ofs.fail())
 		return (Response::failure(ERR_FILEERROR, fileName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	ofs << file.getFileContent();
@@ -85,7 +85,7 @@ std::string Server::sendFile(Request &request, int fd)
 	std::string filePath = request.args[1];
 	if (this->channels.find(channelName) == this->channels.end())
 		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
-	std::fstream ifs(request.args[1], std::fstream::in);
+	std::fstream ifs(request.args[1].c_str(), std::fstream::in);
 	if (ifs.fail())
 		return (Response::failure(ERR_FILEERROR, request.args[1], this->clients[fd]->getPrefix(), this->clients[fd]->getNickname()));
 	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);

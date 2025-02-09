@@ -104,10 +104,19 @@ std::string Server::botStart(int fd)
 std::string Server::botScore(int fd)
 {
 	std::string art = BLUE;
-	art += "YOUR HIGH SCORE: " + std::to_string(this->clients[fd]->getHighScore()) + "\n";
+
+	std::ostringstream oss;
+	oss << this->clients[fd]->getHighScore();
+	art += "YOUR HIGH SCORE: " + oss.str() + "\n";
+
 	if (this->clients[fd]->getGameMode()) {
-		art += "YOUR CURRENT SCORE: " + std::to_string(this->clients[fd]->getPlayingScore()) + "\n";
-		art += "YOUR REMAINING HP: " + std::to_string(this->clients[fd]->getHp()) + "\n";
+		oss.str("");
+		oss << this->clients[fd]->getPlayingScore();
+		art += "YOUR CURRENT SCORE: " + oss.str() + "\n";
+
+		oss.str("");
+		oss << this->clients[fd]->getHp();
+		art += "YOUR REMAINING HP: " + oss.str() + "\n";
 	}
 	art += RESET;
 	return art;
@@ -123,25 +132,37 @@ std::string Server::botRank(int fd)
 		"\\ \\|  _ <  / ___ \\| |\\  | . \\ | || |\\  | |_| |/ /\n"
 		" \\_\\_| \\_\\/_/   \\_\\_| \\_|_|\\_\\___|_| \\_|\\____/_/ \n";
 
-	std::vector<std::pair<int, std::string> > rank;
+	std::vector<std::pair<int, std::string>> rank;
 	std::map<int, Client *>::iterator it;
 	for (it = this->clients.begin(); it != this->clients.end(); it++)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
-	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string> >());
+	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string>>());
 
 	int sameRank = 1;
-	for (size_t i = 0; i < rank.size(); i++) {
+	std::ostringstream oss;
+	for (size_t i = 0; i < rank.size(); i++)
+	{
 		if (rank[i].first == 0 || i == 5)
 			break;
-		if (i == 0)
-			art += "1. " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
-		else if (rank[i].first == rank[i - 1].first)
-			art += std::to_string(sameRank) + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+
+		if (i == 0) {
+			oss << 1;
+			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+			oss.str("");
+		}
+		else if (rank[i].first == rank[i - 1].first) {
+			oss << sameRank;
+			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+			oss.str("");
+		}
 		else {
 			sameRank = i + 1;
-			art += std::to_string(i + 1) + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+			oss << (i + 1);
+			art += oss.str() + ". " + rank[i].second + " : " + std::to_string(rank[i].first) + "\n";
+			oss.str("");
 		}
 	}
+
 	if (this->clients[fd]->getHighScore() == 0) {
 		art += RED;
 		art += "Your rank: Not ranked\n";
@@ -151,12 +172,14 @@ std::string Server::botRank(int fd)
 		art += RED;
 		for (size_t i = 0; i < rank.size(); i++) {
 			if (rank[i].first == this->clients[fd]->getHighScore()) {
-				art += std::to_string(i + 1);
+				oss << (i + 1);
+				art += oss.str();
 				break;
 			}
 		}
 		art += "\n";
 	}
+
 	art += RESET;
 	return art;
 }

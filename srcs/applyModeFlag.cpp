@@ -46,15 +46,14 @@ ErrorCode Server::modeL(const std::string &channelName, const std::string &param
 	}
 	if (param == "")
 		return ERR_NEEDMOREPARAMS;
-	int limit;
-	try {
-		limit = std::stoi(param);
-	}
-	catch(const std::exception& e) {
+
+	int limit = 0;
+	std::istringstream iss(param);
+	if (!(iss >> limit))
 		limit = 0;
-	}
 	if (limit < 0)
 		limit = 0;
+
 	if (isAdd)
 		channel->setLimit(limit);
 	return ERR_NONE;

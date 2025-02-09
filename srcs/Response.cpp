@@ -70,7 +70,10 @@ std::string Response::createMessage(const int &num, const std::string &res, cons
 	std::string tmp = clientNickname;
 	if (tmp == "")
 		tmp = '*';
-	return ":" + prefix + " " + std::to_string(num) + " " + tmp + " " + res + CRLF;
+
+	std::ostringstream oss;
+	oss << num;
+	return ":" + prefix + " " + oss.str() + " " + tmp + " " + res + CRLF;
 }
 
 std::string Response::customMessageForJoin(const std::string &prefix, const std::string &channelName)

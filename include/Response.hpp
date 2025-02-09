@@ -2,6 +2,7 @@
 # define RESPONSE_HPP
 
 # include <string>
+# include <sstream>
 # include "ErrorCode.hpp"
 # include "ResponseCode.hpp"
 

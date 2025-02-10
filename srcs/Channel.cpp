@@ -87,7 +87,12 @@ std::map<int, Client *> Channel::getOperators() const { return this->operators; 
 
 std::map<std::string, File> Channel::getFiles() const { return this->files; }
 
-std::map<std::string, File>::iterator Channel::findFile(const std::string &fileName) { return this->files.find(fileName); }
+bool Channel::findFile(const std::string &fileName)
+{
+	if (this->files.find(fileName) == this->files.end())
+		return false;
+	return true;
+}
 
 std::vector<int> Channel::getInvitedClients() const { return this->invitedClients; }
 

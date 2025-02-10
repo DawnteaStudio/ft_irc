@@ -51,7 +51,7 @@ class Channel {
 		std::map<int, Client *> getMembers() const;
 		std::map<int, Client *> getOperators() const;
 		std::map<std::string, File> getFiles() const;
-		std::map<std::string, File>::iterator findFile(const std::string&);
+		bool findFile(const std::string&);
 		std::vector<int> getInvitedClients() const;
 		std::vector<char> getModes() const;
 		std::vector<std::pair<char, std::string> > getModeParams() const;

@@ -73,7 +73,7 @@ void Server::connectClient(int fd) {
 		quit(fd);
 	else {
 		this->clients[fd]->appendBuffer(buffer);
-		std::string::size_type pos = this->clients[fd]->getBuffer().find("\r\n");
+		std::string::size_type pos = this->clients[fd]->getBuffer().find("\n");
 		if (pos == std::string::npos)
 			return;
 		std::string message = this->clients[fd]->getBuffer().substr(0, pos);
@@ -89,6 +89,15 @@ void Server::execCmd(Request &msg, int fd) {
 	std::string response;
 	std::string command = msg.getCommand();
 	std::cout << "Command: " << command << std::endl;
+	if (msg.args.size() > 0)
+		std::cout << "Args: ";
+	for (size_t i = 0; i < msg.args.size(); i++) {
+		std::cout << msg.args[i];
+		if (i + 1 < msg.args.size())
+			std::cout << ", ";
+		else
+			std::cout << std::endl;
+	}
 	makeUpper(command);
 
 	if (command == "PASS")
@@ -98,7 +107,7 @@ void Server::execCmd(Request &msg, int fd) {
 	else if (command == "USER")
 		response = setUser(msg, fd);
 	else if (command == "QUIT")
-		quit(fd);
+		quit(msg, fd);
 	else if (command == "JOIN")
 		response = joinChannel(msg, fd);
 	else if (command == "GETFILE")

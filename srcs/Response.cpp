@@ -32,7 +32,9 @@ std::string Response::success(const int &num, const std::string &channelName, co
 	else if (num == RPL_CHANNELMODEIS)
 		res = channelName + " " + param;
 	else if (num == RPL_FILESENT)
-		res = channelName + " :" + param;
+		res = channelName + " :" + param + " has been sent";
+	else if (num == RPL_FILEDELIVERED)
+		res = channelName + " :" + param + " has been delivered";
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -50,8 +52,6 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = param + " :Erroneus nickname";
 	else if (num == ERR_NICKNAMEINUSE)
 		res = param + " :Nickname is already in use";
-	else if (num == ERR_PASSWDMISMATCH)
-		res = ":Password incorrect";
 	else if (num == ERR_NOTREGISTERED)
 		res = ":You have not registered";
 	else if (num == ERR_UNKNOWNCOMMAND)
@@ -62,6 +62,35 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = ":You are not in game";
 	else if (num == ERR_ALREADYINGAME)
 		res = ":You are already in game";
+	else if (num == ERR_NOSUCHCHANNEL) //no such channel error 추가
+		res = param + " :No such channel";
+	else if (num == ERR_NOTONCHANNEL) //not on channel error 추가
+		res = param + " :You're not on that channel";
+	else if (num == ERR_CHANOPRIVSNEEDED) //channel operator privileges needed error 추가
+		res = param + " :You're not a channel operator";
+	else if (num == ERR_UNKNOWNMODE) //unknown mode error 추가
+		res = param + " :Unknown mode";
+	else if (num == ERR_INVITEONLYCHAN) //invite only channel error 추가
+		res = param + " :Invite only channel";
+	else if (num == ERR_BADCHANNELKEY) //bad channel key error 추가
+		res = param + " :Bad channel key";
+	else if (num == ERR_BADCHANNAME) //bad channel name error 추가
+		res = param + " :Bad channel name";
+	else if (num == ERR_INVALIDFILEPATH) //invalid file path error 추가
+		res = param + " :Invalid file path";
+	else if (num == ERR_TOOMANYCHANNELS) //too many channels error 추가
+		res = param + " :Too many channels";
+	else if (num == ERR_USERONCHANNEL) //user on channel error 추가
+		res = param + " :User on channel";
+	else if (num == ERR_NOSUCHNICK)
+		res = param + " :No such nick";
+	else if (num == ERR_KEYSET)
+		res = param + " :Channel key already set";
+	else if (num == ERR_CHANNELISFULL)
+		res = param + " :Cannot join channel (channel is full)";
+	else if (num == ERR_FILENOTFOUND)
+		res = param + " :File not found";
+	
 	return createMessage(num, res, prefix, clientNickname);
 }
 
@@ -103,7 +132,8 @@ std::string Response::customErrorMessageForQuit(const std::string &user, const s
 
 std::string Response::customMessageForPrivmsg(const std::string &prefix, const std::string &target, const std::string &message)
 {
-	return ":" + prefix + " PRIVMSG " + target + " " + target + " :" + message + CRLF;
+	//target 이 두번 전송되는 것이 맞는지 확인 필요, 이 버전에서는 수정하겠음
+	return ":" + prefix + " PRIVMSG " + target + " :" + message + CRLF;
 }
 
 std::string Response::customMessageForInvite(const std::string &prefix, const std::string &channelName, const std::string &target)
@@ -113,5 +143,5 @@ std::string Response::customMessageForInvite(const std::string &prefix, const st
 
 std::string Response::customMessageForMode(const std::string &prefix, const std::string &channelName, const std::string &mode)
 {
-	return ":" + prefix + " MODE " + channelName + mode + CRLF;
+	return ":" + prefix + " MODE " + channelName + " " + mode + CRLF;
 }

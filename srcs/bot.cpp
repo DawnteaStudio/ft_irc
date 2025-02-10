@@ -186,6 +186,8 @@ std::string Server::botRank(int fd)
 
 std::string Server::botAttack(std::string &choice, int fd)
 {
+	if (!this->clients[fd]->getGameMode())
+		return Response::failure(ERR_NOTINGAME, "", this->name, this->clients[fd]->getNickname());
 	srand(static_cast<unsigned int>(time(0)));
 
 	int botChoiceNum = rand() % 3;

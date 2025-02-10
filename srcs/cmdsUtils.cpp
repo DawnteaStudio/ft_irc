@@ -222,6 +222,7 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	std::vector<std::string> params(request.args.begin() + 2, request.args.end());
 	makeModeVector(request.args[1], modes);
 
+	std::cout << "check\n" << std::endl;
 	size_t size = modes.size();
 	std::string res;
 	std::vector<std::string> sendingParams;

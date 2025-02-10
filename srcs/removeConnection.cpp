@@ -11,9 +11,9 @@ void Server::removeClient(int fd, const std::string &reason)
 			channel->removeOperator(fd);
 		if (channel->getMembers().size() == 0)
 			removeChannelData(channelName);
-		broadcastChannel(channelName, Response::customMessageForQuit(this->clients[fd]->getPrefix(), reason));
+		else
+			broadcastChannel(channelName, Response::customMessageForQuit(this->clients[fd]->getPrefix(), reason));
 	}
-
 	this->deleteUserNickname(this->clients[fd]->getNickname());
 	delete this->clients[fd];
 	this->clients.erase(fd);

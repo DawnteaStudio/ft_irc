@@ -88,6 +88,7 @@ void Server::connectClient(int fd) {
 void Server::execCmd(Request &msg, int fd) {
 	std::string response;
 	std::string command = msg.getCommand();
+	std::cout << "Command: " << command << std::endl;
 	makeUpper(command);
 
 	if (command == "PASS")

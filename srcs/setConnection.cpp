@@ -61,6 +61,7 @@ void Server::addClient()
 	this->pfd.push_back(new_poll);
 	this->clients.insert(std::pair<int, Client *>(clientFd, new Client(clientFd)));
 	this->clients[clientFd]->setIpAddr(clientIP);
+	std::cout << GREEN << "Client <" << clientFd << "> Connected" << WHITE << std::endl;
 }
 
 void Server::connectClient(int fd) {
@@ -73,7 +74,7 @@ void Server::connectClient(int fd) {
 		quit(fd);
 	else {
 		this->clients[fd]->appendBuffer(buffer);
-		std::string::size_type pos = this->clients[fd]->getBuffer().find("\n");
+		std::string::size_type pos = this->clients[fd]->getBuffer().find("\r\n");
 		if (pos == std::string::npos)
 			return;
 		std::string message = this->clients[fd]->getBuffer().substr(0, pos);
@@ -128,8 +129,12 @@ void Server::execCmd(Request &msg, int fd) {
 		response = setMode(msg, fd);
 	else if (command == "BOT")
 		response = bot(msg, fd);
+	else if (command == "PING" || command == "PONG" || command == "CAP" || command == "WHO" || command == "WHOIS")
+		return;
 	else
 		response = Response::failure(ERR_UNKNOWNCOMMAND, command, this->name, this->clients[fd]->getNickname());
-	if (!response.empty())
-		send(fd, response.c_str(), response.length(), 0);
+	if (!response.empty()) {
+		if (send(fd, response.c_str(), response.length(), 0) == -1)
+			std::cerr << "Response send() faild" << std::endl;
+	}
 }

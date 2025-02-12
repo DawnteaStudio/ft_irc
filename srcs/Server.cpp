@@ -30,7 +30,7 @@ Server &Server::operator=(const Server &other)
 {
 	(void)other;
 	return *this;
-}
+} 
 
 std::string Server::getDownloadPath() { return this->downloadPath; }
 
@@ -38,12 +38,10 @@ void Server::run()
 {
 	this->setDownloadPath();
 	while (sig::stopServer == false) {
-		int event_cnt = poll(&this->pfd[0], this->pfd.size(), 0);
+		int event_cnt = poll(&this->pfd[0], this->pfd.size(), -1);
 
 		if (event_cnt == -1)
 			throw std::runtime_error("poll() error!");
-		if (event_cnt == 0)
-			continue;
 		for (size_t i = 0; i < this->pfd.size(); i++) {
 			if (this->pfd[i].revents & POLLIN) {
 				if (this->pfd[i].fd == this->socketFd)

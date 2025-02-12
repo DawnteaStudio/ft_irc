@@ -104,6 +104,7 @@ Client * Server::getClientByNickname(const std::string &nickname)
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
 	if (this->channels.find(channelName) == this->channels.end()) {
+		std::cout << "First join" << std::endl;
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
 		if (this->clients[fd]->getChannels().size() >= 10)
@@ -331,8 +332,10 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 	std::map<int, Client *> members = channel->getMembers();
 	std::map<int, Client *>::iterator iter = members.begin();
 	for (; iter != members.end(); iter++) {
-		if (channel->isOperator(iter->first))
+		if (channel->isOperator(iter->first)) {
+			std::cout << "operator" << std::endl;
 			nameList += "@";
+		}
 		nameList += iter->second->getNickname() + " ";
 	}
 	nameList.erase(nameList.size() - 1, 1);

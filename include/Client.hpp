@@ -21,6 +21,7 @@ class Client {
 		bool isValidPasswd;
 		bool isRegistered;
 		bool gameMode;
+		bool isFirstLogin;
 		std::vector<Channel *> channels;
 		std::vector<std::string> invitedChannels;
 		Client();
@@ -31,6 +32,7 @@ class Client {
 		~Client();
 		void setIsValidPasswd(bool);
 		void setIsRegistered(bool);
+		void setIsFirstLogin(bool);
 		void setNickname(const std::string&);
 		void setUserName(const std::string&);
 		void setRealName(const std::string&);
@@ -56,6 +58,7 @@ class Client {
 		const bool &getIsRegistered() const;
 		bool isInvitedChannel(const std::string&) const;
 		bool getGameMode() const;
+		bool getIsFirstLogin() const;
 		const std::string &getPrefix() const;
 		const int &getClientFd() const;
 		const int &getHp() const;

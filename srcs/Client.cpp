@@ -2,7 +2,7 @@
 
 Client::Client() : clientFd(0), isValidPasswd(false), isRegistered(false), gameMode(false) {}
 
-Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false), gameMode(false) {}
+Client::Client(const int &clientFd) : clientFd(clientFd), isValidPasswd(false), isRegistered(false), gameMode(false), isFirstLogin(true) {}
 
 Client::~Client() {}
 
@@ -46,6 +46,8 @@ void Client::setGameMode(bool gameMode) { this->gameMode = gameMode; }
 
 void Client::setHp(int hp) { this->hp = hp; }
 
+void Client::setIsFirstLogin(bool isFirstLogin) { this->isFirstLogin = isFirstLogin; }
+
 const int &Client::getClientFd() const { return this->clientFd; }
 
 const int &Client::getHp() const { return this->hp; }
@@ -84,6 +86,8 @@ bool Client::isInvitedChannel(const std::string &channelName) const
 }
 
 bool Client::getGameMode() const { return this->gameMode; }
+
+bool Client::getIsFirstLogin() const { return this->isFirstLogin; }
 
 const std::string &Client::getUserName() const { return this->userName; }
 

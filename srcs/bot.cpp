@@ -3,7 +3,6 @@
 
 void Server::updateHighScore(int fd)
 {
-	this->clients[fd]->setGameMode(false);
 	if (this->clients[fd]->getPlayingScore() > this->clients[fd]->getHighScore())
 		this->clients[fd]->setHighScore(this->clients[fd]->getPlayingScore());
 }
@@ -138,31 +137,32 @@ std::string Server::botRank(int fd)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
 	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string> >());
 
-	int sameRank = 1;
-	std::ostringstream oss;
+	int sameRank = 0;
 	std::ostringstream rankScore;
+	std::vector<std::string> rankArt;
+	rankArt.push_back("[1ST]");
+	rankArt.push_back("[2ND]");
+	rankArt.push_back("[3RD]");
+	rankArt.push_back("[4TH]");
+	rankArt.push_back("[5TH]");
+
 	for (size_t i = 0; i < rank.size(); i++) {
 		if (rank[i].first == 0 || i == 5)
 			break;
 
 		rankScore << rank[i].first;
-		if (i == 0) {
-			oss << 1;
-			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
-		}
-		else if (rank[i].first == rank[i - 1].first) {
-			oss << sameRank;
-			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
-		}
+		if (i == 0)
+			art += rankArt[0] + "." + rank[i].second + " : " + rankScore.str() + "\n";
+		else if (rank[i].first == rank[i - 1].first)
+			art += rankArt[sameRank] + "." + rank[i].second + " : " + rankScore.str() + "\n";
 		else {
 			sameRank = i + 1;
-			oss << (i + 1);
-			art += oss.str() + ". " + rank[i].second + " : " + rankScore.str() + "\n";
+			art += rankArt[sameRank] + "." + rank[i].second + " : " + rankScore.str() + "\n";
 		}
-		oss.str("");
 		rankScore.str("");
 	}
 
+	std::ostringstream oss;
 	if (this->clients[fd]->getHighScore() == 0) {
 		art += RED;
 		art += "Your rank: Not ranked\n";
@@ -200,16 +200,19 @@ std::string Server::botAttack(std::string &choice, int fd)
 	for (playerChoiceNum = 0; playerChoiceNum < 3; playerChoiceNum++)
 		if (arr[playerChoiceNum] == choice)
 			break;
+	std::cout << "playerChoiceNum: " << playerChoiceNum << std::endl;
 	if (playerChoiceNum == botChoiceNum)
 		art += drawMsg();
-	else if ((playerChoiceNum + 1) % 3 == botChoiceNum) {
+	else if ((playerChoiceNum + 1) % 3 != botChoiceNum) {
 		this->clients[fd]->setHp(this->clients[fd]->getHp() - 1);
+		std::cout << "player hp: " << this->clients[fd]->getHp() << std::endl;
 		art += loseMsg(fd);
 		if (this->clients[fd]->getHp() == 0)
 			art += botQuit(fd);
 	}
 	else {
 		this->clients[fd]->setPlayingScore(this->clients[fd]->getPlayingScore() + 1);
+		std::cout << "player hp: " << this->clients[fd]->getHp() << std::endl;
 		art += winMsg(fd);
 	}
 	return art;

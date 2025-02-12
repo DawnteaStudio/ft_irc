@@ -35,6 +35,14 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		res = channelName + " :" + param + " has been sent";
 	else if (num == RPL_FILEDELIVERED)
 		res = channelName + " :" + param + " has been delivered";
+	else if (num == RPL_WELCOME) {
+		res = ": 001 " + clientNickname + " : Welcome to ft_irc SERVER!" + CRLF;
+		return res;
+	}
+	else if (num == RPL_CHANGEDNICK) {
+		res = ":" + clientNickname + " NICK :" + param + CRLF;
+		return res;
+	}
 	return createMessage(num, res, prefix, clientNickname);
 }
 

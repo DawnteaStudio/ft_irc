@@ -19,21 +19,32 @@ std::string Server::setPassword(Request &request, int fd)
 std::string Server::setUserNickname(Request &request, int fd)
 {
 	std::string nickname = this->clients[fd]->getNickname();
+	std::string sendMsg;
 
 	if (request.args.size() < 1)
 		return Response::failure(ERR_NONICKNAMEGIVEN, "", this->name, nickname);
-	if (isSameNickname(request.args[0], nickname))
+	std::string inputNickname = request.args[0];
+	if (isSameNickname(inputNickname, nickname))
 		return "";
-	if (!isValidUserNickname(request.args[0]))
-		return Response::failure(ERR_ERRONEUSNICKNAME, request.args[0], this->name, nickname);
-	if (isUsedUserNickname(request.args[0]))
-		return Response::failure(ERR_NICKNAMEINUSE, request.args[0], this->name, nickname);
+	if (!isValidUserNickname(inputNickname))
+		return Response::failure(ERR_ERRONEUSNICKNAME, inputNickname, this->name, nickname);
+	if (isUsedUserNickname(inputNickname)) {
+		if (this->clients[fd]->getIsFirstLogin() == false)
+			return Response::failure(ERR_NICKNAMEINUSE, inputNickname, this->name, nickname);
+		while (isUsedUserNickname(inputNickname))
+			inputNickname += "_";
+		this->clients[fd]->setIsFirstLogin(false);
+	}
 	if (this->clients[fd]->getIsValidPasswd()) {
 		if (nickname != "")
 			deleteUserNickname(nickname);
-		this->clients[fd]->setNickname(request.args[0]);
-		addNewUserNickname(request.args[0]);
+		this->clients[fd]->setNickname(inputNickname);
+		addNewUserNickname(inputNickname);
 	}
+	sendMsg = Response::success(RPL_WELCOME, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), this->clients[fd]->getRealName());
+	send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	sendMsg = Response::success(RPL_CHANGEDNICK, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), inputNickname);
+	send(fd, sendMsg.c_str(), sendMsg.length(), 0);
 	return "";
 }
 
@@ -114,7 +125,9 @@ std::string Server::quit(Request &request, int fd)
 		}
 	}
 
+	std::cout << "test" << std::endl;
 	std::string user = this->clients[fd]->getPrefix().substr(this->clients[fd]->getNickname().size() + 1);
+	std::cout << "test done" << std::endl;
 	std::string res = Response::customErrorMessageForQuit(user, reason);
 	send(fd, res.c_str(), res.length(), 0);
 
@@ -136,10 +149,10 @@ void Server::quit(int fd)
 
 std::string Server::joinChannel(Request &request, int fd)
 {
-	if (request.args.size() < 1)
-		return Response::failure(ERR_NEEDMOREPARAMS, "JOIN", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
+	if (request.args.size() < 1)
+		return Response::failure(ERR_NEEDMOREPARAMS, "JOIN", this->name, this->clients[fd]->getNickname());
 
 	std::vector<std::string> channelName;
 	std::vector<std::string> keys;

@@ -32,11 +32,18 @@ void Server::setSocket()
 
 void Server::setDownloadPath()
 {
+	struct stat sb;
 	char *path = getenv("HOME");
+
 	if (path == NULL)
 		throw std::runtime_error("getenv() error!");
 	this->downloadPath = path;
 	this->downloadPath += "/Downloads/";
+
+	if (stat(downloadPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
+		return;
+	if (mkdir(downloadPath.c_str(), 0777) == -1)
+		throw std::runtime_error("mkdir() error!");
 }
 
 void Server::addClient()
@@ -128,8 +135,10 @@ void Server::execCmd(Request &msg, int fd) {
 		response = setMode(msg, fd);
 	else if (command == "BOT")
 		response = bot(msg, fd);
-	else if (command == "PING" || command == "PONG" || command == "CAP" || command == "WHO" || command == "WHOIS")
+	else if (command == "PONG" || command == "CAP" || command == "WHO" || command == "WHOIS")
 		return;
+	else if (command == "PING")
+		response = Response::success(RPL_PONG, this->name, msg.prefix, this->clients[fd]->getNickname(), this->name);
 	else
 		response = Response::failure(ERR_UNKNOWNCOMMAND, command, this->name, this->clients[fd]->getNickname());
 	if (!response.empty()) {

@@ -82,8 +82,9 @@ std::string Server::getFile(Request &request, int fd)
 		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
 	ofs << file.getFileContent();
 	ofs.close();
-	if (privmsgToUser(this->clients[fd]->getNickname(), "File " + fileName + " has been downloaded", fd) != ERR_NONE)
-		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
+
+	std::string response = Response::customMessageForPrivmsg(this->clients[fd]->getPrefix(), channelName, "File [" + fileName + "] has been downloaded");
+	send(fd, response.c_str(), response.length(), 0);
 	return "";
 }
 
@@ -102,15 +103,17 @@ std::string Server::sendFile(Request &request, int fd)
 	if (ifs.fail())
 		return (Response::failure(ERR_INVALIDFILEPATH, request.args[1], this->name, this->clients[fd]->getNickname()));
 	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);
-	std::cout << "fileName: " << fileName << std::endl; //erase
+
 	File file(fileName, channelName);
 	if (this->channels[channelName]->findFile(fileName))
 		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
 	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	this->channels[channelName]->addFile(fileName, content);
 	ifs.close();
-	if (privmsgToUser(this->clients[fd]->getNickname(), "File " + fileName + " has been uploaded", fd) != ERR_NONE)
-		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
+
+	privmsgToChannel(channelName, "File [" + fileName + "] has been uploaded", fd);
+	std::string response = Response::customMessageForPrivmsg(this->clients[fd]->getPrefix(), channelName, "File [" + fileName + "] has been uploaded");
+	send(fd, response.c_str(), response.length(), 0);
 	return "";
 }
 
@@ -261,6 +264,8 @@ std::string Server::setMode(Request &request, int fd)
 		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (size == 1)
 		return modeInfo(this->channels[channelName], fd);
+	if (size == 2 && request.args[1] == "+b")
+		return "";
 	if (!this->channels[channelName]->isOperator(fd))
 		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
 	

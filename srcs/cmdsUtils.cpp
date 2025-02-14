@@ -198,7 +198,6 @@ std::string Server::modeInfo(Channel *channel, int fd)
 	std::vector<char> modeVector = channel->getModeVector();
 	std::vector<std::pair<char, std::string> > modeParams = channel->getModeParams();
 	int modeSize = modeVector.size();
-	std::cout << "modeSize: " << modeSize << std::endl;
 	int paramSize = modeParams.size();
 	for (int i = 0; i < modeSize; i++)
 		modes += modeVector[i];
@@ -224,7 +223,7 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	makeModeVector(request.args[1], modes);
 
 	size_t size = modes.size();
-	std::string res;
+	std::string empty;
 	std::vector<std::string> sendingParams;
 	char sign = '+';
 	ErrorCode err;
@@ -247,7 +246,7 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 				sendingParams.push_back(params[0]);
 			params.erase(params.begin());
 		} else {
-			err = mode(ChannelName, modes[i], "");
+			err = mode(ChannelName, modes[i], empty);
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
 		}
@@ -327,7 +326,7 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 	// topic
 	std::string topic = channel->getTopic();
 	if (!topic.empty()) {
-		response = Response::success(RPL_TOPIC, channelName, "irc.local", nickname, topic);
+		response = Response::success(RPL_TOPIC, channelName, this->name, nickname, topic);
 		send(fd, response.c_str(), response.length(), 0);
 	}
 	// name list
@@ -340,9 +339,9 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 		}
 		nameList += iter->second->getNickname() + " ";
 	}
-	response = Response::success(RPL_NAMREPLY, channelName, "irc.local", nickname, nameList);
+	response = Response::success(RPL_NAMREPLY, channelName, this->name, nickname, nameList);
 	send(fd, response.c_str(), response.length(), 0);
-	response = Response::success(RPL_ENDOFNAMES, channelName, "irc.local", nickname, "");
+	response = Response::success(RPL_ENDOFNAMES, channelName, this->name, nickname, "");
 	send(fd, response.c_str(), response.length(), 0);
 }
 

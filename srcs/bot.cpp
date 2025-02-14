@@ -11,9 +11,13 @@ std::string Server::drawMsg()
 {
 	std::string art = BLUE;
 	art += " ____  ____      ___        ___ _ \n"
+		BLUE
 		"|  _ \\|  _ \\    / \\ \\      / / | |\n"
+		BLUE
 		"| | | | |_) |  / _ \\ \\ /\\ / /| | |\n"
+		BLUE
 		"| |_| |  _ <  / ___ \\ V  V / |_|_|\n"
+		BLUE
 		"|____/|_| \\_\\/_/   \\_\\_/\\_/  (_|_)\n";
 	art += RESET;
 	return art;
@@ -24,9 +28,13 @@ std::string Server::winMsg(int fd)
 	std::string art = GREEN;
 	art +=
 		"__   __           __        ___       \n"
+		GREEN
 		"\\ \\ / /__  _   _  \\ \\      / (_)_ __  \n"
+		GREEN
 		" \\ V / _ \\| | | |  \\ \\ /\\ / /| | '_ \\ \n"
+		GREEN
 		"  | | (_) | |_| |   \\ V  V / | | | | |\n"
+		GREEN
 		"  |_|\\___/ \\__,_|    \\_/\\_/  |_|_| |_|\n";
 
 	art += RESET;
@@ -39,9 +47,13 @@ std::string Server::loseMsg(int fd)
 	std::string art = RED;
 	art +=
 		"__   __            _                   \n"
+		RED
 		"\\ \\ / /__  _   _  | |    ___  ___  ___ \n"
+		RED
 		" \\ V / _ \\| | | | | |   / _ \\/ __|/ _ \\\n"
+		RED
 		"  | | (_) | |_| | | |__| (_) \\__ \\  __/\n"
+		RED
 		"  |_|\\___/ \\__,_| |_____\\___/|___/\\___|\n";
 
 	art += RESET;
@@ -126,9 +138,13 @@ std::string Server::botRank(int fd)
 	std::string art = GOLD;
 	art +=
 		"  ______      _    _   _ _  _____ _   _  ______  \n"
+		GOLD
 		" / /  _ \\    / \\  | \\ | | |/ /_ _| \\ | |/ ___\\ \\ \n"
+		GOLD
 		"/ /| |_) |  / _ \\ |  \\| | ' / | ||  \\| | |  _ \\ \\\n"
+		GOLD
 		"\\ \\|  _ <  / ___ \\| |\\  | . \\ | || |\\  | |_| |/ /\n"
+		GOLD
 		" \\_\\_| \\_\\/_/   \\_\\_| \\_|_|\\_\\___|_| \\_|\\____/_/ \n";
 
 	std::vector<std::pair<int, std::string> > rank;
@@ -193,8 +209,8 @@ std::string Server::botAttack(std::string &choice, int fd)
 	int botChoiceNum = rand() % 3;
 	std::string art;
 	std::string arr[3] = {"ROCK", "SCISSORS", "PAPER"};
-	art += "YOUR CHOICE: " + choice + "\n";
-	art += "BOT'S CHOICE: " + arr[botChoiceNum] + "\n";
+	art += "YOUR CHOICE: " + std::string(BLUE) + choice + RESET + "\n";
+	art += "BOT'S CHOICE: " + std::string(RED) + arr[botChoiceNum] + RESET + "\n";
 
 	int playerChoiceNum;
 	for (playerChoiceNum = 0; playerChoiceNum < 3; playerChoiceNum++)

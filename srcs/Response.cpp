@@ -22,11 +22,11 @@ std::string Response::success(const int &num, const std::string &channelName, co
 	if (num == RPL_NOTOPIC)
 		res = channelName + " :No topic is set";
 	else if (num == RPL_TOPIC)
-		return customMessageForChannelTopic(num, channelName, clientNickname, param);
+		return customMessageForChannelTopic(num, prefix, channelName, clientNickname, param);
 	else if (num == RPL_NAMREPLY)
-		return customMessageForNamelist(num, channelName, clientNickname, param);
+		return customMessageForNamelist(num, prefix, channelName, clientNickname, param);
 	else if (num == RPL_ENDOFNAMES)
-		return customMessageForEndOfName(num, channelName, clientNickname);
+		return customMessageForEndOfName(num, prefix, channelName, clientNickname);
 	else if (num == RPL_INVITING)
 		res = channelName + " " + param;
 	else if (num == RPL_CHANNELMODEIS)
@@ -37,6 +37,10 @@ std::string Response::success(const int &num, const std::string &channelName, co
 	}
 	else if (num == RPL_CHANGEDNICK) {
 		res = ":" + clientNickname + " NICK :" + param + CRLF;
+		return res;
+	}
+	else if (num == RPL_PONG) {
+		res = ":" + channelName + " PONG " + param + " :" + channelName + CRLF;
 		return res;
 	}
 	return createMessage(num, res, prefix, clientNickname);
@@ -115,25 +119,25 @@ std::string Response::customMessageForJoin(const std::string &prefix, const std:
 }
 
 // ":irc.localhost 353 " + nickname + " = " + channelName + " :" + nameList + CRLF;
-std::string Response::customMessageForChannelTopic(const int &num, const std::string &channelName, const std::string &nickname, const std::string &topic)
+std::string Response::customMessageForChannelTopic(const int &num, const std::string &prefix, const std::string &channelName, const std::string &nickname, const std::string &topic)
 {
 	std::ostringstream oss;
 	oss << num;
-	return ":irc.local " + oss.str() + nickname + " " + channelName + " :" + topic + CRLF;
+	return ":" + prefix + " " + oss.str() + nickname + " " + channelName + " :" + topic + CRLF;
 }
 
-std::string Response::customMessageForNamelist(const int &num, const std::string &channelName, const std::string &nickname, const std::string &nameList)
+std::string Response::customMessageForNamelist(const int &num, const std::string &prefix, const std::string &channelName, const std::string &nickname, const std::string &nameList)
 {
 	std::ostringstream oss;
 	oss << num;
-	return ":irc.local " + oss.str() + " " + nickname + " = " + channelName + " :" + nameList + CRLF;
+	return ":" + prefix + " " + oss.str() + " " + nickname + " = " + channelName + " :" + nameList + CRLF;
 }
 
-std::string Response::customMessageForEndOfName(const int &num, const std::string &channelName, const std::string &nickname)
+std::string Response::customMessageForEndOfName(const int &num, const std::string &prefix, const std::string &channelName, const std::string &nickname)
 {
 	std::ostringstream oss;
 	oss << num;
-	return ":irc.local " + oss.str() + " " + nickname + " " + channelName + " " + "End of /NAMES list." + CRLF;
+	return ":" + prefix + " " + oss.str() + " " + nickname + " " + channelName + " " + "End of /NAMES list." + CRLF;
 }
 
 std::string Response::customMessageForKick(const std::string &prefix, const std::string &channelName, const std::string &target, const std::string &reason)

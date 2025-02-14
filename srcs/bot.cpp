@@ -93,10 +93,10 @@ std::string Server::botStart(int fd)
 		" \\ \\ /\\ / / _ \\ |/ __/ _ \\| '_ ` _ \\ / _ \\\n"
 		"  \\ V  V /  __/ | (_| (_) | | | | | |  __/\n"
 		"   \\_/\\_/ \\___|_|\\___\\___/|_| |_| |_|\\___| \n"
-		"\n"
+		" \n"
 		"YOUR INPUT SHOULD BE IN THE FORM OF \"BOT <CHOICE>\".\n"
 		"EXAMPLE: BOT ROCK\n"
-		"\n"
+		" \n"
 		"    BOT ROCK          BOT SCISSORS           BOT PAPER\n"
 		"    _______           _______                _______ \n"
 		"---'   ____)      ---'   ____)____       ---'   ____)____\n"
@@ -248,7 +248,7 @@ std::string Server::botIntro()
 		"    EXAMPLE: BOT ROCK\n"
 		" \n"
 		"###########################################################\n"
-		"\n"
+		" \n"
 		"    BOT ROCK          BOT SCISSORS           BOT PAPER\n"
 		"    _______           _______                _______\n"
 		"---'   ____)      ---'   ____)____       ---'   ____)____\n"
@@ -278,8 +278,6 @@ std::string Server::bot(Request &request, int fd)
 
 	std::string cmd = request.args[1];
 	makeUpper(cmd);
-
-	std::cout << "success bot! " << cmd << std::endl; 
 
 	if (cmd == "HELP")
 		return botIntro();

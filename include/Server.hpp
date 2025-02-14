@@ -62,6 +62,7 @@ class Server {
 		std::string getDownloadPath();
 		std::string quit(Request&, int);
 		void quit(int);
+		std::string extractBonusCommand(const std::string&);
 		std::string setPassword(Request&, int);
 		std::string setUserNickname(Request&, int);
 		std::string setUser(Request&, int);
@@ -86,7 +87,6 @@ class Server {
 		std::string sendPrivmsg(Request&, int);
 		ErrorCode privmsgToChannel(const std::string&, const std::string&, int);
 		ErrorCode privmsgToUser(const std::string&, const std::string&, int);
-		bool isBot(const std::string&);
 		std::string bot(Request&, int);
 		std::string botIntro(void);
 		std::string winMsg(int);

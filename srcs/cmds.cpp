@@ -72,8 +72,16 @@ std::string Server::getFile(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return (Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname()));
 
-	std::string channelName = request.args[0];
-	std::string fileName = request.args[1];
+	size_t pos = request.args[1].find(' ');
+	std::string channelName = request.args[1].substr(0, pos);
+
+	size_t size = request.args[1].size();
+	std::string fileName;
+	while (pos < size && request.args[1][pos] == ' ') pos++;
+	if (pos < size)
+		fileName = request.args[1].substr(pos);
+	else return (Response::failure(ERR_NEEDMOREPARAMS, "GETFILE", this->name, this->clients[fd]->getNickname()));
+
 	if (this->channels.find(channelName) == this->channels.end())
 		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname()));
 	if (!this->channels[channelName]->findFile(fileName))
@@ -98,14 +106,22 @@ std::string Server::sendFile(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return (Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname()));
 
-	std::string channelName = request.args[0];
-	std::string filePath = request.args[1];
+	size_t pos = request.args[1].find(' ');
+	std::string channelName = request.args[1].substr(0, pos);
+
+	size_t size = request.args[1].size();
+	std::string filePath;
+	while (pos < size && request.args[1][pos] == ' ') pos++;
+	if (pos < size)
+		filePath = request.args[1].substr(pos);
+	else return (Response::failure(ERR_NEEDMOREPARAMS, "SENDFILE", this->name, this->clients[fd]->getNickname()));
+
 	if (this->channels.find(channelName) == this->channels.end())
 		return (Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname()));
-	std::fstream ifs(request.args[1].c_str(), std::fstream::in);
+	std::fstream ifs(filePath.c_str(), std::fstream::in);
 	if (ifs.fail())
-		return (Response::failure(ERR_INVALIDFILEPATH, request.args[1], this->name, this->clients[fd]->getNickname()));
-	std::string fileName = request.args[1].substr(request.args[1].find_last_of('/') + 1);
+		return (Response::failure(ERR_INVALIDFILEPATH, filePath, this->name, this->clients[fd]->getNickname()));
+	std::string fileName = filePath.substr(filePath.find_last_of('/') + 1);
 
 	File file(fileName, channelName);
 	if (this->channels[channelName]->findFile(fileName))
@@ -319,8 +335,16 @@ std::string Server::topic(Request &request, int fd)
 std::string Server::sendPrivmsg(Request &request, int fd)
 {
 	size_t size = request.args.size();
-	if (size != 0 && isBot(request.args[0]))
-		return bot(request, fd);
+	if (size != 0) {
+		std::string bonusCommand = extractBonusCommand(request.args[0]);
+		if (bonusCommand == "BOT")
+			return bot(request, fd);
+		if (bonusCommand == "GETFILE")
+			return getFile(request, fd);
+		if (bonusCommand == "SENDFILE")
+			return sendFile(request, fd);
+	}
+
 	if (size < 2)
 		return Response::failure(ERR_NEEDMOREPARAMS, "PRIVMSG", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())

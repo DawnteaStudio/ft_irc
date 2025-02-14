@@ -120,10 +120,6 @@ void Server::execCmd(Request &msg, int fd) {
 		quit(msg, fd);
 	else if (command == "JOIN")
 		response = joinChannel(msg, fd);
-	else if (command == "GETFILE")
-		response = getFile(msg, fd);
-	else if (command == "SENDFILE")
-		response = sendFile(msg, fd);
 	else if (command == "PART")
 		response = partChannel(msg, fd);
 	else if (command == "KICK")

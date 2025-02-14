@@ -136,8 +136,6 @@ void Server::execCmd(Request &msg, int fd) {
 		response = inviteUser(msg, fd);
 	else if (command == "MODE")
 		response = setMode(msg, fd);
-	else if (command == "BOT")
-		response = bot(msg, fd);
 	else if (command == "PONG" || command == "CAP" || command == "WHO" || command == "WHOIS")
 		return;
 	else if (command == "PING")

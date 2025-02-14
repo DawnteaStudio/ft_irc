@@ -367,6 +367,15 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 	send(fd, response.c_str(), response.length(), 0);
 }
 
+bool Server::isBot(const std::string &str)
+{
+	if (str.empty() || str[0] != '!') return false;
+
+	std::string tmp = str.substr(1);
+	makeUpper(tmp);
+	return tmp == "BOT";
+}
+
 ErrorCode Server::privmsgToChannel(const std::string &channelName, const std::string &message, int fd)
 {
 	if (!isValidChannelName(channelName))

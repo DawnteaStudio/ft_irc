@@ -240,13 +240,13 @@ std::string Server::botIntro()
 
 	guide += "\n\n\n\n";
 	guide +=
-		"\tYOUR OPPONENT IS A BOT.\n"
-		"\tYOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.\n"
-		"\tYOU CAN CHOOSE BETWEEN ROCK, PAPER, SCISSORS.\n"
-		"\tYOU CAN ALSO USE \"HELP\" TO GET THIS MESSAGE.\n"
-		"\tYOUR INPUT SHOULD BE IN THE FORM OF \"BOT <CHOICE>\".\n"
-		"\tEXAMPLE: BOT ROCK\n"
-		"\n"
+		"    YOUR OPPONENT IS A BOT.\n"
+		"    YOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.\n"
+		"    YOU CAN CHOOSE BETWEEN ROCK, PAPER, SCISSORS.\n"
+		"    YOU CAN ALSO USE \"HELP\" TO GET THIS MESSAGE.\n"
+		"    YOUR INPUT SHOULD BE IN THE FORM OF \"BOT <CHOICE>\".\n"
+		"    EXAMPLE: BOT ROCK\n"
+		" \n"
 		"###########################################################\n"
 		"\n"
 		"    BOT ROCK          BOT SCISSORS           BOT PAPER\n"
@@ -256,16 +256,16 @@ std::string Server::botIntro()
 		"      (_____)            __________)               _______)\n"
 		"      (____)            (____)                    _______)\n"
 		"---.__(___)       ---.__(___)            ---.__________)\n"
-		"\n"
+		" \n"
 		"###########################################################\n"
-		"\n"
-		"\tYOU CAN ALSO USE THE FOLLOWING COMMANDS:\n"
-		"\tVIEW GUIDE AGAIN: BOT HELP\n"
-		"\tSTART THE GAME: BOT START\n"
-		"\tQUIT THE GAME: BOT QUIT\n"
-		"\tVIEW YOUR HIGH SCORE: BOT SCORE\n"
-		"\tVIEW RANKING: BOT RANK\n"
-		"\n";
+		" \n"
+		"    YOU CAN ALSO USE THE FOLLOWING COMMANDS:\n"
+		"    VIEW GUIDE AGAIN: BOT HELP\n"
+		"    START THE GAME: BOT START\n"
+		"    QUIT THE GAME: BOT QUIT\n"
+		"    VIEW YOUR HIGH SCORE: BOT SCORE\n"
+		"    VIEW RANKING: BOT RANK\n"
+		" \n";
 
 	guide += RESET;
 	return guide;
@@ -275,11 +275,12 @@ std::string Server::bot(Request &request, int fd)
 {
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
-	if (request.args.size() < 1)
-		return botIntro();
 
-	std::string cmd = request.args[0];
+	std::string cmd = request.args[1];
 	makeUpper(cmd);
+
+	std::cout << "success bot! " << cmd << std::endl; 
+
 	if (cmd == "HELP")
 		return botIntro();
 	else if (cmd == "START")

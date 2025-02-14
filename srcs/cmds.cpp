@@ -319,6 +319,8 @@ std::string Server::topic(Request &request, int fd)
 std::string Server::sendPrivmsg(Request &request, int fd)
 {
 	size_t size = request.args.size();
+	if (size != 0 && isBot(request.args[0]))
+		return bot(request, fd);
 	if (size < 2)
 		return Response::failure(ERR_NEEDMOREPARAMS, "PRIVMSG", this->name, this->clients[fd]->getNickname());
 	if (!this->clients[fd]->getIsRegistered())

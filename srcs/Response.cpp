@@ -36,7 +36,7 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		return res;
 	}
 	else if (num == RPL_CHANGEDNICK) {
-		res = ":" + clientNickname + " NICK :" + param + CRLF;
+		res = ":" + prefix + " NICK :" + param + CRLF;
 		return res;
 	}
 	else if (num == RPL_PONG) {

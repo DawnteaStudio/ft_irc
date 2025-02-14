@@ -80,7 +80,7 @@ bool Server::isCharString(const char &c) const
 
 bool Server::isValidChannelName(const std::string &name)
 {
-	if (name.length() < 2 || name.length() > 200)
+	if (name.length() < 1 || name.length() > 200)
 		return false;
 	if (name[0] != '#' && name[0] != '&')
 		return false;
@@ -104,8 +104,6 @@ Client * Server::getClientByNickname(const std::string &nickname)
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
 	if (this->channels.find(channelName) == this->channels.end()) {
-		if (channelName.length() < 2)
-			return ERR_NOSUCHCHANNEL;
 		if (this->clients[fd]->getChannels().size() >= 10)
 			return ERR_TOOMANYCHANNELS;
 		if (!isValidChannelName(channelName))
@@ -314,6 +312,30 @@ void Server::makeVector(std::string str, std::vector<std::string> &vec)
 	}
 	if (!str.empty())
 		vec.push_back(str);
+}
+
+void Server::makeChannelVector(std::string str, std::vector<std::string> &vec)
+{
+	std::string inputChannelName;
+	size_t len = str.length();
+	size_t pos;
+	size_t start = 0;
+
+	for (pos = 0; pos < len; pos++) {
+		if (str[pos] == ',') {
+			inputChannelName = str.substr(start, pos - start);
+			start = pos + 1;
+			if (inputChannelName.empty())
+				inputChannelName = "#";
+			if (find(vec.begin(), vec.end(), inputChannelName) == vec.end())
+				vec.push_back(inputChannelName);
+		}
+		else if (pos == len - 1) {
+			inputChannelName = str.substr(start, pos - start + 1);
+			if (find(vec.begin(), vec.end(), inputChannelName) == vec.end())
+				vec.push_back(inputChannelName);
+		}
+	}
 }
 
 void Server::channelInfo(const int &fd, const std::string &channelName)

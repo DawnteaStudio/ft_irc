@@ -50,6 +50,7 @@ class Server {
 		Server(const Server&);
 		Server &operator=(const Server&);
 		void makeVector(std::string, std::vector<std::string>&);
+		void makeChannelVector(std::string, std::vector<std::string>&);
 		void makeModeVector(std::string, std::vector<std::pair<char, std::string> >&);
 		void setSocket();
 		void setDownloadPath();

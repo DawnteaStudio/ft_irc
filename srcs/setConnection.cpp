@@ -74,21 +74,24 @@ void Server::connectClient(int fd) {
 	char buffer[BUFFER_SIZE];
 	memset(buffer, 0, sizeof(buffer));
 	ssize_t bytesReceived = recv(fd, buffer, sizeof(buffer), 0);
+	std::string tmpBuffer;
 	Request msg;
-
 	if (bytesReceived <= 0)
 		quit(fd);
 	else {
 		this->clients[fd]->appendBuffer(buffer);
-		std::string::size_type pos = this->clients[fd]->getBuffer().find("\r\n");
-		if (pos == std::string::npos)
-			return;
-		std::string message = this->clients[fd]->getBuffer().substr(0, pos);
-		if (message.length() > 510)
-			message = message.substr(0, 510);
-		this->clients[fd]->clearBuffer();
-		msg.parse(message);
-		this->execCmd(msg, fd);
+		tmpBuffer = this->clients[fd]->getBuffer();
+		while (tmpBuffer.find("\r\n") != std::string::npos) {
+			std::string::size_type pos = tmpBuffer.find("\r\n");
+			std::string message = tmpBuffer.substr(0, pos);
+			if (message.length() > 510)
+				message = message.substr(0, 510);
+			this->clients[fd]->setBuffer(tmpBuffer.substr(pos + 2));
+			tmpBuffer = this->clients[fd]->getBuffer();
+			msg.parse(message);
+			this->execCmd(msg, fd);
+			msg.args.clear();
+		}
 	}
 }
 

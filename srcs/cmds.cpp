@@ -32,7 +32,6 @@ std::string Server::setUserNickname(Request &request, int fd)
 			return Response::failure(ERR_NICKNAMEINUSE, inputNickname, this->name, nickname);
 		while (isUsedUserNickname(inputNickname))
 			inputNickname += "_";
-		this->clients[fd]->setIsFirstLogin(false);
 	}
 	if (this->clients[fd]->getIsValidPasswd()) {
 		if (nickname != "")
@@ -40,10 +39,14 @@ std::string Server::setUserNickname(Request &request, int fd)
 		this->clients[fd]->setNickname(inputNickname);
 		addNewUserNickname(inputNickname);
 	}
-	sendMsg = Response::success(RPL_WELCOME, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), this->clients[fd]->getRealName());
-	send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	if (this->clients[fd]->getIsFirstLogin()) {
+		this->clients[fd]->setIsFirstLogin(false);
+		sendMsg = Response::success(RPL_WELCOME, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), this->clients[fd]->getRealName());
+		send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	}
 	sendMsg = Response::success(RPL_CHANGEDNICK, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), inputNickname);
 	send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	this->clients[fd]->setPrefix();
 	return "";
 }
 
@@ -164,7 +167,7 @@ std::string Server::joinChannel(Request &request, int fd)
 	std::vector<std::string> channelName;
 	std::vector<std::string> keys;
 	std::string res;
-	makeVector(request.args[0], channelName);
+	makeChannelVector(request.args[0], channelName);
 	if (request.args.size() > 1)
 		makeVector(request.args[1], keys);
 	for (size_t i = 0; i < channelName.size(); i++) {
@@ -258,13 +261,15 @@ std::string Server::setMode(Request &request, int fd)
 	if (!this->clients[fd]->getIsRegistered())
 		return Response::failure(ERR_NOTREGISTERED, "", this->name, this->clients[fd]->getNickname());
 	std::string channelName = request.args[0];
+	if (channelName == this->clients[fd]->getNickname())
+		return "";
 	if (this->channels.find(channelName) == this->channels.end())
 		return Response::failure(ERR_NOSUCHCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (!this->channels[channelName]->isMember(fd))
 		return Response::failure(ERR_NOTONCHANNEL, channelName, this->name, this->clients[fd]->getNickname());
 	if (size == 1)
 		return modeInfo(this->channels[channelName], fd);
-	if (size == 2 && request.args[1] == "+b")
+	if (size == 2 && request.args[1] == "b")
 		return "";
 	if (!this->channels[channelName]->isOperator(fd))
 		return Response::failure(ERR_CHANOPRIVSNEEDED, channelName, this->name, this->clients[fd]->getNickname());
@@ -273,7 +278,8 @@ std::string Server::setMode(Request &request, int fd)
 	classifyMode(request, sendMsg, fd);
 	if (sendMsg.empty())
 		return "";
-	return Response::customMessageForMode(this->clients[fd]->getPrefix(), channelName, sendMsg);
+	broadcastChannel(channelName, Response::customMessageForMode(this->clients[fd]->getPrefix(), channelName, sendMsg));
+	return "";
 }
 
 std::string Server::topic(Request &request, int fd)

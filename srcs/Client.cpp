@@ -58,6 +58,8 @@ const int &Client::getPlayingScore() const { return this->playingScore; }
 
 void Client::appendBuffer(const std::string &newBuffer) { this->buffer += newBuffer; }
 
+void Client::setBuffer(const std::string &newBuffer) { this->buffer = newBuffer; }
+
 void Client::clearBuffer() { this->buffer.clear(); }
 
 void Client::addChannel(Channel *channel) { this->channels.push_back(channel); }

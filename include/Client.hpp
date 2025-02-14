@@ -43,6 +43,7 @@ class Client {
 		void setPlayingScore(int);
 		void takeScore(int);
 		void appendBuffer(const std::string&);
+		void setBuffer(const std::string&);
 		void clearBuffer();
 		void setIpAddr(const std::string&);
 		void addChannel(Channel *);

@@ -4,7 +4,6 @@
 
 std::string Server::setPassword(Request &request, int fd)
 {
-	// 순서가 항상 pass -> nick -> user 로 고정이여야만 하는 지 확인해야함
 	if (request.args.size() < 1)
 		return Response::failure(ERR_NEEDMOREPARAMS, "PASS", this->name, this->clients[fd]->getNickname());
 	if (this->clients[fd]->getIsRegistered())
@@ -63,7 +62,6 @@ std::string Server::setUser(Request &request, int fd)
 	return "";
 }
 
-//getPrefix() 대신 this->name 사용
 std::string Server::getFile(Request &request, int fd)
 {
 	if (request.args.size() < 2)
@@ -84,7 +82,9 @@ std::string Server::getFile(Request &request, int fd)
 		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
 	ofs << file.getFileContent();
 	ofs.close();
-	return Response::success(RPL_FILEDELIVERED, channelName, this->name, this->clients[fd]->getNickname(), fileName);
+	if (privmsgToUser(this->clients[fd]->getNickname(), "File " + fileName + " has been downloaded", fd) != ERR_NONE)
+		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
+	return "";
 }
 
 std::string Server::sendFile(Request &request, int fd)
@@ -109,7 +109,9 @@ std::string Server::sendFile(Request &request, int fd)
 	std::string content((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 	this->channels[channelName]->addFile(fileName, content);
 	ifs.close();
-	return Response::success(RPL_FILESENT, channelName, this->name, this->clients[fd]->getNickname(), fileName);
+	if (privmsgToUser(this->clients[fd]->getNickname(), "File " + fileName + " has been uploaded", fd) != ERR_NONE)
+		return (Response::failure(ERR_FILEERROR, fileName, this->name, this->clients[fd]->getNickname()));
+	return "";
 }
 
 std::string Server::quit(Request &request, int fd)
@@ -125,9 +127,11 @@ std::string Server::quit(Request &request, int fd)
 		}
 	}
 
-	std::cout << "test" << std::endl;
-	std::string user = this->clients[fd]->getPrefix().substr(this->clients[fd]->getNickname().size() + 1);
-	std::cout << "test done" << std::endl;
+	std::string user;
+	if (this->clients[fd]->getIsRegistered())
+		user = this->clients[fd]->getPrefix().substr(this->clients[fd]->getNickname().size() + 1);
+	else
+		user = this->clients[fd]->getIpAddr();
 	std::string res = Response::customErrorMessageForQuit(user, reason);
 	send(fd, res.c_str(), res.length(), 0);
 
@@ -237,15 +241,12 @@ std::string Server::inviteUser(Request &request, int fd)
 	if (this->channels[channelName]->isMember(invitedFd))
 		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
 	this->clients[invitedFd]->addInvitedChannel(channelName);
-
+	// this->channels[channelName]->addInvitedClient(invitedFd);
 	std::string response = Response::customMessageForInvite(this->clients[fd]->getPrefix(), channelName, invitedNickname);
 	send(invitedFd, response.c_str(), response.length(), 0);
 	return Response::success(RPL_INVITING, channelName, this->name, this->clients[fd]->getNickname(), invitedNickname);
 }
 
-//mode #1 +k+t-t aaa bcd <seg>
-//mode 전부 실패했을 시, 성공 sendMsg 보내면 안됨
-//mode #1 -k aaa <seg>
 std::string Server::setMode(Request &request, int fd)
 {
 	size_t size = request.args.size();
@@ -265,6 +266,8 @@ std::string Server::setMode(Request &request, int fd)
 	
 	std::string sendMsg;
 	classifyMode(request, sendMsg, fd);
+	if (sendMsg.empty())
+		return "";
 	return Response::customMessageForMode(this->clients[fd]->getPrefix(), channelName, sendMsg);
 }
 

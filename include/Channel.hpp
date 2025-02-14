@@ -53,7 +53,7 @@ class Channel {
 		std::map<std::string, File> getFiles() const;
 		bool findFile(const std::string&);
 		std::vector<int> getInvitedClients() const;
-		std::vector<char> getModes() const;
+		std::vector<char> getModeVector() const;
 		std::vector<std::pair<char, std::string> > getModeParams() const;
 		void setKey(const std::string&);
 		void setTopic(const std::string&);
@@ -62,5 +62,6 @@ class Channel {
 		void setIsTopicChangeByOperatorOnly(const bool);
 		void setIsKeyRequired(const bool);
 		void setIsLimit(const bool);
+		void setModeVector(const std::vector<char>&);
 };
 #endif

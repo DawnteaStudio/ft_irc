@@ -96,7 +96,7 @@ bool Channel::findFile(const std::string &fileName)
 
 std::vector<int> Channel::getInvitedClients() const { return this->invitedClients; }
 
-std::vector<char> Channel::getModes() const { return this->modes; }
+std::vector<char> Channel::getModeVector() const { return this->modes; }
 
 std::vector<std::pair<char, std::string> > Channel::getModeParams() const { return this->modeParams; }
 
@@ -125,3 +125,5 @@ void Channel::setIsTopicChangeByOperatorOnly(const bool isTopicChangeByOperatorO
 void Channel::setIsKeyRequired(const bool isKeyRequired) { this->isKeyRequired = isKeyRequired; }
 
 void Channel::setIsLimit(const bool isLimit) { this->isLimit = isLimit; }
+
+void Channel::setModeVector(const std::vector<char> &modes) { this->modes = modes; }

@@ -104,7 +104,6 @@ Client * Server::getClientByNickname(const std::string &nickname)
 ErrorCode Server::join(const std::string &channelName, const std::string &key, int fd)
 {
 	if (this->channels.find(channelName) == this->channels.end()) {
-		std::cout << "First join" << std::endl;
 		if (channelName.length() < 2)
 			return ERR_NOSUCHCHANNEL;
 		if (this->clients[fd]->getChannels().size() >= 10)
@@ -185,10 +184,10 @@ ErrorCode Server::kick(const std::string &channelName, const std::string &nickna
 	int kickFd = kickClient->getClientFd();
 	if (channel->isOperator(kickFd))
 		channel->removeOperator(kickFd);
-	channel->removeMember(kickFd);
-	this->clients[kickFd]->removeChannel(channel);
 
 	broadcastChannel(channelName, Response::customMessageForKick(this->clients[fd]->getPrefix(), channelName, nickname, reason));
+	channel->removeMember(kickFd);
+	this->clients[kickFd]->removeChannel(channel);
 	return ERR_NONE;
 }
 
@@ -196,9 +195,10 @@ std::string Server::modeInfo(Channel *channel, int fd)
 {
 	std::string modes = "+";
 	std::string params;
-	std::vector<char> modeVector = channel->getModes();
+	std::vector<char> modeVector = channel->getModeVector();
 	std::vector<std::pair<char, std::string> > modeParams = channel->getModeParams();
 	int modeSize = modeVector.size();
+	std::cout << "modeSize: " << modeSize << std::endl;
 	int paramSize = modeParams.size();
 	for (int i = 0; i < modeSize; i++)
 		modes += modeVector[i];
@@ -223,7 +223,6 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 	std::vector<std::string> params(request.args.begin() + 2, request.args.end());
 	makeModeVector(request.args[1], modes);
 
-	std::cout << "check\n" << std::endl;
 	size_t size = modes.size();
 	std::string res;
 	std::vector<std::string> sendingParams;
@@ -251,16 +250,21 @@ void Server::classifyMode(Request &request, std::string &sendMsg, int fd)
 			err = mode(ChannelName, modes[i], "");
 			if (err != ERR_NONE)
 				sendError(err, modes[i].second, fd);
-		} 
+		}
+
 		if (err == ERR_NONE) {
 			if (sign != modes[i].first) {
 				sign = modes[i].first;
 				sendMsg += sign;
 			}
+			else if (sendMsg == "")
+				sendMsg += "+";
 			sendMsg += modes[i].second;
 		}
 	}
 
+	if (sendMsg == "")
+		return;
 	size_t sendingSize = sendingParams.size();
 	if (sendingSize != 0)
 		sendMsg += " ";
@@ -320,29 +324,25 @@ void Server::channelInfo(const int &fd, const std::string &channelName)
 	std::string prefix = this->clients[fd]->getPrefix();
 	std::string nickname = this->clients[fd]->getNickname();
 
-	// topic 
+	// topic
 	std::string topic = channel->getTopic();
 	if (!topic.empty()) {
-		response = Response::success(RPL_TOPIC, channelName, prefix, nickname, topic);
+		response = Response::success(RPL_TOPIC, channelName, "irc.local", nickname, topic);
 		send(fd, response.c_str(), response.length(), 0);
 	}
-
 	// name list
 	std::string nameList;
 	std::map<int, Client *> members = channel->getMembers();
 	std::map<int, Client *>::iterator iter = members.begin();
 	for (; iter != members.end(); iter++) {
 		if (channel->isOperator(iter->first)) {
-			std::cout << "operator" << std::endl;
 			nameList += "@";
 		}
 		nameList += iter->second->getNickname() + " ";
 	}
-	nameList.erase(nameList.size() - 1, 1);
-	response = Response::success(RPL_NAMREPLY, channelName, prefix, nickname, nameList);
+	response = Response::success(RPL_NAMREPLY, channelName, "irc.local", nickname, nameList);
 	send(fd, response.c_str(), response.length(), 0);
-
-	response = Response::success(RPL_ENDOFNAMES, channelName, prefix, nickname, "");
+	response = Response::success(RPL_ENDOFNAMES, channelName, "irc.local", nickname, "");
 	send(fd, response.c_str(), response.length(), 0);
 }
 

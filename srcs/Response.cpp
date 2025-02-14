@@ -22,19 +22,15 @@ std::string Response::success(const int &num, const std::string &channelName, co
 	if (num == RPL_NOTOPIC)
 		res = channelName + " :No topic is set";
 	else if (num == RPL_TOPIC)
-		res = channelName + " :" + param;
+		return customMessageForChannelTopic(num, channelName, clientNickname, param);
 	else if (num == RPL_NAMREPLY)
-		res = channelName + " :" + param;
+		return customMessageForNamelist(num, channelName, clientNickname, param);
 	else if (num == RPL_ENDOFNAMES)
-		res = channelName + " :End of /NAMES list";
+		return customMessageForEndOfName(num, channelName, clientNickname);
 	else if (num == RPL_INVITING)
 		res = channelName + " " + param;
 	else if (num == RPL_CHANNELMODEIS)
 		res = channelName + " " + param;
-	else if (num == RPL_FILESENT)
-		res = channelName + " :" + param + " has been sent";
-	else if (num == RPL_FILEDELIVERED)
-		res = channelName + " :" + param + " has been delivered";
 	else if (num == RPL_WELCOME) {
 		res = ": 001 " + clientNickname + " : Welcome to ft_irc SERVER!" + CRLF;
 		return res;
@@ -118,6 +114,28 @@ std::string Response::customMessageForJoin(const std::string &prefix, const std:
 	return ":" + prefix + " JOIN :" + channelName + CRLF;
 }
 
+// ":irc.localhost 353 " + nickname + " = " + channelName + " :" + nameList + CRLF;
+std::string Response::customMessageForChannelTopic(const int &num, const std::string &channelName, const std::string &nickname, const std::string &topic)
+{
+	std::ostringstream oss;
+	oss << num;
+	return ":irc.local " + oss.str() + nickname + " " + channelName + " :" + topic + CRLF;
+}
+
+std::string Response::customMessageForNamelist(const int &num, const std::string &channelName, const std::string &nickname, const std::string &nameList)
+{
+	std::ostringstream oss;
+	oss << num;
+	return ":irc.local " + oss.str() + " " + nickname + " = " + channelName + " :" + nameList + CRLF;
+}
+
+std::string Response::customMessageForEndOfName(const int &num, const std::string &channelName, const std::string &nickname)
+{
+	std::ostringstream oss;
+	oss << num;
+	return ":irc.local " + oss.str() + " " + nickname + " " + channelName + " " + "End of /NAMES list." + CRLF;
+}
+
 std::string Response::customMessageForKick(const std::string &prefix, const std::string &channelName, const std::string &target, const std::string &reason)
 {
 	return ":" + prefix + " KICK " + channelName + " " + target + " :" + reason + CRLF;
@@ -140,7 +158,6 @@ std::string Response::customErrorMessageForQuit(const std::string &user, const s
 
 std::string Response::customMessageForPrivmsg(const std::string &prefix, const std::string &target, const std::string &message)
 {
-	//target 이 두번 전송되는 것이 맞는지 확인 필요, 이 버전에서는 수정하겠음
 	return ":" + prefix + " PRIVMSG " + target + " :" + message + CRLF;
 }
 

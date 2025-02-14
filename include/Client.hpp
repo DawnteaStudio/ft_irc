@@ -60,6 +60,7 @@ class Client {
 		bool getGameMode() const;
 		bool getIsFirstLogin() const;
 		const std::string &getPrefix() const;
+		const std::string &getIpAddr() const;
 		const int &getClientFd() const;
 		const int &getHp() const;
 		const int &getHighScore() const;

@@ -62,10 +62,14 @@ ErrorCode Server::modeL(const std::string &channelName, const std::string &param
 void Server::updateModes(bool isAdd, char mode, Channel *channel, const std::string &param)
 {
 	int paramSize = channel->getModeParams().size();
+	std::vector<char> modes = channel->getModeVector();
 
 	if (isAdd) {
-		if (find(channel->getModes().begin(), channel->getModes().end(), mode) == channel->getModes().end())
-			channel->getModes().push_back(mode);
+		if (find(modes.begin(), modes.end(), mode) == modes.end()) {
+			modes.push_back(mode);
+			channel->setModeVector(modes);
+		}
+
 		if (param != "") {
 			for (int i = 0; i < paramSize; i++) {
 				if (channel->getModeParams()[i].first == mode) {
@@ -76,7 +80,9 @@ void Server::updateModes(bool isAdd, char mode, Channel *channel, const std::str
 		}
 	}
 	else {
-		channel->getModes().erase(remove(channel->getModes().begin(), channel->getModes().end(), mode), channel->getModes().end());
+		if (find(modes.begin(), modes.end(), mode) != modes.end())
+			modes.erase(find(modes.begin(), modes.end(), mode));
+		channel->setModeVector(modes);
 		for (int i = 0; i < paramSize; i++) {
 			if (channel->getModeParams()[i].first == mode) {
 				channel->getModeParams().erase(channel->getModeParams().begin() + i);
@@ -91,6 +97,7 @@ ErrorCode Server::mode(const std::string &channelName, const std::pair<char, std
 	ErrorCode err = ERR_NONE;
 	Channel *channel = this->channels[channelName];
 	bool isAdd = mode.first == '+';
+
 	switch (mode.second[0]) {
 		case 'i':
 			channel->setIsInviteOnly(isAdd);

@@ -53,7 +53,7 @@ void Server::addClient()
 
 	char clientIP[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET, &clientAddr.sin_addr, clientIP, sizeof(clientIP));
-	std::cout << "New client connected: " << clientIP << ":" << ntohs(clientAddr.sin_port) << std::endl;
+	std::cout << GREEN << "Client <" << clientFd << "> Connected" << WHITE << std::endl;
 
 	new_poll.fd = clientFd;
 	new_poll.events = POLLIN;
@@ -61,7 +61,6 @@ void Server::addClient()
 	this->pfd.push_back(new_poll);
 	this->clients.insert(std::pair<int, Client *>(clientFd, new Client(clientFd)));
 	this->clients[clientFd]->setIpAddr(clientIP);
-	std::cout << GREEN << "Client <" << clientFd << "> Connected" << WHITE << std::endl;
 }
 
 void Server::connectClient(int fd) {

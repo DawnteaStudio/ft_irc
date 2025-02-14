@@ -19,6 +19,9 @@ class Response {
 		static std::string success(const int&, const std::string&, const std::string&, const std::string&, const std::string&);
 		static std::string failure(const int&, const std::string&, const std::string&, const std::string&);
 		static std::string customMessageForJoin(const std::string&, const std::string&);
+		static std::string customMessageForNamelist(const int&, const std::string&, const std::string&, const std::string&);
+		static std::string customMessageForEndOfName(const int&, const std::string&, const std::string&);
+		static std::string customMessageForChannelTopic(const int&, const std::string&, const std::string&, const std::string&);
 		static std::string customMessageForKick(const std::string&, const std::string&, const std::string&, const std::string&);
 		static std::string customMessageForPart(const std::string&, const std::string&);
 		static std::string customMessageForQuit(const std::string&, const std::string&);

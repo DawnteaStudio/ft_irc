@@ -97,6 +97,8 @@ const std::string &Client::getBuffer() const { return this->buffer; }
 
 const std::string &Client::getPrefix() const { return this->prefix; }
 
+const std::string &Client::getIpAddr() const { return this->ipAddr; }
+
 std::vector<Channel *> Client::getChannels() const { return (this->channels); }
 
 void Client::damageHp(int damage)

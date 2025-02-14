@@ -241,7 +241,7 @@ std::string Server::inviteUser(Request &request, int fd)
 	if (this->channels[channelName]->isMember(invitedFd))
 		return Response::failure(ERR_USERONCHANNEL, invitedNickname, this->name, this->clients[fd]->getNickname());
 	this->clients[invitedFd]->addInvitedChannel(channelName);
-	// this->channels[channelName]->addInvitedClient(invitedFd);
+	this->channels[channelName]->addInvitedClient(invitedFd);
 	std::string response = Response::customMessageForInvite(this->clients[fd]->getPrefix(), channelName, invitedNickname);
 	send(invitedFd, response.c_str(), response.length(), 0);
 	return Response::success(RPL_INVITING, channelName, this->name, this->clients[fd]->getNickname(), invitedNickname);

@@ -1,6 +1,6 @@
 #include "../include/Server.hpp"
 
-ErrorCode Server::modeO(const std::string &channelName, const std::string &param, bool isAdd)
+ErrorCode Server::modeO(const std::string &channelName, std::string &param, bool isAdd)
 {
 	if (param == "")
 		return ERR_NEEDMOREPARAMS;
@@ -16,7 +16,7 @@ ErrorCode Server::modeO(const std::string &channelName, const std::string &param
 	return ERR_NONE;
 }
 
-ErrorCode Server::modeK(const std::string &channelName, const std::string &param, bool isAdd)
+ErrorCode Server::modeK(const std::string &channelName, std::string &param, bool isAdd)
 {
 	if (param == "")
 		return ERR_NEEDMOREPARAMS;
@@ -36,7 +36,7 @@ ErrorCode Server::modeK(const std::string &channelName, const std::string &param
 	return ERR_NONE;
 }
 
-ErrorCode Server::modeL(const std::string &channelName, const std::string &param, bool isAdd)
+ErrorCode Server::modeL(const std::string &channelName, std::string &param, bool isAdd)
 {
 	Channel *channel = this->channels[channelName];
 
@@ -53,9 +53,11 @@ ErrorCode Server::modeL(const std::string &channelName, const std::string &param
 		limit = 0;
 	if (limit < 0)
 		limit = 0;
-
 	if (isAdd)
 		channel->setLimit(limit);
+	if (limit == 0)
+		param = "0";
+	channel->setIsLimit(isAdd);
 	return ERR_NONE;
 }
 
@@ -92,7 +94,7 @@ void Server::updateModes(bool isAdd, char mode, Channel *channel, const std::str
 	}
 }
 
-ErrorCode Server::mode(const std::string &channelName, const std::pair<char, std::string> &mode, const std::string &param)
+ErrorCode Server::mode(const std::string &channelName, const std::pair<char, std::string> &mode, std::string &param)
 {
 	ErrorCode err = ERR_NONE;
 	Channel *channel = this->channels[channelName];

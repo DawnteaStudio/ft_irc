@@ -38,12 +38,13 @@ void Server::setDownloadPath()
 	if (path == NULL)
 		throw std::runtime_error("getenv() error!");
 	this->downloadPath = path;
-	this->downloadPath += "/Downloads/";
+	this->downloadPath += "/Downloads";
 
-	if (stat(downloadPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
+	if (stat(this->downloadPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))
 		return;
-	if (mkdir(downloadPath.c_str(), 0777) == -1)
-		throw std::runtime_error("mkdir() error!");
+	while (mkdir(this->downloadPath.c_str(), 0777) == -1) {
+		this->downloadPath += "_";
+	}
 }
 
 void Server::addClient()

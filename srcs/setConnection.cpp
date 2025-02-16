@@ -45,6 +45,7 @@ void Server::setDownloadPath()
 	while (mkdir(this->downloadPath.c_str(), 0777) == -1) {
 		this->downloadPath += "_";
 	}
+	this->downloadPath += "/";
 }
 
 void Server::addClient()

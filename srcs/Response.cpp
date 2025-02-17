@@ -32,7 +32,7 @@ std::string Response::success(const int &num, const std::string &channelName, co
 	else if (num == RPL_CHANNELMODEIS)
 		res = channelName + " " + param;
 	else if (num == RPL_WELCOME) {
-		res = ": 001 " + clientNickname + " : Welcome to ft_irc SERVER!" + CRLF;
+		res = ":" + prefix + " 001 " + clientNickname + " :Welcome to ft_irc SERVER!" + CRLF;
 		return res;
 	}
 	else if (num == RPL_CHANGEDNICK) {
@@ -43,6 +43,8 @@ std::string Response::success(const int &num, const std::string &channelName, co
 		res = ":" + channelName + " PONG " + param + " :" + channelName + CRLF;
 		return res;
 	}
+	else if (num == RPL_INFO)
+		res = param;
 	return createMessage(num, res, prefix, clientNickname);
 }
 

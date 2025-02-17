@@ -162,18 +162,16 @@ std::string Server::botRank(int fd)
 	rankArt.push_back("[4TH]");
 	rankArt.push_back("[5TH]");
 
-	for (size_t i = 0; i < rank.size(); i++) {
-		if (rank[i].first == 0 || i == 5)
+	for (size_t i = 0; i < 5; i++) {
+		if (rank[i].first == 0)
 			break;
 
 		rankScore << rank[i].first;
-		if (i == 0)
-			art += rankArt[0] + "." + rank[i].second + " : " + rankScore.str() + "\n";
-		else if (rank[i].first == rank[i - 1].first)
+		if (i > 0 && rank[i].first == rank[i - 1].first)
 			art += rankArt[sameRank] + "." + rank[i].second + " : " + rankScore.str() + "\n";
 		else {
-			sameRank = i + 1;
-			art += rankArt[sameRank] + "." + rank[i].second + " : " + rankScore.str() + "\n";
+			sameRank = i;
+			art += rankArt[i] + "." + rank[i].second + " : " + rankScore.str() + "\n";
 		}
 		rankScore.str("");
 	}
@@ -238,7 +236,7 @@ std::string Server::botIntro()
 {
 	std::string guide = BLUE;
 
-	guide += "\n\n\n\n";
+	guide += " \n\n\n\n";
 	guide +=
 		"    YOUR OPPONENT IS A BOT.\n"
 		"    YOU CAN PLAY ROCK PAPER SCISSORS WITH THE BOT.\n"

@@ -11,6 +11,7 @@ enum ResposeCode {
 	RPL_INVITING = 341,
 	RPL_NAMREPLY = 353,
 	RPL_ENDOFNAMES = 366,
+	RPL_INFO = 371
 };
 
 #endif

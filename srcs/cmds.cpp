@@ -33,19 +33,25 @@ std::string Server::setUserNickname(Request &request, int fd)
 		while (isUsedUserNickname(inputNickname))
 			inputNickname += "_";
 	}
-	if (this->clients[fd]->getIsValidPasswd()) {
-		if (nickname != "")
-			deleteUserNickname(nickname);
-		this->clients[fd]->setNickname(inputNickname);
-		addNewUserNickname(inputNickname);
-	}
+	if (!this->clients[fd]->getIsValidPasswd()) return "";
+	
+	if (nickname != "")
+		deleteUserNickname(nickname);
+	this->clients[fd]->setNickname(inputNickname);
+	addNewUserNickname(inputNickname);
+
 	if (this->clients[fd]->getIsFirstLogin()) {
 		this->clients[fd]->setIsFirstLogin(false);
-		sendMsg = Response::success(RPL_WELCOME, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), this->clients[fd]->getRealName());
+		// "root_!root@127.0.0.1"
+		sendMsg = Response::success(RPL_WELCOME, "", this->name, this->clients[fd]->getNickname(), "");
+		send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+		sendMsg = Response::success(RPL_CHANGEDNICK, this->name, inputNickname + "!*@127.0.0.1", this->clients[fd]->getNickname(), inputNickname);
 		send(fd, sendMsg.c_str(), sendMsg.length(), 0);
 	}
-	sendMsg = Response::success(RPL_CHANGEDNICK, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), inputNickname);
-	send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	else {
+		sendMsg = Response::success(RPL_CHANGEDNICK, this->name, this->clients[fd]->getPrefix(), this->clients[fd]->getNickname(), inputNickname);
+		send(fd, sendMsg.c_str(), sendMsg.length(), 0);
+	}
 	this->clients[fd]->setPrefix();
 	return "";
 }
@@ -338,7 +344,7 @@ std::string Server::sendPrivmsg(Request &request, int fd)
 	if (size != 0) {
 		std::string bonusCommand = extractBonusCommand(request.args[0]);
 		if (bonusCommand == "BOT")
-			return bot(request, fd);
+			return Response::success(RPL_INFO, "", this->name, this->clients[fd]->getNickname(), bot(request, fd));
 		if (bonusCommand == "GETFILE")
 			return getFile(request, fd);
 		if (bonusCommand == "SENDFILE")

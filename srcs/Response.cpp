@@ -72,25 +72,25 @@ std::string Response::failure(const int &num, const std::string &param, const st
 		res = ":You are not in game";
 	else if (num == ERR_ALREADYINGAME)
 		res = ":You are already in game";
-	else if (num == ERR_NOSUCHCHANNEL) //no such channel error 추가
+	else if (num == ERR_NOSUCHCHANNEL)
 		res = param + " :No such channel";
-	else if (num == ERR_NOTONCHANNEL) //not on channel error 추가
+	else if (num == ERR_NOTONCHANNEL)
 		res = param + " :You're not on that channel";
-	else if (num == ERR_CHANOPRIVSNEEDED) //channel operator privileges needed error 추가
+	else if (num == ERR_CHANOPRIVSNEEDED)
 		res = param + " :You're not a channel operator";
-	else if (num == ERR_UNKNOWNMODE) //unknown mode error 추가
+	else if (num == ERR_UNKNOWNMODE)
 		res = param + " :Unknown mode";
-	else if (num == ERR_INVITEONLYCHAN) //invite only channel error 추가
+	else if (num == ERR_INVITEONLYCHAN)
 		res = param + " :Invite only channel";
-	else if (num == ERR_BADCHANNELKEY) //bad channel key error 추가
+	else if (num == ERR_BADCHANNELKEY)
 		res = param + " :Bad channel key";
-	else if (num == ERR_BADCHANNAME) //bad channel name error 추가
+	else if (num == ERR_BADCHANNAME)
 		res = param + " :Bad channel name";
-	else if (num == ERR_INVALIDFILEPATH) //invalid file path error 추가
+	else if (num == ERR_INVALIDFILEPATH)
 		res = param + " :Invalid file path";
-	else if (num == ERR_TOOMANYCHANNELS) //too many channels error 추가
+	else if (num == ERR_TOOMANYCHANNELS)
 		res = param + " :Too many channels";
-	else if (num == ERR_USERONCHANNEL) //user on channel error 추가
+	else if (num == ERR_USERONCHANNEL)
 		res = param + " :User on channel";
 	else if (num == ERR_NOSUCHNICK)
 		res = param + " :No such nick";
@@ -120,12 +120,11 @@ std::string Response::customMessageForJoin(const std::string &prefix, const std:
 	return ":" + prefix + " JOIN :" + channelName + CRLF;
 }
 
-// ":irc.localhost 353 " + nickname + " = " + channelName + " :" + nameList + CRLF;
 std::string Response::customMessageForChannelTopic(const int &num, const std::string &prefix, const std::string &channelName, const std::string &nickname, const std::string &topic)
 {
 	std::ostringstream oss;
 	oss << num;
-	return ":" + prefix + " " + oss.str() + nickname + " " + channelName + " :" + topic + CRLF;
+	return ":" + prefix + " " + oss.str() + " " + nickname + " " + channelName + " :" + topic + CRLF;
 }
 
 std::string Response::customMessageForNamelist(const int &num, const std::string &prefix, const std::string &channelName, const std::string &nickname, const std::string &nameList)

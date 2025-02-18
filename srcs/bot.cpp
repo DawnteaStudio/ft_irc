@@ -103,7 +103,8 @@ std::string Server::botStart(int fd)
 		"      (_____)               ______)                ______)\n"
 		"      (_____)            __________)               _______)\n"
 		"      (____)            (____)                    _______)\n"
-		"---.__(___)       ---.__(___)            ---.__________) \n";
+		"---.__(___)       ---.__(___)            ---.__________) \n"
+		" \n";
 
 	this->clients[fd]->setGameMode(true);
 	this->clients[fd]->setPlayingScore(0);
@@ -153,6 +154,11 @@ std::string Server::botRank(int fd)
 		rank.push_back(std::make_pair(it->second->getHighScore(), it->second->getNickname()));
 	std::sort(rank.begin(), rank.end(), std::greater<std::pair<int, std::string> >());
 
+	std::cout << "===============\n";
+	for (std::vector<std::pair<int, std::string> >::iterator iter = rank.begin(); iter != rank.end(); iter++)
+		std::cout << "[client] " << iter->second << " " << "score :" << iter->first << '\n';
+	std::cout << "===============\n";
+
 	int sameRank = 0;
 	std::ostringstream rankScore;
 	std::vector<std::string> rankArt;
@@ -162,8 +168,8 @@ std::string Server::botRank(int fd)
 	rankArt.push_back("[4TH]");
 	rankArt.push_back("[5TH]");
 
-	for (size_t i = 0; i < 5; i++) {
-		if (rank[i].first == 0)
+	for (size_t i = 0; i < rank.size(); i++) {
+		if (rank[i].first == 0 || i == 5)
 			break;
 
 		rankScore << rank[i].first;

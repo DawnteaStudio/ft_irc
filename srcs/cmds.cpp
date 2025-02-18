@@ -42,7 +42,6 @@ std::string Server::setUserNickname(Request &request, int fd)
 
 	if (this->clients[fd]->getIsFirstLogin()) {
 		this->clients[fd]->setIsFirstLogin(false);
-		// "root_!root@127.0.0.1"
 		sendMsg = Response::success(RPL_WELCOME, "", this->name, this->clients[fd]->getNickname(), "");
 		send(fd, sendMsg.c_str(), sendMsg.length(), 0);
 		sendMsg = Response::success(RPL_CHANGEDNICK, this->name, inputNickname + "!*@127.0.0.1", this->clients[fd]->getNickname(), inputNickname);
